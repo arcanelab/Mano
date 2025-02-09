@@ -15,7 +15,7 @@ The core primitive types are:
 
 ### Variable Declaration
 
-Variables are declared with the ```var``` keyword and a type annotation. Literal values are assigned using the ```=``` operator. Note that numeric literals are non-negative by default; to represent a negative number, apply the unary minus operator.
+Variables are declared with the `var` keyword and a type annotation. Literal values are assigned using the `=` operator. Note that numeric literals are non-negative by default; to represent a negative number, apply the unary minus operator.
 
 **Examples:**
 
@@ -35,17 +35,36 @@ Automatic conversion between types (e.g., from int to float) is not supported. I
 
 ---
 
-## 2. Operators
+## 2. Arrays
+
+Arrays allow you to store multiple values of the same type. They have the following characteristics:
+
+- **Homogeneity:** All elements in an array must be of the same type.  
+- **Declaration and Initialization:** Arrays are declared with a square-bracket type annotation. For example, 
+```
+var numbers: [int] = [1, 3, 5, 7, 9];
+```
+- **Dynamic Sizing:** When declared with `var`, arrays are dynamic in size.  
+- **Immutability with Constants:** When declared with `let`, arrays are fixed in size and cannot be modified after initialization.  
+- **Indexing:** Elements are accessed using square brackets with 0-based indexing. For example:  
+```
+var third: int = numbers[2];
+```  
+- **Mutability:** Arrays declared with `var` are mutable; their elements can be updated. Arrays declared with `let` are immutable.
+
+---
+
+## 3. Operators
 
 The following operators are supported:
 
 ### Arithmetic Operators
 
-- **Addition:** ```+```
-- **Subtraction:** ```-```
-- **Multiplication:** ```*```
-- **Division:** ```/```
-- **Modulo:** ```%``` (applicable only to integer types)
+- **Addition:** `+`
+- **Subtraction:** `-`
+- **Multiplication:** `*`
+- **Division:** `/`
+- **Modulo:** `%` (applicable only to integer types)
 
 **Precedence and Associativity:**
 
@@ -62,10 +81,10 @@ var result: int = a - b - 2;  // Interpreted as ((10 - 3) - 2)
 
 ### Unary Operators
 
-- **Unary Negative (```-```):** Negates its operand.  
-- **Logical Not (```!```):** Applies Boolean negation.
+- **Unary Negative (`-`):** Negates its operand.  
+- **Logical Not (`!`):** Applies Boolean negation.
 
-The unary ```-``` has a higher precedence than multiplication. For instance:
+The unary `-` has a higher precedence than multiplication. For instance:
 
 ```
 var value: int = 5;
@@ -74,22 +93,22 @@ var negated: int = -value * 2;  // Evaluates as (-value) * 2, not -(value * 2)
 
 ### Boolean Operators
 
-- **Logical AND:** ```&&```
-- **Logical OR:** ```||```
+- **Logical AND:** `&&`
+- **Logical OR:** `||`
 
-For ```&&``` and ```||```, evaluation is short-circuited; the right-hand side is only evaluated if required by the left-hand operand. They are left-associative.
+For `&&` and `||`, evaluation is short-circuited; the right-hand side is only evaluated if required by the left-hand operand. They are left-associative.
 
 ### Assignment and Comparison
 
-- **Assignment:** ```=``` (right-associative; e.g., ```a = b = c``` means ```a = (b = c)```)
-- **Equality Comparison:** ```==```
-- **Inequality Comparison:** ```!=```
+- **Assignment:** `=` (right-associative; e.g., `a = b = c` means `a = (b = c)`)
+- **Equality Comparison:** `==`
+- **Inequality Comparison:** `!=`
 
-Chained comparisons like ```a == b == c``` are not supported; use explicit grouping with parentheses if needed.
+Chained comparisons like `a == b == c` are not supported; use explicit grouping with parentheses if needed.
 
 ---
 
-## 3. Functions
+## 4. Functions
 
 Functions in Mano have a C-like syntax with named parameters and an optional return type. Parameters for primitive types are passed by value, while class objects (instances) are passed by reference.
 
@@ -120,7 +139,7 @@ fun SimpleFunction()
 
 ---
 
-## 4. Classes
+## 5. Classes
 
 Classes encapsulate properties (state) and methods (behavior). Objects are always instantiated on the heap and handled as reference types.
 
@@ -162,11 +181,11 @@ Since objects are passed by reference, when an instance is passed to a function 
 
 ---
 
-## 5. Control Flow
+## 6. Control Flow
 
-### 5.1 Conditionals
+### 6.1 Conditionals
 
-Conditional constructs utilize ```if``` and ```else``` blocks. In this example, we check voting and driving license eligibility while avoiding the use of "else if" syntax:
+Conditional constructs utilize `if` and `else` blocks. In this example, we check voting and driving license eligibility while avoiding the use of "else if" syntax:
 
 ```
 fun CheckEligibility(age: uint) : string
@@ -191,9 +210,9 @@ fun CheckEligibility(age: uint) : string
 }
 ```
 
-### 5.2 For Loop
+### 6.2 For Loop
 
-The ```for``` loop consists of three expressions (initialization, condition, and iteration) separated by semicolons within parentheses.
+The `for` loop consists of three expressions (initialization, condition, and iteration) separated by semicolons within parentheses.
 
 **Example:**
 
@@ -216,9 +235,9 @@ for (var i: uint = 0; i < 10; i = i + 1)
 }
 ```
 
-### 5.3 While Loop
+### 6.3 While Loop
 
-The ```while``` loop repeatedly executes a block as long as its condition remains true.
+The `while` loop repeatedly executes a block as long as its condition remains true.
 
 **Example:**
 
@@ -233,9 +252,9 @@ while (count > 0)
 
 ---
 
-## 6. Scoping
+## 7. Scoping
 
-Variables are block-scoped. A variable declared within a block (delimited by ```{ }```) is accessible only within that block and any nested blocks.
+Variables are block-scoped. A variable declared within a block (delimited by `{ }`) is accessible only within that block and any nested blocks.
 
 **Example:**
 
@@ -255,9 +274,9 @@ fun DemoScope()
 
 ---
 
-## 7. Comments
+## 8. Comments
 
-Mano supports single-line comments. Everything following ```//``` on a given line is ignored by the compiler. Block comments (e.g., ```/* ... */```) are not supported.
+Mano supports single-line comments. Everything following `//` on a given line is ignored by the compiler. Block comments (e.g., `/* ... */`) are not supported.
 
 **Example:**
 
@@ -268,7 +287,7 @@ var example: int = 5;  // Inline comment after code
 
 ---
 
-## 8. Enums
+## 9. Enums
 
 Enums allow you to define a new type representing a fixed set of named values. These are distinct types not automatically convertible to integers.
 
