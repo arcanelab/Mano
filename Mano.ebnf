@@ -2,10 +2,16 @@
 Program         = { Declaration } ;
 
 (* Declarations *)
-Declaration     = VariableDeclaration
+Declaration     = ConstantDeclaration
+                | VariableDeclaration
                 | FunctionDeclaration
                 | ClassDeclaration
                 | EnumDeclaration ;
+
+(* Constant declaration:
+   "let" Identifier ":" PrimitiveType "=" Expression ";" *)
+ConstantDeclaration
+                = "let" Identifier ":" PrimitiveType "=" Expression ";" ;
 
 (* Variable declaration:
    "var" Identifier ":" Type [ "=" Expression ] ";" *)
@@ -29,6 +35,9 @@ EnumDeclaration = "enum" Identifier Block ;
 
 (* Types: primitive types and user-defined types *)
 Type            = "int" | "uint" | "float" | "bool" | "string" | Identifier ;
+
+(* Primitive types for constants *)
+PrimitiveType   = "int" | "uint" | "float" | "bool" | "string" ;
 
 (* Block: a group of declarations/statements *)
 Block           = "{" { Declaration | Statement } "}" ;
