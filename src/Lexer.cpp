@@ -5,7 +5,6 @@
 #include <string_view>
 #include <string>
 
-// Token types representing our language’s lexical elements.
 enum class TokenType
 {
     Identifier,    // e.g., foo
@@ -26,7 +25,6 @@ struct Token
     size_t column;
 };
 
-// Our handwritten lexer encapsulated as a class.
 class Lexer
 {
 public:
@@ -93,7 +91,7 @@ private:
         return c;
     }
 
-    // Skip any whitespaces; our grammar assumes comments are handled here as needed.
+    // Skip any whitespaces; the grammar assumes comments are handled here as needed.
     void SkipWhitespace()
     {
         while (!IsAtEnd() && std::isspace(Peek()))
@@ -117,10 +115,8 @@ private:
         return Token{ tokenType, text, line, column };
     }
 
-    // A simple check for language keywords.
     bool IsKeyword(std::string_view text)
     {
-        // List keywords per your grammar.
         return (text == "var" || text == "fun" || text == "class" || text == "enum" ||
                 text == "if" || text == "else" || text == "for" || text == "while" ||
                 text == "break" || text == "continue" || text == "return" ||
@@ -189,14 +185,13 @@ private:
         return Token{ TokenType::Operator, text, line, column };
     }
 
-    // Determines if a character is punctuation per our grammar.
+    // Determines if a character is punctuation.
     bool IsPunctuation(char c)
     {
         return (c == '(' || c == ')' || c == '{' || c == '}' ||
                 c == '[' || c == ']' || c == ',' || c == ':' || c == ';');
     }
 
-    // Scans a punctuation token.
     Token ScanPunctuation()
     {
         size_t start = offset;
