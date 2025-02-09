@@ -1,6 +1,6 @@
 # Mano Language Specification
 
-Mano is a simple, embeddable scripting language designed for ease of use. With a syntax similar to mainstream programming languages, it's easy to learn and use. Mano's strength lies in its flexibility: you can easily extend the language with custom elements like classes, functions, and constants, and seamlessly call between Mano scripts and your host program.
+Mano is a simple, statically typed embeddable scripting language designed for ease of use. With a syntax similar to Swift, it's familiar and  easy to learn and use. Mano's strength lies in its flexibility: you can easily extend the language with custom elements like classes, functions, and constants, and seamlessly call between Mano scripts and your host program.
 
 ---
 
