@@ -175,12 +175,22 @@ private:
                 c == '&' || c == '|' || c == '%');
     }
 
-    // Scans an operator token.
+    // Scans an operator token
     Token ScanOperator()
     {
         size_t start = offset;
-        Advance(); // Consume the operator character.
-        // For a complete implementation, check “peek” for operators like "==", "!=" etc.
+        char first = Advance(); // Consume the first operator character.
+        // Check for double-character operator.
+        if (!IsAtEnd())
+        {
+            char next = Peek();
+            if ((first == '=' && next == '=') ||
+                (first == '!' && next == '=') ||
+                (first == '<' && next == '>'))
+            {
+                Advance(); // Consume the second character.
+            }
+        }
         std::string_view text = source.substr(start, offset - start);
         return Token{ TokenType::Operator, text, line, column };
     }
