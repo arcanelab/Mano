@@ -1,3 +1,4 @@
+// vim: syntax=Swift
 fun Main() : int
 {
     var a : int = 10;
