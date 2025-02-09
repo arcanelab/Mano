@@ -1,0 +1,129 @@
+(* A complete program is a sequence of declarations *)
+Program         = { Declaration } ;
+
+(* Declarations *)
+Declaration     = VariableDeclaration
+                | FunctionDeclaration
+                | ClassDeclaration
+                | EnumDeclaration ;
+
+(* Variable declaration:
+   "var" Identifier ":" Type [ "=" Expression ] ";" *)
+VariableDeclaration
+                = "var" Identifier ":" Type [ "=" Expression ] ";" ;
+
+(* Function declaration:
+   "fun" Identifier "(" [ ParameterList ] ")" [ ":" Type ] Block *)
+FunctionDeclaration
+                = "fun" Identifier "(" [ ParameterList ] ")" [ ":" Type ] Block ;
+
+ParameterList   = Parameter { "," Parameter } ;
+Parameter       = Identifier ":" Type ;
+
+(* Class declaration: comprising properties and methods *)
+ClassDeclaration
+                = "class" Identifier Block ;
+
+(* Enum declaration *)
+EnumDeclaration = "enum" Identifier Block ;
+
+(* Types: primitive types and user-defined types *)
+Type            = "int" | "uint" | "float" | "bool" | "string" | Identifier ;
+
+(* Block: a group of declarations/statements *)
+Block           = "{" { Declaration | Statement } "}" ;
+
+(* Statements *)
+Statement       = Block
+                | ExpressionStatement ";"
+                | IfStatement
+                | ForStatement
+                | WhileStatement
+                | BreakStatement ";"
+                | ContinueStatement ";"
+                | ReturnStatement ";" ;
+
+ExpressionStatement
+                = Expression ;
+
+IfStatement     = "if" "(" Expression ")" Block [ "else" Block ] ;
+
+ForStatement    = "for" "(" ForInit ";" Expression ";" Expression ")" Block ;
+ForInit         = VariableDeclaration | Expression ;
+
+WhileStatement  = "while" "(" Expression ")" Block ;
+
+BreakStatement  = "break" ;
+ContinueStatement
+                = "continue" ;
+ReturnStatement = "return" [ Expression ] ;
+
+(* Expressions, with standard operator precedence. 
+   For now, bitwise and ternary operators are left out but can be added later. *)
+Expression      = AssignmentExpression ;
+
+AssignmentExpression
+                = LogicalOrExpression [ "=" AssignmentExpression ] ;
+
+LogicalOrExpression
+                = LogicalAndExpression { "||" LogicalAndExpression } ;
+
+LogicalAndExpression
+                = EqualityExpression { "&&" EqualityExpression } ;
+
+EqualityExpression
+                = RelationalExpression { ( "==" | "!=" ) RelationalExpression } ;
+
+RelationalExpression
+                = AdditiveExpression [ ( "<" | ">" | "<=" | ">=" ) AdditiveExpression ] ;
+
+AdditiveExpression
+                = MultiplicativeExpression { ( "+" | "-" ) MultiplicativeExpression } ;
+
+MultiplicativeExpression
+                = UnaryExpression { ( "*" | "/" | "%" ) UnaryExpression } ;
+
+UnaryExpression = [ ( "-" | "!" ) ] PrimaryExpression ;
+
+PrimaryExpression
+                = Identifier
+                | Literal
+                | "(" Expression ")"
+                | FunctionCall
+                | ObjectInstantiation ;
+
+(* A function call uses the same syntax as object instantiation.
+   Semantic analysis will distinguish them by looking up Identifier in the symbol table. *)
+FunctionCall    = Identifier "(" [ ArgumentList ] ")" ;
+ArgumentList    = Expression { "," Expression } ;
+
+(* In our design, object instantiation follows a function-call-like syntax *)
+ObjectInstantiation
+                = Identifier "(" [ ArgumentList ] ")" ;
+
+(* Literals *)
+Literal         = IntegerLiteral | FloatLiteral | BoolLiteral | StringLiteral ;
+
+IntegerLiteral  = Digit { Digit } ;
+FloatLiteral    = Digit { Digit } "." Digit { Digit } ;
+BoolLiteral     = "true" | "false" ;
+
+(* Simple string literal enclosed in double quotes.
+   Note: Escape sequences for special characters, if desired, will be handled in the lexer. *)
+StringLiteral   = "\"" { AnyCharExceptQuoteOrNewline } "\"" ;
+
+(* Identifier: a letter followed by letters, digits, or underscores *)
+Identifier      = Letter { Letter | Digit | "_" } ;
+
+(* Lexical terminals *)
+Digit           = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+Letter          = "A" … "Z" | "a" … "z" ;
+
+(* The terminal AnyCharExceptQuoteOrNewline
+   represents any character except a double quote or a newline.
+   Handling of escape sequences (if any) is delegated to the lexer. *)
+
+(* 
+   Whitespace and single-line comments (e.g., starting with "//") are handled by the lexer 
+   and are not included in this grammar.
+*)
