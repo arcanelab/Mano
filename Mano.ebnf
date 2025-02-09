@@ -33,11 +33,16 @@ ClassDeclaration
 (* Enum declaration *)
 EnumDeclaration = "enum" Identifier Block ;
 
-(* Types: primitive types and user-defined types *)
-Type            = "int" | "uint" | "float" | "bool" | "string" | Identifier ;
+(* Types: primitive types, user-defined types, and array types *)
+Type            = PrimitiveType
+                | Identifier
+                | ArrayType ;
 
 (* Primitive types for constants *)
 PrimitiveType   = "int" | "uint" | "float" | "bool" | "string" ;
+
+(* Array type: a type enclosed in square brackets *)
+ArrayType       = "[" Type "]" ;
 
 (* Block: a group of declarations/statements *)
 Block           = "{" { Declaration | Statement } "}" ;
@@ -67,7 +72,7 @@ ContinueStatement
                 = "continue" ;
 ReturnStatement = "return" [ Expression ] ;
 
-(* Expressions, with standard operator precedence. 
+(* Expressions, with standard operator precedence.
    For now, bitwise and ternary operators are left out but can be added later. *)
 Expression      = AssignmentExpression ;
 
@@ -97,6 +102,7 @@ UnaryExpression = [ ( "-" | "!" ) ] PrimaryExpression ;
 PrimaryExpression
                 = Identifier
                 | Literal
+                | ArrayLiteral
                 | "(" Expression ")"
                 | FunctionCall
                 | ObjectInstantiation ;
@@ -116,6 +122,10 @@ Literal         = IntegerLiteral | FloatLiteral | BoolLiteral | StringLiteral ;
 IntegerLiteral  = Digit { Digit } ;
 FloatLiteral    = Digit { Digit } "." Digit { Digit } ;
 BoolLiteral     = "true" | "false" ;
+
+(* Array literal: a list of expressions enclosed in square brackets *)
+ArrayLiteral    = "[" [ ExpressionList ] "]" ;
+ExpressionList  = Expression { "," Expression } ;
 
 (* Simple string literal enclosed in double quotes.
    Note: Escape sequences for special characters, if desired, will be handled in the lexer. *)
