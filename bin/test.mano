@@ -1,11 +1,74 @@
 fun Main() : int
 {
-   var x: int = 42;
-   if (x > 0)
-   {
-       return x;
-   } else
-   {
-       return 0;
-   }
+    var a : int = 10;
+    var b : int = 20;
+
+    // Equality operator example.
+    if (a == b)
+    {
+        // This block executes if a is equal to b.
+        a = a + 100;
+    }
+
+    // Not-equal operator example.
+    if (a != b)
+    {
+        // This block executes if a is not equal to b.
+        b = b + 100;
+    }
+
+    // Alternative not-equal operator example using <>.
+    if (a <> b)
+    {
+        // This block also executes if a is not equal to b.
+        a = a - 1;
+    }
+
+    // If statement with else clause.
+    if (a < b)
+    {
+        a = a + 1;
+    } else
+    {
+        a = a - 1;
+    }
+
+    // For loop with variable declaration in its initializer.
+    for (var i : int = 0; i < 5; i = i + 1)
+    {
+        b = b + i;
+    }
+
+    // While loop.
+    while (a < b)
+    {
+        a = a + 2;
+    }
+
+    // Function call.
+    var sum : int = Add(a, b);
+
+    return sum;
+}
+
+fun Add(int x, int y) : int
+{
+    return x + y;
+}
+
+class Calculator
+{
+    // Method within a class.
+    fun Multiply(int x, int y) : int
+    {
+        return x * y;
+    }
+}
+
+enum Operation
+{
+    Add;
+    Subtract;
+    Multiply;
+    Divide;
 }
