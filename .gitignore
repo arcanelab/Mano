@@ -1,0 +1,5 @@
+build
+.vscode
+.xmake
+bin/Mano
+.DS_Store
