@@ -104,6 +104,15 @@ fun GetGreeting(name: string, count: int) : string
 }
 ```
 
+Returning a value is optional. If there's no return value, the return type can be omitted.
+
+```
+fun SimpleFunction()
+{
+    // No value returned
+}
+```
+
 **Parameter Passing Semantics:**
 
 - **Primitives:** Copied when passed.
