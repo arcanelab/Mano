@@ -1,6 +1,6 @@
 # Mano Language Specification
 
-Mano is designed to be simple and C-like, supporting class-based object orientation with a minimal set of primitive types. It is intended for embedding in game engines, and its code is compiled into bytecode that runs on a custom virtual machine.
+Mano is a simple, embeddable scripting language designed for ease of use. With a syntax similar to mainstream programming languages, it's easy to learn and use. Mano's strength lies in its flexibility: you can easily extend the language with custom elements like classes, functions, and constants, and seamlessly call between Mano scripts and your host program.
 
 ---
 
