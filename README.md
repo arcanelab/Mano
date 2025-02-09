@@ -124,7 +124,7 @@ class Person
     var age: int;
 
     // Constructor: Initializes a new Person instance.
-    fun Init(newName: string, newAge: int)
+    fun Person(newName: string, newAge: int)
     {
         name = newName;
         age = newAge;
