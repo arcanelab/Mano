@@ -20,19 +20,18 @@ enum class TokenType
 
 struct Token
 {
-    TokenType Type;
-    std::string_view Lexeme;
-    size_t Line;
-    size_t Column;
+    TokenType type;
+    std::string_view lexeme;
+    size_t line;
+    size_t column;
 };
 
 // Our handwritten lexer encapsulated as a class.
-// Function names here (e.g., NextToken, Advance, etc.) all begin with capital letters.
 class Lexer
 {
 public:
     Lexer(std::string_view source)
-        : Source(source), Offset(0), Line(1), Column(1)
+        : source(source), offset(0), line(1), column(1)
     {
     }
 
@@ -40,7 +39,7 @@ public:
     {
         SkipWhitespace();
         if (IsAtEnd())
-            return MakeToken(TokenType::EndOfFile, "");
+            return CreateToken(TokenType::EndOfFile, "");
 
         char current = Peek();
 
@@ -57,39 +56,39 @@ public:
 
         // Unrecognized character: consume it and return an unknown token.
         Advance();
-        return MakeToken(TokenType::Unknown, std::string_view(&current, 1));
+        return CreateToken(TokenType::Unknown, std::string_view(&current, 1));
     }
 
 private:
-    std::string_view Source;
-    size_t Offset;
-    size_t Line;
-    size_t Column;
+    std::string_view source;
+    size_t offset;
+    size_t line;
+    size_t column;
 
     // Checks whether we've reached the end of the source text.
     bool IsAtEnd() const
     {
-        return Offset >= Source.size();
+        return offset >= source.size();
     }
 
     // Returns the current character without advancing.
     char Peek() const
     {
-        return Source[Offset];
+        return source[offset];
     }
 
     // Advances one character and updates position (line/column).
     char Advance()
     {
-        char c = Source[Offset++];
+        char c = source[offset++];
         if (c == '\n')
         {
-            ++Line;
-            Column = 1;
+            ++line;
+            column = 1;
         }
         else
         {
-            ++Column;
+            ++column;
         }
         return c;
     }
@@ -102,20 +101,20 @@ private:
     }
 
     // Creates a Token instance.
-    Token MakeToken(TokenType type, std::string_view lexeme)
+    Token CreateToken(TokenType tokenType, std::string_view lexeme)
     {
-        return Token{ type, lexeme, Line, Column };
+        return Token{ tokenType, lexeme, line, column };
     }
 
     // Scans an identifier (or a keyword) token.
     Token ScanIdentifier()
     {
-        size_t start = Offset;
+        size_t start = offset;
         while (!IsAtEnd() && (std::isalnum(Peek()) || Peek() == '_'))
             Advance();
-        std::string_view text = Source.substr(start, Offset - start);
-        TokenType type = IsKeyword(text) ? TokenType::Keyword : TokenType::Identifier;
-        return Token{ type, text, Line, Column };
+        std::string_view text = source.substr(start, offset - start);
+        TokenType tokenType = IsKeyword(text) ? TokenType::Keyword : TokenType::Identifier;
+        return Token{ tokenType, text, line, column };
     }
 
     // A simple check for language keywords.
@@ -123,15 +122,15 @@ private:
     {
         // List keywords per your grammar.
         return (text == "var" || text == "fun" || text == "class" || text == "enum" ||
-            text == "if" || text == "else" || text == "for" || text == "while" ||
-            text == "break" || text == "continue" || text == "return" ||
-            text == "int" || text == "uint" || text == "float" || text == "bool" || text == "string");
+                text == "if" || text == "else" || text == "for" || text == "while" ||
+                text == "break" || text == "continue" || text == "return" ||
+                text == "int" || text == "uint" || text == "float" || text == "bool" || text == "string");
     }
 
     // Scans a number literal (handles both integers and floats).
     Token ScanNumber()
     {
-        size_t start = Offset;
+        size_t start = offset;
         while (!IsAtEnd() && std::isdigit(Peek()))
             Advance();
 
@@ -142,15 +141,15 @@ private:
             while (!IsAtEnd() && std::isdigit(Peek()))
                 Advance();
         }
-        std::string_view text = Source.substr(start, Offset - start);
-        return Token{ TokenType::Number, text, Line, Column };
+        std::string_view text = source.substr(start, offset - start);
+        return Token{ TokenType::Number, text, line, column };
     }
 
     // Scans a string literal enclosed in double quotes.
     Token ScanString()
     {
         char quote = Advance(); // Consume the opening "
-        size_t start = Offset;
+        size_t start = offset;
         while (!IsAtEnd() && Peek() != quote)
         {
             if (Peek() == '\\')
@@ -167,8 +166,8 @@ private:
         }
         if (!IsAtEnd())
             Advance(); // Consume the closing "
-        std::string_view text = Source.substr(start, Offset - start - 1);
-        return Token{ TokenType::String, text, Line, Column };
+        std::string_view text = source.substr(start, offset - start - 1);
+        return Token{ TokenType::String, text, line, column };
     }
 
     // Determines if a character is part of an operator.
@@ -176,34 +175,34 @@ private:
     {
         // Basic set: you can extend this list to include multi-character operators later.
         return (c == '+' || c == '-' || c == '*' || c == '/' ||
-            c == '=' || c == '!' || c == '<' || c == '>' ||
-            c == '&' || c == '|' || c == '%');
+                c == '=' || c == '!' || c == '<' || c == '>' ||
+                c == '&' || c == '|' || c == '%');
     }
 
     // Scans an operator token.
     Token ScanOperator()
     {
-        size_t start = Offset;
+        size_t start = offset;
         Advance(); // Consume the operator character.
         // For a complete implementation, check “peek” for operators like "==", "!=" etc.
-        std::string_view text = Source.substr(start, Offset - start);
-        return Token{ TokenType::Operator, text, Line, Column };
+        std::string_view text = source.substr(start, offset - start);
+        return Token{ TokenType::Operator, text, line, column };
     }
 
     // Determines if a character is punctuation per our grammar.
     bool IsPunctuation(char c)
     {
         return (c == '(' || c == ')' || c == '{' || c == '}' ||
-            c == '[' || c == ']' || c == ',' || c == ':' || c == ';');
+                c == '[' || c == ']' || c == ',' || c == ':' || c == ';');
     }
 
     // Scans a punctuation token.
     Token ScanPunctuation()
     {
-        size_t start = Offset;
+        size_t start = offset;
         Advance();
-        std::string_view text = Source.substr(start, Offset - start);
-        return Token{ TokenType::Punctuation, text, Line, Column };
+        std::string_view text = source.substr(start, offset - start);
+        return Token{ TokenType::Punctuation, text, line, column };
     }
 };
 
@@ -229,11 +228,11 @@ int main()
     do
     {
         token = lex.NextToken();
-        std::cout << "Token Type: " << static_cast<int>(token.Type)
-            << " | Lexeme: [" << token.Lexeme << "]"
-            << " | Line: " << token.Line
-            << " | Column: " << token.Column << "\n";
-    } while (token.Type != TokenType::EndOfFile);
+        std::cout << "Token Type: " << static_cast<int>(token.type)
+                  << " | Lexeme: [" << token.lexeme << "]"
+                  << " | Line: " << token.line
+                  << " | Column: " << token.column << "\n";
+    } while (token.type != TokenType::EndOfFile);
 
     return 0;
 }
