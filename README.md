@@ -2,6 +2,8 @@
 
 Mano is a simple, statically typed embeddable scripting language designed for ease of use. With a syntax similar to Swift, it's familiar and  easy to learn and use. Mano's strength lies in its flexibility: you can easily extend the language with custom elements like classes, functions, and constants, and seamlessly call between Mano scripts and your host program.
 
+(See [test.mano](bin/test.mano) for a sneak-peak of the syntax.)
+
 ---
 
 ## 1. Primitive Types
