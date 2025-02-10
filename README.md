@@ -1,6 +1,6 @@
 # Mano Language Specification
 
-Mano is a simple, statically typed embeddable scripting language designed for ease of use. With a syntax similar to Swift, it's familiar and  easy to learn and use. Mano's strength lies in its flexibility: you can easily extend the language with custom elements like classes, functions, and constants, and seamlessly call between Mano scripts and your host program.
+Mano is a simple, statically typed, embeddable scripting language designed with ease of use in mind. With a syntax similar to Swift, it is both familiar and accessible for new users. Developers can extend the language with custom classes, functions, and constants. Mano supports bidirectional integration: you can invoke Nano functions from your host application, and Nano functions can also call any registered host functions.
 
 (See [test.mano](bin/test.mano) for a sneak-peak of the syntax.)
 
@@ -34,6 +34,16 @@ var isActive: bool = true;
 
 **Type Conversion:**  
 Automatic conversion between types (e.g., from int to float) is not supported. If explicit transformation is needed, support must be implemented via library functions or explicit casting (if added later).
+
+### Constants
+
+Constants are declared with the `let` keyword and require an initializer. Once a constant is defined, its value cannot be changed.
+
+**Example:**
+
+```
+let pi: float = 3.14159;
+```
 
 ---
 
@@ -316,6 +326,9 @@ if (currentDirection == Direction.North)
 }
 ```
 
+---
+
 ## Contributors
 
 Designed and written by Zoltán Majoros ([github.com/arcanelab](https://github.com/arcanelab/)) in 2025.
+```
