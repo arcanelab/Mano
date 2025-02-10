@@ -83,7 +83,7 @@ namespace Arcanelab::Mano
     {
         if (Match({ TokenType::Keyword }))
         {
-            std::string kw = Previous().lexeme.data();
+            std::string kw(Previous().lexeme);
             if (kw == "let")
                 return ParseConstantDeclaration();
             if (kw == "var")
