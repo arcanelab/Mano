@@ -1,82 +1,45 @@
-#include <cctype>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <string_view>
-#include <string>
+#include <Lexer.h>
 
-enum class TokenType
+namespace Arcanelab::Mano
 {
-    Identifier,    // e.g., foo
-    Keyword,       // e.g., var, fun, class, enum, if, etc.
-    Number,        // integer and float literals
-    String,        // string literal
-    Operator,      // +, -, *, /, etc.
-    Punctuation,   // punctuation such as (, ), {, }, :, ;, etc.
-    EndOfFile,     // end-of-input marker
-    Unknown        // any token that does not match known types
-};
-
-struct Token
-{
-    TokenType type;
-    std::string_view lexeme;
-    size_t line;
-    size_t column;
-};
-
-class Lexer
-{
-public:
-    Lexer(std::string_view source)
-        : source(source), offset(0), line(1), column(1)
-    {
-    }
-
-    Token NextToken()
+    Token Lexer::NextToken()
     {
         SkipWhitespace();
         if (IsAtEnd())
-            return CreateToken(TokenType::EndOfFile, "");
-
+        return CreateToken(TokenType::EndOfFile, "");
+        
         char current = Peek();
-
+        
         if (std::isalpha(current) || current == '_')
-            return ScanIdentifier();
+        return ScanIdentifier();
         if (std::isdigit(current))
-            return ScanNumber();
+        return ScanNumber();
         if (current == '"')
-            return ScanString();
+        return ScanString();
         if (IsOperator(current))
-            return ScanOperator();
+        return ScanOperator();
         if (IsPunctuation(current))
-            return ScanPunctuation();
-
+        return ScanPunctuation();
+        
         // Unrecognized character: consume it and return an unknown token.
         Advance();
         return CreateToken(TokenType::Unknown, std::string_view(&current, 1));
     }
 
-private:
-    std::string_view source;
-    size_t offset;
-    size_t line;
-    size_t column;
-
     // Checks whether we've reached the end of the source text.
-    bool IsAtEnd() const
+    bool Lexer::IsAtEnd() const
     {
         return offset >= source.size();
     }
 
     // Returns the current character without advancing.
-    char Peek() const
+    char Lexer::Peek() const
     {
         return source[offset];
     }
 
     // Advances one character and updates position (line/column).
-    char Advance()
+    char Lexer::Advance()
     {
         char c = source[offset++];
         if (c == '\n')
@@ -92,20 +55,20 @@ private:
     }
 
     // Skip any whitespaces; the grammar assumes comments are handled here as needed.
-    void SkipWhitespace()
+    void Lexer::SkipWhitespace()
     {
         while (!IsAtEnd() && std::isspace(Peek()))
             Advance();
     }
 
     // Creates a Token instance.
-    Token CreateToken(TokenType tokenType, std::string_view lexeme)
+    Token Lexer::CreateToken(TokenType tokenType, std::string_view lexeme)
     {
         return Token{ tokenType, lexeme, line, column };
     }
 
     // Scans an identifier (or a keyword) token.
-    Token ScanIdentifier()
+    Token Lexer::ScanIdentifier()
     {
         size_t start = offset;
         while (!IsAtEnd() && (std::isalnum(Peek()) || Peek() == '_'))
@@ -115,16 +78,16 @@ private:
         return Token{ tokenType, text, line, column };
     }
 
-    bool IsKeyword(std::string_view text)
+    bool Lexer::IsKeyword(std::string_view text)
     {
         return (text == "var" || text == "fun" || text == "class" || text == "enum" ||
-                text == "if" || text == "else" || text == "for" || text == "while" ||
-                text == "break" || text == "continue" || text == "return" ||
-                text == "int" || text == "uint" || text == "float" || text == "bool" || text == "string");
+            text == "if" || text == "else" || text == "for" || text == "while" ||
+            text == "break" || text == "continue" || text == "return" ||
+            text == "int" || text == "uint" || text == "float" || text == "bool" || text == "string");
     }
 
     // Scans a number literal (handles both integers and floats).
-    Token ScanNumber()
+    Token Lexer::ScanNumber()
     {
         size_t start = offset;
         while (!IsAtEnd() && std::isdigit(Peek()))
@@ -142,7 +105,7 @@ private:
     }
 
     // Scans a string literal enclosed in double quotes.
-    Token ScanString()
+    Token Lexer::ScanString()
     {
         char quote = Advance(); // Consume the opening "
         size_t start = offset;
@@ -167,16 +130,16 @@ private:
     }
 
     // Determines if a character is part of an operator.
-    bool IsOperator(char c)
+    bool Lexer::IsOperator(char c)
     {
         // Basic set: you can extend this list to include multi-character operators later.
         return (c == '+' || c == '-' || c == '*' || c == '/' ||
-                c == '=' || c == '!' || c == '<' || c == '>' ||
-                c == '&' || c == '|' || c == '%');
+            c == '=' || c == '!' || c == '<' || c == '>' ||
+            c == '&' || c == '|' || c == '%');
     }
 
     // Scans an operator token
-    Token ScanOperator()
+    Token Lexer::ScanOperator()
     {
         size_t start = offset;
         char first = Advance(); // Consume the first operator character.
@@ -196,48 +159,17 @@ private:
     }
 
     // Determines if a character is punctuation.
-    bool IsPunctuation(char c)
+    bool Lexer::IsPunctuation(char c)
     {
         return (c == '(' || c == ')' || c == '{' || c == '}' ||
-                c == '[' || c == ']' || c == ',' || c == ':' || c == ';');
+            c == '[' || c == ']' || c == ',' || c == ':' || c == ';');
     }
 
-    Token ScanPunctuation()
+    Token Lexer::ScanPunctuation()
     {
         size_t start = offset;
         Advance();
         std::string_view text = source.substr(start, offset - start);
         return Token{ TokenType::Punctuation, text, line, column };
     }
-};
-
-//
-// --- Demo usage ---
-//
-int main()
-{
-    std::ifstream file("test.mano");
-    if (!file)
-    {
-        std::cerr << "Failed to open test.mano" << "\n";
-        return 1;
-    }
-    std::ostringstream buffer;
-    buffer << file.rdbuf();
-    std::string source = buffer.str();
-
-    Lexer lex(source);
-    Token token;
-
-    // Continuously get tokens until the EndOfFile token is returned.
-    do
-    {
-        token = lex.NextToken();
-        std::cout << "Token Type: " << static_cast<int>(token.type)
-                  << " | Lexeme: [" << token.lexeme << "]"
-                  << " | Line: " << token.line
-                  << " | Column: " << token.column << "\n";
-    } while (token.type != TokenType::EndOfFile);
-
-    return 0;
-}
+} // namespace
