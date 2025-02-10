@@ -54,7 +54,7 @@ namespace Arcanelab::Mano
         if (CheckType(type))
             return Advance();
         ErrorAtCurrent(message);
-        return Peek();
+        return Peek(); // Will not reach due to exit in ErrorAtCurrent.
     }
 
     void Parser::ErrorAtCurrent(const std::string& message)
@@ -81,15 +81,40 @@ namespace Arcanelab::Mano
 
     ASTNodePtr Parser::ParseDeclaration()
     {
-        if (Match({ TokenType::Keyword }) && Previous().lexeme == "var")
-            return ParseVariableDeclaration();
-        if (Match({ TokenType::Keyword }) && Previous().lexeme == "fun")
-            return ParseFunctionDeclaration();
-        if (Match({ TokenType::Keyword }) && Previous().lexeme == "class")
-            return ParseClassDeclaration();
-        if (Match({ TokenType::Keyword }) && Previous().lexeme == "enum")
-            return ParseEnumDeclaration();
+        if (Match({ TokenType::Keyword }))
+        {
+            std::string kw = Previous().lexeme.data();
+            if (kw == "let")
+                return ParseConstantDeclaration();
+            if (kw == "var")
+                return ParseVariableDeclaration();
+            if (kw == "fun")
+                return ParseFunctionDeclaration();
+            if (kw == "class")
+                return ParseClassDeclaration();
+            if (kw == "enum")
+                return ParseEnumDeclaration();
+
+            // For statements like if, for, while, etc.
+            // we roll back if not a declaration.
+            m_current--;
+        }
         return ParseStatement();
+    }
+
+    // New constant declaration parser:
+    // Grammar: let Identifier ":" PrimitiveType "=" Expression ";"
+    ASTNodePtr Parser::ParseConstantDeclaration()
+    {
+        auto constDecl = std::make_unique<ConstDeclNode>();
+        constDecl->name = Consume(TokenType::Identifier, "Expected constant name.").lexeme.data();
+        Consume(TokenType::Punctuation, "Expected ':' after constant name.");
+        // Use ParseType() restricting to primitive types—assuming the grammar only allows those.
+        constDecl->typeName = ParseType();
+        Consume(TokenType::Operator, "Expected '=' after constant type.");
+        constDecl->initializer = ParseExpression();
+        Consume(TokenType::Punctuation, "Expected ';' after constant declaration.");
+        return constDecl;
     }
 
     ASTNodePtr Parser::ParseVariableDeclaration()
@@ -97,7 +122,7 @@ namespace Arcanelab::Mano
         auto varDecl = std::make_unique<VarDeclNode>();
         varDecl->name = Consume(TokenType::Identifier, "Expected variable name.").lexeme.data();
         Consume(TokenType::Punctuation, "Expected ':' after variable name.");
-        varDecl->typeName = Consume(TokenType::Keyword, "Expected type name.").lexeme.data();
+        varDecl->typeName = ParseType();
         if (Match({ TokenType::Operator }) && Previous().lexeme == "=")
         {
             varDecl->initializer = ParseExpression();
@@ -118,7 +143,7 @@ namespace Arcanelab::Mano
         Consume(TokenType::Punctuation, "Expected ')' after parameters.");
         if (Match({ TokenType::Punctuation }) && Previous().lexeme == ":")
         {
-            funDecl->returnType = Consume(TokenType::Keyword, "Expected return type.").lexeme.data();
+            funDecl->returnType = ParseType();
         }
         funDecl->body = ParseBlock();
         return funDecl;
@@ -130,7 +155,7 @@ namespace Arcanelab::Mano
         {
             std::string paramName = Consume(TokenType::Identifier, "Expected parameter name.").lexeme.data();
             Consume(TokenType::Punctuation, "Expected ':' after parameter name.");
-            std::string paramType = Consume(TokenType::Keyword, "Expected parameter type.").lexeme.data();
+            std::string paramType = ParseType();
             parameters.push_back({ paramName, paramType });
         } while (Match({ TokenType::Punctuation }) && Previous().lexeme == ",");
     }
@@ -178,7 +203,7 @@ namespace Arcanelab::Mano
                 return ParseReturnStatement();
             else
             {
-                m_current--;
+                m_current--; // roll back, not a statement keyword we handle.
             }
         }
         auto expr = ParseExpression();
@@ -390,8 +415,10 @@ namespace Arcanelab::Mano
         if (Match({ TokenType::Identifier }))
         {
             std::string name = Previous().lexeme.data();
+            // Check for a function call or object instantiation
             if (Match({ TokenType::Punctuation }) && Previous().lexeme == "(")
             {
+                // For simplicity, skip arguments and consume until ')'
                 while (!CheckType(TokenType::Punctuation) || Peek().lexeme != ")")
                     Advance();
                 Consume(TokenType::Punctuation, "Expected ')' after arguments.");
@@ -416,4 +443,21 @@ namespace Arcanelab::Mano
         return nullptr;
     }
 
+    std::string Parser::ParseType()
+    {
+        // For an array type, expect a '[' token.
+        if (Match({ TokenType::Punctuation }) && Previous().lexeme == "[")
+        {
+            std::string innerType = ParseType();
+            Consume(TokenType::Punctuation, "Expected ']' after array type.");
+            return "[" + innerType + "]";
+        }
+        // Otherwise, accept either a keyword (primitive type) or an identifier (user-defined type)
+        if (CheckType(TokenType::Keyword) || CheckType(TokenType::Identifier))
+        {
+            return Advance().lexeme.data();
+        }
+        ErrorAtCurrent("Expected type");
+        return "";
+    }
 } // namespace Arcanelab::Mano

@@ -20,6 +20,13 @@ namespace Arcanelab::Mano
         std::vector<ASTNodePtr> declarations;
     };
 
+    struct ConstDeclNode : public ASTNode
+    {
+        std::string name;
+        std::string typeName;
+        ASTNodePtr initializer;
+    };
+
     struct VarDeclNode : public ASTNode
     {
         std::string name;
@@ -144,6 +151,7 @@ namespace Arcanelab::Mano
         void ErrorAtCurrent(const std::string& message);
 
         ASTNodePtr ParseDeclaration();
+        ASTNodePtr ParseConstantDeclaration();
         ASTNodePtr ParseVariableDeclaration();
         ASTNodePtr ParseFunctionDeclaration();
         void ParseParameterList(std::vector<std::pair<std::string, std::string>>& parameters);
@@ -165,6 +173,7 @@ namespace Arcanelab::Mano
         ASTNodePtr ParseMultiplicativeExpression();
         ASTNodePtr ParseUnaryExpression();
         ASTNodePtr ParsePrimaryExpression();
+        std::string ParseType();
     };
 
 } // namespace Arcanelab::Mano
