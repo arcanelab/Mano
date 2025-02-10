@@ -1,6 +1,6 @@
 # Mano Language Specification
 
-Mano is a simple, statically typed, embeddable scripting language designed with ease of use in mind. With a syntax similar to Swift, it is both familiar and accessible for new users and aims to be a compelling alternative to Lua. Developers can extend the language with custom classes, functions, and constants. Mano supports bidirectional integration: you can invoke Nano functions from your host application, and Nano functions can also call any registered host functions.
+Mano is a simple, statically typed, embeddable scripting language designed with ease of use in mind. With a syntax similar to Swift, it is both familiar and accessible for new users. Mano aims to be a compelling alternative to Lua. Developers can extend the language with custom classes, functions, and constants. Mano supports bidirectional integration: you can invoke Nano functions from your host application, and Nano functions can also call any registered host functions.
 
 (See [test.mano](bin/test.mano) for a sneak-peak of the syntax.)
 
