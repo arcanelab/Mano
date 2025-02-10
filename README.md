@@ -331,4 +331,3 @@ if (currentDirection == Direction.North)
 ## Contributors
 
 Designed and written by Zoltán Majoros ([github.com/arcanelab](https://github.com/arcanelab/)) in 2025.
-```
