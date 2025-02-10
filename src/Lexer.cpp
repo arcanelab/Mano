@@ -1,4 +1,6 @@
 #include <Lexer.h>
+#include <cctype>
+#include <string>
 
 namespace Arcanelab::Mano
 {
@@ -6,39 +8,36 @@ namespace Arcanelab::Mano
     {
         SkipWhitespace();
         if (IsAtEnd())
-        return CreateToken(TokenType::EndOfFile, "");
-        
+            return CreateToken(TokenType::EndOfFile, "");
+
         char current = Peek();
-        
+
         if (std::isalpha(current) || current == '_')
-        return ScanIdentifier();
+            return ScanIdentifier();
         if (std::isdigit(current))
-        return ScanNumber();
+            return ScanNumber();
         if (current == '"')
-        return ScanString();
+            return ScanString();
         if (IsOperator(current))
-        return ScanOperator();
+            return ScanOperator();
         if (IsPunctuation(current))
-        return ScanPunctuation();
-        
+            return ScanPunctuation();
+
         // Unrecognized character: consume it and return an unknown token.
         Advance();
         return CreateToken(TokenType::Unknown, std::string_view(&current, 1));
     }
 
-    // Checks whether we've reached the end of the source text.
     bool Lexer::IsAtEnd() const
     {
         return offset >= source.size();
     }
 
-    // Returns the current character without advancing.
     char Lexer::Peek() const
     {
         return source[offset];
     }
 
-    // Advances one character and updates position (line/column).
     char Lexer::Advance()
     {
         char c = source[offset++];
@@ -54,20 +53,37 @@ namespace Arcanelab::Mano
         return c;
     }
 
-    // Skip any whitespaces; the grammar assumes comments are handled here as needed.
     void Lexer::SkipWhitespace()
     {
-        while (!IsAtEnd() && std::isspace(Peek()))
-            Advance();
+        while (!IsAtEnd())
+        {
+            char c = Peek();
+            if (std::isspace(c))
+            {
+                Advance();
+            }
+            // If the current and next characters start a single-line comment
+            else if (c == '/' && (offset + 1 < source.size()) && source[offset + 1] == '/')
+            {
+                // Consume the two slashes
+                Advance();
+                Advance();
+                // Skip until the end of the line or source
+                while (!IsAtEnd() && Peek() != '\n')
+                    Advance();
+            }
+            else
+            {
+                break;
+            }
+        }
     }
 
-    // Creates a Token instance.
     Token Lexer::CreateToken(TokenType tokenType, std::string_view lexeme)
     {
         return Token{ tokenType, lexeme, line, column };
     }
 
-    // Scans an identifier (or a keyword) token.
     Token Lexer::ScanIdentifier()
     {
         size_t start = offset;
@@ -86,7 +102,6 @@ namespace Arcanelab::Mano
             text == "int" || text == "uint" || text == "float" || text == "bool" || text == "string");
     }
 
-    // Scans a number literal (handles both integers and floats).
     Token Lexer::ScanNumber()
     {
         size_t start = offset;
@@ -104,7 +119,6 @@ namespace Arcanelab::Mano
         return Token{ TokenType::Number, text, line, column };
     }
 
-    // Scans a string literal enclosed in double quotes.
     Token Lexer::ScanString()
     {
         char quote = Advance(); // Consume the opening "
@@ -129,16 +143,13 @@ namespace Arcanelab::Mano
         return Token{ TokenType::String, text, line, column };
     }
 
-    // Determines if a character is part of an operator.
     bool Lexer::IsOperator(char c)
     {
-        // Basic set: you can extend this list to include multi-character operators later.
         return (c == '+' || c == '-' || c == '*' || c == '/' ||
             c == '=' || c == '!' || c == '<' || c == '>' ||
             c == '&' || c == '|' || c == '%');
     }
 
-    // Scans an operator token
     Token Lexer::ScanOperator()
     {
         size_t start = offset;
@@ -158,7 +169,6 @@ namespace Arcanelab::Mano
         return Token{ TokenType::Operator, text, line, column };
     }
 
-    // Determines if a character is punctuation.
     bool Lexer::IsPunctuation(char c)
     {
         return (c == '(' || c == ')' || c == '{' || c == '}' ||
@@ -172,4 +182,4 @@ namespace Arcanelab::Mano
         std::string_view text = source.substr(start, offset - start);
         return Token{ TokenType::Punctuation, text, line, column };
     }
-} // namespace
+}
