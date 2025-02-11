@@ -1,75 +1,92 @@
-// vim: syntax=Swift
-fun Main() : int
+// Constant and Variable Declarations
+let pi: float = 3.14159;
+var score: uint = 100;
+var negative: int = -42;  // Testing unary minus for negative literal
+
+// Function Declaration: simple arithmetic and return
+fun Add(a: int, b: int): int
 {
-    var a : int = 10;
-    var b : int = 20;
-
-    // Equality operator example.
-    if (a == b)
-    {
-        // This block executes if a is equal to b.
-        a = a + 100;
-    }
-
-    // Not-equal operator example.
-    if (a != b)
-    {
-        // This block executes if a is not equal to b.
-        b = b + 100;
-    }
-
-    // Alternative not-equal operator example using <>.
-    if (a <> b)
-    {
-        // This block also executes if a is not equal to b.
-        a = a - 1;
-    }
-
-    // If statement with else clause.
-    if (a < b)
-    {
-        a = a + 1;
-    } else
-    {
-        a = a - 1;
-    }
-
-    // For loop with variable declaration in its initializer.
-    for (var i : int = 0; i < 5; i = i + 1)
-    {
-        b = b + i;
-    }
-
-    // While loop.
-    while (a < b)
-    {
-        a = a + 2;
-    }
-
-    // Function call.
-    var sum : int = Add(a, b);
-
+    var sum: int = a + b;
     return sum;
 }
 
-fun Add(int x, int y) : int
+// Function Declaration: string concatenation and comment handling
+fun Greet(name: string): string
 {
-    return x + y;
+    // This is a single-line comment
+    var message: string = "Hello, " + name + "!";
+    return message;
 }
 
-class Calculator
+// Class Declaration: properties, constructor, and a method
+class Person
 {
-    // Method within a class.
-    fun Multiply(int x, int y) : int
+    var name: string;
+    var age: int;
+
+    fun Person(newName: string, newAge: int)
     {
-        return x * y;
+        name = newName;
+        age = newAge;
+    }
+
+    fun Describe(): string
+    {
+        return name + " is " + age + " years old.";
     }
 }
 
-enum Operation
+// Enum Declaration: defining fixed set of values
+enum Direction
 {
-    Add;
-    Subtract;
-    Multiply;
-    Divide;
+    North,
+    East,
+    South,
+    West
+}
+
+// Function Declaration: testing loops and control flow
+fun TestLoops()
+{
+    for (var i: uint = 0; i < 10; i = i + 1)
+    {
+        if (i == 3)
+        {
+            continue;
+        }
+        if (i == 7)
+        {
+            break;
+        }
+    }
+
+    var count: uint = 5;
+    while (count > 0)
+    {
+        count = count - 1;
+    }
+}
+
+// Array Literals & Nested Arrays
+var numbers: [int] = [1, 2, 3, 4, 5];
+var emptyArr: [float] = [];       // Empty array literal
+// var nestedArr: [[int]] = [[1,2], [3,4]];
+
+// Function Declaration: expressions involving all operators
+fun TestExpressions()
+{
+    var a: int = 10;
+    var b: int = 20;
+    // Testing mixed boolean and relational operators
+    var result: bool = (a == b) || (a != b) && (a < b);
+    // Testing arithmetic operators with explicit grouping and unary minus
+    var calc: float = -a * 2.5 + (b / 5) - 3.0;
+}
+
+// Main function: object instantiation, function calls, and printing result
+fun Main()
+{
+    var p: Person = Person("Alice", 30);
+    var greeting: string = Greet("Bob");
+    Print(greeting);
 }
