@@ -8,8 +8,11 @@ namespace Arcanelab::Mano
     {
         SkipWhitespace();
         if (IsAtEnd())
-            return CreateToken(TokenType::EndOfFile, "");
+            return Token{ TokenType::EndOfFile, "", line, column };
 
+        // Record token start position.
+        size_t tokenLine = line;
+        size_t tokenColumn = column;
         char current = Peek();
 
         if (std::isalpha(current) || current == '_')
@@ -23,9 +26,12 @@ namespace Arcanelab::Mano
         if (IsPunctuation(current))
             return ScanPunctuation();
 
-        // Unrecognized character: consume it and return an unknown token.
-        Advance();
-        return CreateToken(TokenType::Unknown, std::string_view(&current, 1));
+        // Unrecognized character: record its starting position before consuming.
+        tokenLine = line;
+        tokenColumn = column;
+        char unknown = Advance();
+        std::string_view lexeme = source.substr(offset - 1, 1);
+        return Token{ TokenType::Unknown, lexeme, tokenLine, tokenColumn };
     }
 
     bool Lexer::IsAtEnd() const
@@ -62,7 +68,7 @@ namespace Arcanelab::Mano
             {
                 Advance();
             }
-            // If the current and next characters start a single-line comment
+            // Check for single-line comment starting with "//"
             else if (c == '/' && (offset + 1 < source.size()) && source[offset + 1] == '/')
             {
                 // Consume the two slashes
@@ -79,19 +85,17 @@ namespace Arcanelab::Mano
         }
     }
 
-    Token Lexer::CreateToken(TokenType tokenType, std::string_view lexeme)
-    {
-        return Token{ tokenType, lexeme, line, column };
-    }
-
+    // The helper function is now local to each scan routine (using token start positions).
     Token Lexer::ScanIdentifier()
     {
+        size_t tokenLine = line;
+        size_t tokenColumn = column;
         size_t start = offset;
         while (!IsAtEnd() && (std::isalnum(Peek()) || Peek() == '_'))
             Advance();
         std::string_view text = source.substr(start, offset - start);
         TokenType tokenType = IsKeyword(text) ? TokenType::Keyword : TokenType::Identifier;
-        return Token{ tokenType, text, line, column };
+        return Token{ tokenType, text, tokenLine, tokenColumn };
     }
 
     bool Lexer::IsKeyword(std::string_view text)
@@ -104,11 +108,13 @@ namespace Arcanelab::Mano
 
     Token Lexer::ScanNumber()
     {
+        size_t tokenLine = line;
+        size_t tokenColumn = column;
         size_t start = offset;
         while (!IsAtEnd() && std::isdigit(Peek()))
             Advance();
 
-        // Check for fractional part.
+        // Check for a fractional part.
         if (!IsAtEnd() && Peek() == '.')
         {
             Advance();
@@ -116,18 +122,20 @@ namespace Arcanelab::Mano
                 Advance();
         }
         std::string_view text = source.substr(start, offset - start);
-        return Token{ TokenType::Number, text, line, column };
+        return Token{ TokenType::Number, text, tokenLine, tokenColumn };
     }
 
     Token Lexer::ScanString()
     {
+        size_t tokenLine = line;
+        size_t tokenColumn = column;
         char quote = Advance(); // Consume the opening "
         size_t start = offset;
         while (!IsAtEnd() && Peek() != quote)
         {
             if (Peek() == '\\')
             {
-                // Consume escape sequence.
+                // Consume the escape character and the escaped character.
                 Advance();
                 if (!IsAtEnd())
                     Advance();
@@ -139,8 +147,9 @@ namespace Arcanelab::Mano
         }
         if (!IsAtEnd())
             Advance(); // Consume the closing "
+        // Exclude the quotes from the lexeme.
         std::string_view text = source.substr(start, offset - start - 1);
-        return Token{ TokenType::String, text, line, column };
+        return Token{ TokenType::String, text, tokenLine, tokenColumn };
     }
 
     bool Lexer::IsOperator(char c)
@@ -152,21 +161,27 @@ namespace Arcanelab::Mano
 
     Token Lexer::ScanOperator()
     {
+        size_t tokenLine = line;
+        size_t tokenColumn = column;
         size_t start = offset;
         char first = Advance(); // Consume the first operator character.
-        // Check for double-character operator.
         if (!IsAtEnd())
         {
             char next = Peek();
+            // Handle double-character operators.
             if ((first == '=' && next == '=') ||
                 (first == '!' && next == '=') ||
-                (first == '<' && next == '>'))
+                (first == '<' && next == '>') ||
+                (first == '<' && next == '=') ||
+                (first == '>' && next == '=') ||
+                (first == '&' && next == '&') ||
+                (first == '|' && next == '|'))
             {
-                Advance(); // Consume the second character.
+                Advance();
             }
         }
         std::string_view text = source.substr(start, offset - start);
-        return Token{ TokenType::Operator, text, line, column };
+        return Token{ TokenType::Operator, text, tokenLine, tokenColumn };
     }
 
     bool Lexer::IsPunctuation(char c)
@@ -177,9 +192,11 @@ namespace Arcanelab::Mano
 
     Token Lexer::ScanPunctuation()
     {
+        size_t tokenLine = line;
+        size_t tokenColumn = column;
         size_t start = offset;
         Advance();
         std::string_view text = source.substr(start, offset - start);
-        return Token{ TokenType::Punctuation, text, line, column };
+        return Token{ TokenType::Punctuation, text, tokenLine, tokenColumn };
     }
 }
