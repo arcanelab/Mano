@@ -42,11 +42,6 @@ namespace Arcanelab::Mano
             {
                 token = NextToken();
                 tokens.push_back(token);
-                // token = lex.NextToken();
-                // std::cout << "Token Type: " << static_cast<int>(token.type)
-                //     << " | Lexeme: [" << token.lexeme << "]"
-                //     << " | Line: " << token.line
-                //     << " | Column: " << token.column << "\n";
             } while (token.type != TokenType::EndOfFile);
 
             return tokens;
