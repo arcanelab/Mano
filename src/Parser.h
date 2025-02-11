@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <initializer_list>
 
 namespace Arcanelab::Mano
 {
@@ -20,18 +21,12 @@ namespace Arcanelab::Mano
         std::vector<ASTNodePtr> declarations;
     };
 
-    struct ConstDeclNode : public ASTNode
-    {
-        std::string name;
-        std::string typeName;
-        ASTNodePtr initializer;
-    };
-
     struct VarDeclNode : public ASTNode
     {
         std::string name;
         std::string typeName;
         ASTNodePtr initializer;
+        // This node is used for both constants (let) and variables (var).
     };
 
     struct FunDeclNode : public ASTNode
@@ -147,13 +142,18 @@ namespace Arcanelab::Mano
         const Token& Advance();
         bool CheckType(TokenType type) const;
         bool Match(const std::initializer_list<TokenType>& types);
+        // Helper that checks for a specific keyword.
+        bool MatchKeyword(const std::string& expected);
         const Token& Consume(TokenType type, const std::string& message);
+        // NEW helper: Verify that the punctuation token has the expected lexeme.
+        const Token& ConsumePunctuation(const std::string &expected, const std::string &message);
         void ErrorAtCurrent(const std::string& message);
 
         ASTNodePtr ParseDeclaration();
-        ASTNodePtr ParseConstantDeclaration();
+        ASTNodePtr ParseConstantDeclaration(); // for "let" declarations.
         ASTNodePtr ParseVariableDeclaration();
         ASTNodePtr ParseFunctionDeclaration();
+        // Updated: Parameter list parsing.
         void ParseParameterList(std::vector<std::pair<std::string, std::string>>& parameters);
         ASTNodePtr ParseClassDeclaration();
         ASTNodePtr ParseEnumDeclaration();
@@ -173,7 +173,6 @@ namespace Arcanelab::Mano
         ASTNodePtr ParseMultiplicativeExpression();
         ASTNodePtr ParseUnaryExpression();
         ASTNodePtr ParsePrimaryExpression();
-        std::string ParseType();
     };
 
 } // namespace Arcanelab::Mano
