@@ -202,8 +202,42 @@ namespace Arcanelab::Mano
     {
         auto enumDecl = std::make_unique<EnumDeclNode>();
         enumDecl->name = std::string(Consume(TokenType::Identifier, "Expected enum name.").lexeme);
-        enumDecl->body = ParseBlock();
+        enumDecl->values = ParseEnumBody();
         return enumDecl;
+    }
+
+    std::vector<std::string> Parser::ParseEnumBody()
+    {
+        std::vector<std::string> values;
+        ConsumePunctuation("{", "Expected '{' to start enum body.");
+
+        // Empty enum.
+        if (CheckType(TokenType::Punctuation) && std::string(Peek().lexeme) == "}")
+        {
+            Advance(); // consume "}"
+            return values;
+        }
+
+        do
+        {
+            // Each enum case should be an identifier.
+            std::string enumName = std::string(Consume(TokenType::Identifier, "Expected enum name.").lexeme);
+            values.push_back(enumName);
+
+            // If there's a comma, consume it and continue.
+            if (CheckType(TokenType::Punctuation) && std::string(Peek().lexeme) == ",")
+            {
+                Advance(); // consume comma
+            }
+            else
+            {
+                break; // no comma
+            }
+        } while (true);
+
+        // Expect a closing brace.
+        ConsumePunctuation("}", "Expected '}' to close enum body.");
+        return values;
     }
 
     ASTNodePtr Parser::ParseBlock()
@@ -222,7 +256,7 @@ namespace Arcanelab::Mano
     {
         if (Match({ TokenType::Keyword }))
         {
-            std::string kw = std::string(Previous().lexeme);
+            std::string kw = Previous().lexeme.data();
             if (kw == "if")
                 return ParseIfStatement();
             else if (kw == "for")
@@ -231,16 +265,32 @@ namespace Arcanelab::Mano
                 return ParseWhileStatement();
             else if (kw == "return")
                 return ParseReturnStatement();
+            else if (kw == "break")
+                return ParseBreakStatement();
+            else if (kw == "continue")
+                return ParseContinueStatement();
             else
             {
-                m_current--; // Unconsume if not a statement‑starting keyword.
+                m_current--; //Backtrack, it's not a handled keyword
             }
         }
         auto expr = ParseExpression();
-        ConsumePunctuation(";", "Expected ';' after expression statement.");
+        Consume(TokenType::Punctuation, "Expected ';' after expression statement.");
         auto exprStmt = std::make_unique<ExprStmtNode>();
         exprStmt->expression = std::move(expr);
         return exprStmt;
+    }
+
+    ASTNodePtr Parser::ParseBreakStatement()
+    {
+        Consume(TokenType::Punctuation, "Expected ';' after 'break'.");
+        return std::make_unique<BreakStmtNode>();
+    }
+
+    ASTNodePtr Parser::ParseContinueStatement()
+    {
+        Consume(TokenType::Punctuation, "Expected ';' after 'continue'.");
+        return std::make_unique<ContinueStmtNode>();
     }
 
     ASTNodePtr Parser::ParseIfStatement()
@@ -267,7 +317,7 @@ namespace Arcanelab::Mano
         ASTNodePtr init = nullptr;
         if (!CheckType(TokenType::Punctuation) || std::string(Peek().lexeme) != ";")
             init = ParseDeclaration();
-        ConsumePunctuation(";", "Expected ';' after for initializer.");
+        // ConsumePunctuation(";", "Expected ';' after for initializer.");
         auto condition = ParseExpression();
         ConsumePunctuation(";", "Expected ';' after for condition.");
         auto increment = ParseExpression();
@@ -324,7 +374,7 @@ namespace Arcanelab::Mano
             return binary;
         }
         return left;
-    }    
+    }
 
     ASTNodePtr Parser::ParseLogicalOrExpression()
     {
@@ -340,7 +390,7 @@ namespace Arcanelab::Mano
             expr = std::move(binary);
         }
         return expr;
-    }    
+    }
 
     ASTNodePtr Parser::ParseLogicalAndExpression()
     {
@@ -356,13 +406,13 @@ namespace Arcanelab::Mano
             expr = std::move(binary);
         }
         return expr;
-    }    
+    }
 
     ASTNodePtr Parser::ParseEqualityExpression()
     {
         auto expr = ParseRelationalExpression();
         while (CheckType(TokenType::Operator) &&
-               (std::string(Peek().lexeme) == "==" || std::string(Peek().lexeme) == "!="))
+            (std::string(Peek().lexeme) == "==" || std::string(Peek().lexeme) == "!="))
         {
             // Now that we know the operator is one we want, consume it.
             std::string op = std::string(Advance().lexeme);
@@ -373,7 +423,7 @@ namespace Arcanelab::Mano
             expr = std::move(binary);
         }
         return expr;
-    }    
+    }
 
     ASTNodePtr Parser::ParseRelationalExpression()
     {
@@ -400,7 +450,7 @@ namespace Arcanelab::Mano
             }
         }
         return expr;
-    }    
+    }
 
     ASTNodePtr Parser::ParseAdditiveExpression()
     {

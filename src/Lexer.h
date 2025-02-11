@@ -53,19 +53,19 @@ namespace Arcanelab::Mano
         size_t line;
         size_t column;
         
-        Token NextToken();
         bool IsAtEnd() const;
-        char Peek() const;
-        char Advance();
-        void SkipWhitespace();
-        Token CreateToken(TokenType tokenType, std::string_view lexeme);
-        Token ScanIdentifier();
         bool IsKeyword(std::string_view text);
-        Token ScanNumber();
-        Token ScanString();
         bool IsOperator(char c);
-        Token ScanOperator();
         bool IsPunctuation(char c);
+        char Advance();
+        char Peek() const;
+        Token CreateToken(TokenType tokenType, std::string_view lexeme);
+        Token NextToken();
+        Token ScanIdentifier();
+        Token ScanNumber();
+        Token ScanOperator();
         Token ScanPunctuation();
+        Token ScanString();
+        void SkipWhitespace();
     };
 }

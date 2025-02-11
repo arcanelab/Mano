@@ -46,7 +46,7 @@ namespace Arcanelab::Mano
     struct EnumDeclNode : public ASTNode
     {
         std::string name;
-        ASTNodePtr body;
+        std::vector<std::string> values;
     };
 
     struct BlockNode : public ASTNode
@@ -126,6 +126,14 @@ namespace Arcanelab::Mano
         std::string name;
     };
 
+    struct BreakStmtNode : public ASTNode
+    {
+    };
+
+    struct ContinueStmtNode : public ASTNode
+    {
+    };
+
     class Parser
     {
     public:
@@ -156,9 +164,12 @@ namespace Arcanelab::Mano
         // Updated: Parameter list parsing.
         void ParseParameterList(std::vector<std::pair<std::string, std::string>>& parameters);
         ASTNodePtr ParseClassDeclaration();
+        std::vector<std::string> ParseEnumBody();
         ASTNodePtr ParseEnumDeclaration();
         ASTNodePtr ParseBlock();
         ASTNodePtr ParseStatement();
+        ASTNodePtr ParseBreakStatement();
+        ASTNodePtr ParseContinueStatement();
         ASTNodePtr ParseIfStatement();
         ASTNodePtr ParseForStatement();
         ASTNodePtr ParseWhileStatement();
