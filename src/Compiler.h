@@ -2,10 +2,13 @@
 #include <Parser.h>
 #include <string>
 #include <iostream>
+#include <iomanip>
 
 // Helper function to convert TokenType to string.
-std::string tokenTypeToString(Arcanelab::Mano::TokenType type) {
-    switch (type) {
+std::string tokenTypeToString(Arcanelab::Mano::TokenType type)
+{
+    switch (type)
+    {
         case Arcanelab::Mano::TokenType::Identifier:    return "Identifier";
         case Arcanelab::Mano::TokenType::Keyword:       return "Keyword";
         case Arcanelab::Mano::TokenType::Number:        return "Number";
@@ -14,7 +17,7 @@ std::string tokenTypeToString(Arcanelab::Mano::TokenType type) {
         case Arcanelab::Mano::TokenType::Punctuation:   return "Punctuation";
         case Arcanelab::Mano::TokenType::EndOfFile:     return "EndOfFile";
         case Arcanelab::Mano::TokenType::Unknown:       return "Unknown";
-        default:                                       return "Unknown";
+        default:                                        return "Unknown";
     }
 }
 
@@ -31,13 +34,23 @@ namespace Arcanelab::Mano
             if (tokens.empty())
                 return;
 
+            // Print header for clarity.
+            std::cout << std::left
+                << std::setw(20) << "Lexeme"
+                << std::setw(16) << "Coordinates"
+                << "Token Type" << "\n";
+            std::cout << std::string(20 + 16 + 12, '-') << "\n";
+
             for (auto&& token : tokens)
             {
-                // Here we print the token type using the helper function.
-                std::cout << "Token Type: " << tokenTypeToString(token.type)
-                    << " | Lexeme: [" << token.lexeme << "]"
-                    << " | Line: " << token.line
-                    << " | Column: " << token.column << "\n";        
+                // Construct a coordinate string of the form "(line, column)"
+                std::string coord = "(" + std::to_string(token.line) + ", " + std::to_string(token.column) + ")";
+
+                // Print lexeme, coordinates, and token type with fixed-width formatting.
+                std::cout << std::left
+                    << std::setw(20) << token.lexeme
+                    << std::setw(16) << coord
+                    << tokenTypeToString(token.type) << "\n";
             }
 
             Parser parser(tokens);
