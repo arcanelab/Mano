@@ -36,20 +36,23 @@ namespace Arcanelab::Mano
 
             // Print header for clarity.
             std::cout << std::left
-                << std::setw(20) << "Lexeme"
-                << std::setw(16) << "Coordinates"
+                << std::setw(5) << "Index"      // Add column for index
+                << std::setw(10) << "Lexeme"
+                << std::setw(10) << "Coordinates"
                 << "Token Type" << "\n";
-            std::cout << std::string(20 + 16 + 12, '-') << "\n";
+            std::cout << std::string(8 + 20 + 16 + 12, '-') << "\n";
 
+            int index = 0; // Initialize index counter
             for (auto&& token : tokens)
             {
                 // Construct a coordinate string of the form "(line, column)"
                 std::string coord = "(" + std::to_string(token.line) + ", " + std::to_string(token.column) + ")";
 
-                // Print lexeme, coordinates, and token type with fixed-width formatting.
+                // Print index, lexeme, coordinates, and token type with fixed-width formatting.
                 std::cout << std::left
-                    << std::setw(20) << token.lexeme
-                    << std::setw(16) << coord
+                    << std::setw(5) << index++  // Print and increment index
+                    << std::setw(10) << token.lexeme
+                    << std::setw(10) << coord
                     << tokenTypeToString(token.type) << "\n";
             }
 
