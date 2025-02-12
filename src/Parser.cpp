@@ -254,42 +254,30 @@ namespace Arcanelab::Mano
 
     ASTNodePtr Parser::ParseStatement()
     {
-        if (Match({ TokenType::Keyword }))
-        {
-            std::string kw = Previous().lexeme.data();
-            if (kw == "if")
-                return ParseIfStatement();
-            else if (kw == "for")
-                return ParseForStatement();
-            else if (kw == "while")
-                return ParseWhileStatement();
-            else if (kw == "return")
-                return ParseReturnStatement();
-            else if (kw == "break")
-                return ParseBreakStatement();
-            else if (kw == "continue")
-                return ParseContinueStatement();
-            else
-            {
-                m_current--; //Backtrack, it's not a handled keyword
-            }
-        }
+        if (MatchKeyword("if")) return ParseIfStatement();
+        if (MatchKeyword("for")) return ParseForStatement();
+        if (MatchKeyword("while")) return ParseWhileStatement();
+        if (MatchKeyword("return")) return ParseReturnStatement();
+        if (MatchKeyword("break")) return ParseBreakStatement();
+        if (MatchKeyword("continue")) return ParseContinueStatement();
+
+        // If none of the above, it must be an expression statement.
         auto expr = ParseExpression();
-        Consume(TokenType::Punctuation, "Expected ';' after expression statement.");
-        auto exprStmt = std::make_unique<ExprStmtNode>();
-        exprStmt->expression = std::move(expr);
-        return exprStmt;
+        ConsumePunctuation(";", "Expected ';' after expression statement.");
+        auto expressionNode = std::make_unique<ExprStmtNode>();
+        expressionNode->expression = std::move(expr);
+        return expressionNode;
     }
 
     ASTNodePtr Parser::ParseBreakStatement()
     {
-        Consume(TokenType::Punctuation, "Expected ';' after 'break'.");
+        ConsumePunctuation(";", "Expected ';' after 'break'.");
         return std::make_unique<BreakStmtNode>();
     }
 
     ASTNodePtr Parser::ParseContinueStatement()
     {
-        Consume(TokenType::Punctuation, "Expected ';' after 'continue'.");
+        ConsumePunctuation(";", "Expected ';' after 'break'.");
         return std::make_unique<ContinueStmtNode>();
     }
 
