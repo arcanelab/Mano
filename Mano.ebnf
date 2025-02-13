@@ -1,53 +1,39 @@
 (* A complete program is a sequence of declarations *)
 Program         = { Declaration } ;
 
-(* Declarations *)
 Declaration     = ConstantDeclaration
                 | VariableDeclaration
                 | FunctionDeclaration
                 | ClassDeclaration
                 | EnumDeclaration ;
 
-(* Constant declaration:
-   "let" Identifier ":" PrimitiveType "=" Expression ";" *)
 ConstantDeclaration
                 = "let" Identifier ":" PrimitiveType "=" Expression ";" ;
 
-(* Variable declaration:
-   "var" Identifier ":" Type [ "=" Expression ] ";" *)
 VariableDeclaration
                 = "var" Identifier ":" Type [ "=" Expression ] ";" ;
 
-(* Function declaration:
-   "fun" Identifier "(" [ ParameterList ] ")" [ ":" Type ] Block *)
 FunctionDeclaration
                 = "fun" Identifier "(" [ ParameterList ] ")" [ ":" Type ] Block ;
 
 ParameterList   = Parameter { "," Parameter } ;
 Parameter       = Identifier ":" [ "const" ] Type ;
 
-(* Class declaration: comprising properties and methods *)
 ClassDeclaration
                 = "class" Identifier Block ;
 
-(* Enum declaration *)
 EnumDeclaration = "enum" Identifier Block ;
 
-(* Types: primitive types, user-defined types, and array types *)
 Type            = PrimitiveType
                 | Identifier
                 | ArrayType ;
 
-(* Primitive types for constants *)
 PrimitiveType   = "int" | "uint" | "float" | "bool" | "string" ;
 
-(* Array type: a type enclosed in square brackets *)
 ArrayType       = "[" PrimitiveType | Identifier "]" ;
 
-(* Block: a group of declarations/statements *)
 Block           = "{" { Declaration | Statement } "}" ;
 
-(* Statements *)
 Statement       = Block
                 | ExpressionStatement ";"
                 | IfStatement
@@ -71,8 +57,7 @@ ContinueStatement
                 = "continue" ;
 ReturnStatement = "return" [ Expression ] ;
 
-(* Expressions, with standard operator precedence.
-   For now, bitwise and ternary operators are left out but can be added later. *)
+(*   For now, bitwise and ternary operators are left out but may be added later. *)
 Expression      = AssignmentExpression ;
 
 AssignmentExpression
@@ -123,14 +108,12 @@ ArgumentList    = Expression { "," Expression } ;
 ObjectInstantiation
                 = Identifier "(" [ ArgumentList ] ")" ;
 
-(* Literals *)
 Literal         = IntegerLiteral | FloatLiteral | BoolLiteral | StringLiteral ;
 
 IntegerLiteral  = Digit { Digit } ;
 FloatLiteral    = Digit { Digit } "." Digit { Digit } ;
 BoolLiteral     = "true" | "false" ;
 
-(* Array literal: a list of expressions enclosed in square brackets *)
 ArrayLiteral    = "[" [ ExpressionList ] "]" ;
 ExpressionList  = Expression { "," Expression } ;
 
