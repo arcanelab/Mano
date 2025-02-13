@@ -24,7 +24,7 @@ FunctionDeclaration
                 = "fun" Identifier "(" [ ParameterList ] ")" [ ":" Type ] Block ;
 
 ParameterList   = Parameter { "," Parameter } ;
-Parameter       = Identifier ":" Type ;
+Parameter       = Identifier ":" [ "const" ] Type ;
 
 (* Class declaration: comprising properties and methods *)
 ClassDeclaration
