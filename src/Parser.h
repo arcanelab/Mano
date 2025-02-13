@@ -21,10 +21,18 @@ namespace Arcanelab::Mano
         std::vector<ASTNodePtr> declarations;
     };
 
+    struct TypeNode : public ASTNode
+    {
+        std::string name;      // "int", "string", "[float]", etc.
+        bool isConst;
+    };
+
+    using TypeNodePtr = std::unique_ptr<TypeNode>;
+
     struct VarDeclNode : public ASTNode
     {
         std::string name;
-        std::string typeName;
+        TypeNodePtr type;
         ASTNodePtr initializer;
         // This node is used for both constants (let) and variables (var).
     };
@@ -32,8 +40,8 @@ namespace Arcanelab::Mano
     struct FunDeclNode : public ASTNode
     {
         std::string name;
-        std::vector<std::pair<std::string, std::string>> parameters;
-        std::string returnType;
+        std::vector<std::pair<std::string, TypeNodePtr>> parameters;
+        TypeNodePtr returnType;
         ASTNodePtr body;
     };
 
@@ -134,6 +142,11 @@ namespace Arcanelab::Mano
     {
     };
 
+    struct ArrayLiteralNode : public ASTNode
+    {
+        std::vector<ASTNodePtr> elements;
+    };
+
     class Parser
     {
     public:
@@ -150,19 +163,17 @@ namespace Arcanelab::Mano
         const Token& Advance();
         bool CheckType(TokenType type) const;
         bool Match(const std::initializer_list<TokenType>& types);
-        // Helper that checks for a specific keyword.
         bool MatchKeyword(const std::string& expected);
         const Token& Consume(TokenType type, const std::string& message);
-        // NEW helper: Verify that the punctuation token has the expected lexeme.
-        const Token& ConsumePunctuation(const std::string &expected, const std::string &message);
+        const Token& ConsumePunctuation(const std::string& expected, const std::string& message);
         void ErrorAtCurrent(const std::string& message);
 
+        TypeNodePtr ParseType(bool isConst);
         ASTNodePtr ParseDeclaration();
-        ASTNodePtr ParseConstantDeclaration(); // for "let" declarations.
+        ASTNodePtr ParseConstantDeclaration();
         ASTNodePtr ParseVariableDeclaration();
         ASTNodePtr ParseFunctionDeclaration();
-        // Updated: Parameter list parsing.
-        void ParseParameterList(std::vector<std::pair<std::string, std::string>>& parameters);
+        void ParseParameterList(std::vector<std::pair<std::string, TypeNodePtr>>& parameters);
         ASTNodePtr ParseClassDeclaration();
         std::vector<std::string> ParseEnumBody();
         ASTNodePtr ParseEnumDeclaration();
@@ -184,6 +195,7 @@ namespace Arcanelab::Mano
         ASTNodePtr ParseMultiplicativeExpression();
         ASTNodePtr ParseUnaryExpression();
         ASTNodePtr ParsePrimaryExpression();
+        std::vector<ASTNodePtr> ParseArgumentList();
     };
 
 } // namespace Arcanelab::Mano

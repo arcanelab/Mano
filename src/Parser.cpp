@@ -96,8 +96,6 @@ namespace Arcanelab::Mano
             auto decl = ParseDeclaration();
             if (decl)
                 program->declarations.push_back(std::move(decl));
-            else
-                ErrorAtCurrent("Declaration expected");
         }
         return program;
     }
@@ -114,7 +112,44 @@ namespace Arcanelab::Mano
             return ParseClassDeclaration();
         if (MatchKeyword("enum"))
             return ParseEnumDeclaration();
-        return ParseStatement();
+
+        ErrorAtCurrent("Expected declaration.");
+        return nullptr;
+    }
+
+    TypeNodePtr Parser::ParseType(bool isConst)
+    {
+        if (Match({ TokenType::Keyword }))
+        {
+            // Handle primitive types (int, uint, float, bool, string).
+            auto typeNode = std::make_unique<TypeNode>();
+            typeNode->name = std::string(Previous().lexeme);
+            typeNode->isConst = isConst;
+            return typeNode;
+        }
+        else if (Match({ TokenType::Identifier }))
+        {
+            // Handle user defined types (Identifier)
+            auto typeNode = std::make_unique<TypeNode>();
+            typeNode->name = std::string(Previous().lexeme);
+            typeNode->isConst = isConst;
+            return typeNode;
+        }
+        else if (Match({ TokenType::Punctuation }) && std::string(Previous().lexeme) == "[") //Check for '['
+        {
+            //Handle array type.
+            auto arrayType = ParseType(false); // Recursively parse element type.
+            ConsumePunctuation("]", "Expected ']' after array element type.");
+            //Construct the type name to be, for instance, "[int]".
+            auto typeNode = std::make_unique<TypeNode>();
+            typeNode->name = "[" + arrayType->name + "]";
+            typeNode->isConst = isConst;
+
+            return typeNode;
+
+        }
+        ErrorAtCurrent("Expected type name.");
+        return nullptr;
     }
 
     ASTNodePtr Parser::ParseConstantDeclaration()
@@ -123,7 +158,9 @@ namespace Arcanelab::Mano
         auto constDecl = std::make_unique<VarDeclNode>(); // Also used for constants.
         constDecl->name = std::string(Consume(TokenType::Identifier, "Expected constant name.").lexeme);
         ConsumePunctuation(":", "Expected ':' after constant name.");
-        constDecl->typeName = std::string(Consume(TokenType::Keyword, "Expected type after ':'.").lexeme);
+        auto typeNode = ParseType(true); // Pass 'true' for const.
+        constDecl->type = std::move(typeNode);
+
         // Match an operator token with "=".
         if (!(Match({ TokenType::Operator }) && std::string(Previous().lexeme) == "="))
         {
@@ -139,7 +176,9 @@ namespace Arcanelab::Mano
         auto varDecl = std::make_unique<VarDeclNode>();
         varDecl->name = std::string(Consume(TokenType::Identifier, "Expected variable name.").lexeme);
         ConsumePunctuation(":", "Expected ':' after variable name.");
-        varDecl->typeName = std::string(Consume(TokenType::Keyword, "Expected type name.").lexeme);
+        auto typeNode = ParseType(false); // Pass 'false' for non-const.
+        varDecl->type = std::move(typeNode);
+
         if (Match({ TokenType::Operator }) && std::string(Previous().lexeme) == "=")
         {
             varDecl->initializer = ParseExpression();
@@ -154,7 +193,7 @@ namespace Arcanelab::Mano
         funDecl->name = std::string(Consume(TokenType::Identifier, "Expected function name.").lexeme);
         ConsumePunctuation("(", "Expected '(' after function name.");
         // Only parse parameters if the next token is not a closing parenthesis.
-        if (!(CheckType(TokenType::Punctuation) && std::string(Peek().lexeme) == ")"))
+        if (CheckType(TokenType::Identifier)) //we now check if it's an identifier
         {
             ParseParameterList(funDecl->parameters);
         }
@@ -163,30 +202,31 @@ namespace Arcanelab::Mano
         if (CheckType(TokenType::Punctuation) && std::string(Peek().lexeme) == ":")
         {
             Advance(); // Consume the colon.
-            funDecl->returnType = std::string(Consume(TokenType::Keyword, "Expected return type.").lexeme);
+            auto returnType = ParseType(false); // Return types are not const by default
+            funDecl->returnType = std::move(returnType);
         }
         funDecl->body = ParseBlock();
         return funDecl;
     }
 
-    // Updated ParseParameterList so we don't consume the closing ')'
-    void Parser::ParseParameterList(std::vector<std::pair<std::string, std::string>>& parameters)
+    void Parser::ParseParameterList(std::vector<std::pair<std::string, TypeNodePtr>>& parameters)
     {
         // At least one parameter is expected.
+        if (CheckType(TokenType::Identifier))
         {
             std::string paramName = std::string(Consume(TokenType::Identifier, "Expected parameter name.").lexeme);
             ConsumePunctuation(":", "Expected ':' after parameter name.");
-            std::string paramType = std::string(Consume(TokenType::Keyword, "Expected parameter type.").lexeme);
-            parameters.push_back({ paramName, paramType });
+            TypeNodePtr paramType = ParseType(false); // Parameters are not const by default
+            parameters.push_back({ paramName, std::move(paramType) });
         }
-        // Now, while the next token is a comma, consume it and parse another parameter.
+
         while (CheckType(TokenType::Punctuation) && std::string(Peek().lexeme) == ",")
         {
             Advance(); // Consume the comma.
             std::string paramName = std::string(Consume(TokenType::Identifier, "Expected parameter name after comma.").lexeme);
             ConsumePunctuation(":", "Expected ':' after parameter name.");
-            std::string paramType = std::string(Consume(TokenType::Keyword, "Expected parameter type.").lexeme);
-            parameters.push_back({ paramName, paramType });
+            TypeNodePtr paramType = ParseType(false); // Parameters are not const by default
+            parameters.push_back({ paramName, std::move(paramType) });
         }
     }
 
@@ -246,7 +286,20 @@ namespace Arcanelab::Mano
         auto block = std::make_unique<BlockNode>();
         while (!CheckType(TokenType::Punctuation) || std::string(Peek().lexeme) != "}")
         {
-            block->statements.push_back(ParseDeclaration());
+            //Check for declaration keywords first.
+            if (CheckType(TokenType::Keyword) &&
+                (std::string(Peek().lexeme) == "let" ||
+                    std::string(Peek().lexeme) == "var" ||
+                    std::string(Peek().lexeme) == "fun" ||
+                    std::string(Peek().lexeme) == "class" ||
+                    std::string(Peek().lexeme) == "enum"))
+            {
+                block->statements.push_back(ParseDeclaration());
+            }
+            else //It must be a statement
+            {
+                block->statements.push_back(ParseStatement());
+            }
         }
         ConsumePunctuation("}", "Expected '}' to close block.");
         return block;
@@ -264,9 +317,9 @@ namespace Arcanelab::Mano
         // If none of the above, it must be an expression statement.
         auto expr = ParseExpression();
         ConsumePunctuation(";", "Expected ';' after expression statement.");
-        auto expressionNode = std::make_unique<ExprStmtNode>();
-        expressionNode->expression = std::move(expr);
-        return expressionNode;
+        auto expressionNode = std::make_unique<ExprStmtNode>(); // CREATE THE NODE
+        expressionNode->expression = std::move(expr);           // STORE THE EXPRESSION
+        return expressionNode;                                  // RETURN THE NODE
     }
 
     ASTNodePtr Parser::ParseBreakStatement()
@@ -303,9 +356,11 @@ namespace Arcanelab::Mano
     {
         ConsumePunctuation("(", "Expected '(' after 'for'.");
         ASTNodePtr init = nullptr;
-        if (!CheckType(TokenType::Punctuation) || std::string(Peek().lexeme) != ";")
-            init = ParseDeclaration();
-        // ConsumePunctuation(";", "Expected ';' after for initializer.");
+
+        // The grammar now enforces that the initialization part *must* be a VariableDeclaration.
+        init = ParseVariableDeclaration();
+
+        ConsumePunctuation(";", "Expected ';' after for initializer.");
         auto condition = ParseExpression();
         ConsumePunctuation(";", "Expected ';' after for condition.");
         auto increment = ParseExpression();
@@ -494,6 +549,19 @@ namespace Arcanelab::Mano
         return ParsePrimaryExpression();
     }
 
+    std::vector<ASTNodePtr> Parser::ParseArgumentList()
+    {
+        std::vector<ASTNodePtr> arguments;
+        if (!CheckType(TokenType::Punctuation) || std::string(Peek().lexeme) != ")") //check it's not an empty list.
+        {
+            do
+            {
+                arguments.push_back(ParseExpression());
+            } while (Match({ TokenType::Punctuation }) && std::string(Previous().lexeme) == ","); //consume ","
+        }
+        return arguments;
+    }
+
     ASTNodePtr Parser::ParsePrimaryExpression()
     {
         if (Match({ TokenType::Identifier }))
@@ -504,11 +572,7 @@ namespace Arcanelab::Mano
             if (CheckType(TokenType::Punctuation) && std::string(Peek().lexeme) == "(")
             {
                 Advance(); // consume the "("
-                // Consume all tokens until we find the matching ")".
-                while (!CheckType(TokenType::Punctuation) || std::string(Peek().lexeme) != ")")
-                {
-                    Advance();
-                }
+                auto args = ParseArgumentList(); //Parse arguments.
                 ConsumePunctuation(")", "Expected ')' after arguments.");
             }
             auto idNode = std::make_unique<IdentifierNode>();
@@ -526,6 +590,12 @@ namespace Arcanelab::Mano
             auto expr = ParseExpression();
             ConsumePunctuation(")", "Expected ')' after expression.");
             return expr;
+        }
+        if (Match({ TokenType::Punctuation }) && std::string(Previous().lexeme) == "[") //array literal
+        {
+            //TODO: Parse array literal.
+            ErrorAtCurrent("Array literals not yet implemented in parser.");
+            return nullptr;
         }
         ErrorAtCurrent("Expected expression");
         return nullptr;
