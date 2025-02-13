@@ -103,9 +103,9 @@ namespace Arcanelab::Mano
     ASTNodePtr Parser::ParseDeclaration()
     {
         if (MatchKeyword("let"))
-            return ParseConstantDeclaration();
+            return ParseVariableDeclaration(true);
         if (MatchKeyword("var"))
-            return ParseVariableDeclaration();
+            return ParseVariableDeclaration(false);
         if (MatchKeyword("fun"))
             return ParseFunctionDeclaration();
         if (MatchKeyword("class"))
@@ -117,7 +117,7 @@ namespace Arcanelab::Mano
         return nullptr;
     }
 
-    TypeNodePtr Parser::ParseType(bool isConst)
+    TypeNodePtr Parser::ParseType(const bool isConst)
     {
         if (Match({ TokenType::Keyword }))
         {
@@ -152,36 +152,21 @@ namespace Arcanelab::Mano
         return nullptr;
     }
 
-    ASTNodePtr Parser::ParseConstantDeclaration()
-    {
-        // "let" has already been consumed.
-        auto constDecl = std::make_unique<VarDeclNode>(); // Also used for constants.
-        constDecl->name = std::string(Consume(TokenType::Identifier, "Expected constant name.").lexeme);
-        ConsumePunctuation(":", "Expected ':' after constant name.");
-        auto typeNode = ParseType(true); // Pass 'true' for const.
-        constDecl->type = std::move(typeNode);
-
-        // Match an operator token with "=".
-        if (!(Match({ TokenType::Operator }) && std::string(Previous().lexeme) == "="))
-        {
-            ErrorAtCurrent("Expected '=' after type.");
-        }
-        constDecl->initializer = ParseExpression();
-        ConsumePunctuation(";", "Expected ';' after constant declaration.");
-        return constDecl;
-    }
-
-    ASTNodePtr Parser::ParseVariableDeclaration()
+    ASTNodePtr Parser::ParseVariableDeclaration(const bool isConst)
     {
         auto varDecl = std::make_unique<VarDeclNode>();
         varDecl->name = std::string(Consume(TokenType::Identifier, "Expected variable name.").lexeme);
         ConsumePunctuation(":", "Expected ':' after variable name.");
-        auto typeNode = ParseType(false); // Pass 'false' for non-const.
+        auto typeNode = ParseType(isConst);
         varDecl->type = std::move(typeNode);
 
         if (Match({ TokenType::Operator }) && std::string(Previous().lexeme) == "=")
         {
             varDecl->initializer = ParseExpression();
+        }
+        else if (isConst)
+        {
+            ErrorAtCurrent("Expected '=' after type for constant declaration.");
         }
         ConsumePunctuation(";", "Expected ';' after variable declaration.");
         return varDecl;
@@ -358,7 +343,7 @@ namespace Arcanelab::Mano
         ASTNodePtr init = nullptr;
 
         // The grammar now enforces that the initialization part *must* be a VariableDeclaration.
-        init = ParseVariableDeclaration();
+        init = ParseVariableDeclaration(false);
 
         ConsumePunctuation(";", "Expected ';' after for initializer.");
         auto condition = ParseExpression();

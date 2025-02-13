@@ -180,10 +180,9 @@ namespace Arcanelab::Mano
         const Token& ConsumePunctuation(const std::string& expected, const std::string& message);
         void ErrorAtCurrent(const std::string& message);
 
-        TypeNodePtr ParseType(bool isConst);
+        TypeNodePtr ParseType(const bool isConst);
         ASTNodePtr ParseDeclaration();
-        ASTNodePtr ParseConstantDeclaration();
-        ASTNodePtr ParseVariableDeclaration();
+        ASTNodePtr ParseVariableDeclaration(const bool isConst);
         ASTNodePtr ParseFunctionDeclaration();
         void ParseParameterList(std::vector<std::pair<std::string, TypeNodePtr>>& parameters);
         ASTNodePtr ParseClassDeclaration();
