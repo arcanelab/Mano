@@ -42,7 +42,7 @@ Type            = PrimitiveType
 PrimitiveType   = "int" | "uint" | "float" | "bool" | "string" ;
 
 (* Array type: a type enclosed in square brackets *)
-ArrayType       = "[" Type "]" ;
+ArrayType       = "[" PrimitiveType | Identifier "]" ;
 
 (* Block: a group of declarations/statements *)
 Block           = "{" { Declaration | Statement } "}" ;
@@ -76,7 +76,11 @@ ReturnStatement = "return" [ Expression ] ;
 Expression      = AssignmentExpression ;
 
 AssignmentExpression
-                = LogicalOrExpression [ "=" AssignmentExpression ] ;
+                = LeftHandSideExpression "=" AssignmentExpression
+                | LogicalOrExpression;
+
+LeftHandSideExpression
+                = PrimaryExpression;
 
 LogicalOrExpression
                 = LogicalAndExpression { "||" LogicalAndExpression } ;
@@ -104,7 +108,11 @@ PrimaryExpression
                 | ArrayLiteral
                 | "(" Expression ")"
                 | FunctionCall
-                | ObjectInstantiation ;
+                | ObjectInstantiation
+                | MemberAccess ;
+
+MemberAccess
+                = PrimaryExpression "." Identifier ;
 
 (* A function call uses the same syntax as object instantiation.
    Semantic analysis will distinguish them by looking up Identifier in the symbol table. *)
