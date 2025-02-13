@@ -62,8 +62,7 @@ ExpressionStatement
 
 IfStatement     = "if" "(" Expression ")" Block [ "else" Block ] ;
 
-ForStatement    = "for" "(" ForInit ";" Expression ";" Expression ")" Block ;
-ForInit         = VariableDeclaration | Expression ;
+ForStatement    = "for" "(" VariableDeclaration ";" Expression ";" Expression ")" Block ;
 
 WhileStatement  = "while" "(" Expression ")" Block ;
 
