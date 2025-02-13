@@ -147,6 +147,18 @@ namespace Arcanelab::Mano
         std::vector<ASTNodePtr> elements;
     };
 
+    struct FunctionCallNode : public ASTNode
+    {
+        std::string name;
+        std::vector<ASTNodePtr> arguments;
+    };
+
+    struct ObjectInstantiationNode : public ASTNode
+    {
+        std::string name;
+        std::vector<ASTNodePtr> arguments;
+    };
+
     class Parser
     {
     public:
@@ -196,6 +208,7 @@ namespace Arcanelab::Mano
         ASTNodePtr ParseUnaryExpression();
         ASTNodePtr ParsePrimaryExpression();
         std::vector<ASTNodePtr> ParseArgumentList();
+        std::vector<ASTNodePtr> ParseExpressionList();
     };
 
 } // namespace Arcanelab::Mano

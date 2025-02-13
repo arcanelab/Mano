@@ -574,6 +574,15 @@ namespace Arcanelab::Mano
                 Advance(); // consume the "("
                 auto args = ParseArgumentList(); //Parse arguments.
                 ConsumePunctuation(")", "Expected ')' after arguments.");
+
+                // TODO: Distinguish between FunctionCall and ObjectInstantiation
+                // during semantic analysis.  For now, we'll create a
+                // FunctionCallNode.  Later, we'll add a lookup in the
+                // symbol table.
+                auto functionCallNode = std::make_unique<FunctionCallNode>();
+                functionCallNode->name = name;
+                functionCallNode->arguments = std::move(args);
+                return functionCallNode;
             }
             auto idNode = std::make_unique<IdentifierNode>();
             idNode->name = name;
@@ -593,11 +602,29 @@ namespace Arcanelab::Mano
         }
         if (Match({ TokenType::Punctuation }) && std::string(Previous().lexeme) == "[") //array literal
         {
-            //TODO: Parse array literal.
-            ErrorAtCurrent("Array literals not yet implemented in parser.");
-            return nullptr;
+            auto arrayLiteral = std::make_unique<ArrayLiteralNode>();
+            if (CheckType(TokenType::Punctuation) && std::string(Peek().lexeme) == "]")
+            {
+                Advance(); // Consume the ']' of an empty array.
+                return arrayLiteral; // Return empty array literal.
+            }
+            arrayLiteral->elements = ParseExpressionList();
+            ConsumePunctuation("]", "Expected ']' after array elements.");
+
+            return arrayLiteral;
         }
         ErrorAtCurrent("Expected expression");
         return nullptr;
+    }
+
+    std::vector<ASTNodePtr> Parser::ParseExpressionList()
+    {
+        std::vector<ASTNodePtr> expressions;
+        expressions.push_back(ParseExpression()); // Parse the first expression
+        while (Match({ TokenType::Punctuation }) && std::string(Previous().lexeme) == ",") //consume ","
+        {
+            expressions.push_back(ParseExpression()); //Parse subsequent expressions.
+        }
+        return expressions;
     }
 } // namespace Arcanelab::Mano
