@@ -343,9 +343,9 @@ namespace Arcanelab::Mano
         ASTNodePtr init = nullptr;
 
         // The grammar now enforces that the initialization part *must* be a VariableDeclaration.
-        init = ParseVariableDeclaration(false);
+        if (MatchKeyword("var"))
+            init = ParseVariableDeclaration(false);
 
-        ConsumePunctuation(";", "Expected ';' after for initializer.");
         auto condition = ParseExpression();
         ConsumePunctuation(";", "Expected ';' after for condition.");
         auto increment = ParseExpression();
