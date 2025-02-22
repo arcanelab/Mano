@@ -53,7 +53,6 @@ namespace Arcanelab::Mano
         return false;
     }
 
-    // Only consumes the token if it is a Keyword and its lexeme equals expected.
     bool Parser::MatchKeyword(const std::string& expected)
     {
         if (CheckType(TokenType::Keyword) && Peek().lexeme == expected)
@@ -82,7 +81,6 @@ namespace Arcanelab::Mano
         return false;
     }
 
-    // NEW helper: consumes a punctuation token with an expected lexeme.
     const Token& Parser::ConsumePunctuation(const std::string& expected, const std::string& message)
     {
         if (!IsAtEnd() && Peek().type == TokenType::Punctuation && Peek().lexeme == expected)
@@ -314,9 +312,9 @@ namespace Arcanelab::Mano
         // If none of the above, it must be an expression statement.
         auto expr = ParseExpression();
         ConsumePunctuation(";", "Expected ';' after expression statement.");
-        auto expressionNode = std::make_unique<ExpressionStatementNode>(); // CREATE THE NODE
-        expressionNode->expression = std::move(expr);           // STORE THE EXPRESSION
-        return expressionNode;                                  // RETURN THE NODE
+        auto expressionNode = std::make_unique<ExpressionStatementNode>();
+        expressionNode->expression = std::move(expr);
+        return expressionNode;
     }
 
     ASTNodePtr Parser::ParseBreakStatement()
@@ -354,7 +352,6 @@ namespace Arcanelab::Mano
         ConsumePunctuation("(", "Expected '(' after 'for'.");
         ASTNodePtr init = nullptr;
 
-        // The grammar now enforces that the initialization part *must* be a VariableDeclaration.
         if (MatchKeyword("var"))
             init = ParseVariableDeclaration(false);
 
@@ -403,7 +400,6 @@ namespace Arcanelab::Mano
     ASTNodePtr Parser::ParseAssignmentExpression()
     {
         auto left = ParseLogicalOrExpression();
-        // Use lookahead instead of Match to check for the assignment operator.
         if (CheckType(TokenType::Operator) && Peek().lexeme == "=")
         {
             Advance(); // consume the "=" operator.
@@ -498,7 +494,6 @@ namespace Arcanelab::Mano
         while (CheckType(TokenType::Operator) &&
             (Peek().lexeme == "+" || Peek().lexeme == "-"))
         {
-            // Only then consume the operator.
             std::string op = std::string(Advance().lexeme);
             auto binary = std::make_unique<BinaryExpressionNode>();
             binary->left = std::move(expr);
@@ -612,7 +607,6 @@ namespace Arcanelab::Mano
             return expr;
         }
 
-        // Rest of the method remains unchanged below this line
         if (Match({ TokenType::Number, TokenType::String, TokenType::Keyword }))
         {
             auto lit = std::make_unique<LiteralNode>();
