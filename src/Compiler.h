@@ -34,6 +34,16 @@ namespace Arcanelab::Mano
             if (tokens.empty())
                 return;
 
+            PrintTokens(tokens);
+
+            Parser parser(tokens);
+            ASTNodePtr ast = parser.ParseProgram();
+            PrintASTTree(ast.get());
+        }
+
+    private:
+        void PrintTokens(const std::vector<Token>& tokens)
+        {
             // Print header for clarity.
             std::cout << std::left
                 << std::setw(5) << "Index"      // Add column for index
@@ -55,13 +65,8 @@ namespace Arcanelab::Mano
                     << std::setw(10) << coord
                     << tokenTypeToString(token.type) << "\n";
             }
-
-            Parser parser(tokens);
-            auto ast = parser.ParseProgram();
-            PrintASTTree(ast.get());
         }
 
-    private:
         void PrintASTTree(const ASTNode* root)
         {
             // Recursive lambda function to print an AST node.
