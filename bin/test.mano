@@ -1,3 +1,4 @@
+// vim: syntax=Swift
 // Constant and Variable Declarations
 let pi: float = 3.14159;
 var score: uint = 100;
