@@ -300,12 +300,49 @@ namespace Arcanelab::Mano
                         PrintAST(arg.get(), indent + 2);
                 }
             }
+            else if (auto switchStmt = dynamic_cast<const SwitchStmtNode*>(node))
+            {
+                PrintIndent(indent);
+                std::cout << "SwitchStmtNode\n";
+                PrintIndent(indent + 1);
+                std::cout << "Expression:\n";
+                PrintAST(switchStmt->expression.get(), indent + 2);
+                if (!switchStmt->cases.empty())
+                {
+                    PrintIndent(indent + 1);
+                    std::cout << "Cases:\n";
+                    for (const auto& casePair : switchStmt->cases)
+                    {
+                        PrintIndent(indent + 2);
+                        std::cout << "Case:\n";
+                        PrintIndent(indent + 3);
+                        std::cout << "Expression:\n";
+                        PrintAST(casePair.first.get(), indent + 4);
+                        PrintIndent(indent + 3);
+                        std::cout << "Body:\n";
+                        PrintAST(casePair.second.get(), indent + 4);
+                    }
+                }
+                if (switchStmt->defaultCase)
+                {
+                    PrintIndent(indent + 1);
+                    std::cout << "Default Case:\n";
+                    PrintAST(switchStmt->defaultCase.get(), indent + 2);
+                }
+            }
+            else if (auto member = dynamic_cast<const MemberAccessNode*>(node))
+            {
+                PrintIndent(indent);
+                std::cout << "MemberAccessNode: ." << member->memberName << "\n";
+                PrintIndent(indent + 1);
+                std::cout << "Object:\n";
+                PrintAST(member->object.get(), indent + 2);
+            }
             else
             {
                 PrintIndent(indent);
                 std::cout << "Unknown AST Node\n";
             }
         }
-        
     };
 } // namespace Arcanelab::Mano

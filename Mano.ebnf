@@ -41,7 +41,8 @@ Statement       = Block
                 | WhileStatement
                 | BreakStatement ";"
                 | ContinueStatement ";"
-                | ReturnStatement ";" ;
+                | ReturnStatement ";"
+                | SwitchStatement ;
 
 ExpressionStatement
                 = Expression ;
@@ -51,6 +52,12 @@ IfStatement     = "if" "(" Expression ")" Block [ "else" Block ] ;
 ForStatement    = "for" "(" VariableDeclaration ";" Expression ";" Expression ")" Block ;
 
 WhileStatement  = "while" "(" Expression ")" Block ;
+
+SwitchStatement = "switch" "(" Expression ")" SwitchBlock ;
+SwitchBlock     = "{" { CaseClause } "}" ;
+CaseClause      = Case | Default ;
+Case            = "case" Expression ":" Block ;
+Default         = "default" ":" Block ;
 
 BreakStatement  = "break" ;
 ContinueStatement

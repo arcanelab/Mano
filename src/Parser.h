@@ -93,6 +93,19 @@ namespace Arcanelab::Mano
         ASTNodePtr body;
     };
 
+    struct SwitchStmtNode : public ASTNode
+    {
+        ASTNodePtr expression;
+        std::vector<std::pair<ASTNodePtr, ASTNodePtr>> cases; // (case_expr, block)
+        ASTNodePtr defaultCase; // Optional default block
+    };
+
+    struct MemberAccessNode : public ASTNode
+    {
+        ASTNodePtr object;
+        std::string memberName;
+    };
+
     enum class BinaryOperator
     {
         Assign,
@@ -209,6 +222,7 @@ namespace Arcanelab::Mano
         ASTNodePtr ParsePrimaryExpression();
         std::vector<ASTNodePtr> ParseArgumentList();
         std::vector<ASTNodePtr> ParseExpressionList();
+        ASTNodePtr ParseSwitchStatement();
     };
 
 } // namespace Arcanelab::Mano

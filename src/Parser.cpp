@@ -309,6 +309,7 @@ namespace Arcanelab::Mano
         if (MatchKeyword("return")) return ParseReturnStatement();
         if (MatchKeyword("break")) return ParseBreakStatement();
         if (MatchKeyword("continue")) return ParseContinueStatement();
+        if (MatchKeyword("switch")) return ParseSwitchStatement();
 
         // If none of the above, it must be an expression statement.
         auto expr = ParseExpression();
@@ -550,10 +551,12 @@ namespace Arcanelab::Mano
         std::vector<ASTNodePtr> arguments;
         if (!CheckType(TokenType::Punctuation) || Peek().lexeme != ")") //check it's not an empty list.
         {
-            do
+            arguments.push_back(ParseExpression());
+            while (CheckType(TokenType::Punctuation) && Peek().lexeme == ",")
             {
+                Advance(); // Consume ","
                 arguments.push_back(ParseExpression());
-            } while (Match({ TokenType::Punctuation }) && std::string(Previous().lexeme) == ","); //consume ","
+            }
         }
         return arguments;
     }
@@ -569,6 +572,7 @@ namespace Arcanelab::Mano
             {
                 Advance(); // consume the "("
                 auto args = ParseArgumentList(); //Parse arguments.
+                ConsumePunctuation(")", "Expected ')' after arguments");
                 // TODO: Distinguish between FunctionCall and ObjectInstantiation
                 // during semantic analysis.  For now, we'll create a
                 // FunctionCallNode.  Later, we'll add a lookup in the
@@ -578,9 +582,17 @@ namespace Arcanelab::Mano
                 functionCallNode->arguments = std::move(args);
                 return functionCallNode;
             }
-            auto idNode = std::make_unique<IdentifierNode>();
-            idNode->name = name;
-            return idNode;
+            ASTNodePtr expr = std::make_unique<IdentifierNode>();
+            static_cast<IdentifierNode*>(expr.get())->name = name;
+
+            while (MatchPunctuation("."))
+            {
+                auto memberAccess = std::make_unique<MemberAccessNode>();
+                memberAccess->object = std::move(expr);
+                memberAccess->memberName = std::string(Consume(TokenType::Identifier, "Expected member name after '.'").lexeme);
+                expr = std::move(memberAccess);
+            }
+            return expr;
         }
 
         if (Match({ TokenType::Number, TokenType::String, TokenType::Keyword }))
@@ -624,5 +636,43 @@ namespace Arcanelab::Mano
             expressions.push_back(ParseExpression()); //Parse subsequent expressions.
         }
         return expressions;
+    }
+
+    ASTNodePtr Parser::ParseSwitchStatement()
+    {
+        ConsumePunctuation("(", "Expected '(' after 'switch'.");
+        auto expr = ParseExpression();
+        ConsumePunctuation(")", "Expected ')' after switch expression.");
+        ConsumePunctuation("{", "Expected '{' to start switch body.");
+    
+        auto switchNode = std::make_unique<SwitchStmtNode>();
+        switchNode->expression = std::move(expr);
+    
+        while (!CheckType(TokenType::Punctuation) || Peek().lexeme != "}")
+        {
+            if (MatchKeyword("case"))
+            {
+                auto caseExpr = ParseExpression();
+                ConsumePunctuation(":", "Expected ':' after case expression.");
+                auto caseBlock = ParseBlock();
+                switchNode->cases.emplace_back(std::move(caseExpr), std::move(caseBlock));
+            }
+            else if (MatchKeyword("default"))
+            {
+                ConsumePunctuation(":", "Expected ':' after 'default'.");
+                auto defaultBlock = ParseBlock();
+                if (switchNode->defaultCase)
+                {
+                    ErrorAtCurrent("Multiple default clauses in switch statement.");
+                }
+                switchNode->defaultCase = std::move(defaultBlock);
+            } else
+            {
+                ErrorAtCurrent("Expected 'case' or 'default' in switch statement.");
+            }
+        }
+    
+        ConsumePunctuation("}", "Expected '}' to close switch body.");
+        return switchNode;
     }
 } // namespace Arcanelab::Mano

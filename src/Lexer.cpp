@@ -103,7 +103,8 @@ namespace Arcanelab::Mano
         return (text == "var" || text == "fun" || text == "class" || text == "enum" ||
             text == "if" || text == "else" || text == "for" || text == "while" ||
             text == "break" || text == "continue" || text == "return" || text == "let" ||
-            text == "int" || text == "uint" || text == "float" || text == "bool" || text == "string");
+            text == "int" || text == "uint" || text == "float" || text == "bool" ||
+            text == "string" || text == "switch" || text == "case" || text == "default");
     }
 
     Token Lexer::ScanNumber()
@@ -187,7 +188,8 @@ namespace Arcanelab::Mano
     bool Lexer::IsPunctuation(char c)
     {
         return (c == '(' || c == ')' || c == '{' || c == '}' ||
-            c == '[' || c == ']' || c == ',' || c == ':' || c == ';');
+            c == '[' || c == ']' || c == ',' || c == ':' ||
+            c == ';' || c == '.');
     }
 
     Token Lexer::ScanPunctuation()
