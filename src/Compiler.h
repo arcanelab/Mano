@@ -58,291 +58,290 @@ namespace Arcanelab::Mano
 
             Parser parser(tokens);
             auto ast = parser.ParseProgram();
-            PrintAST(ast.get(), 0);
-        }
-    private:
-        void PrintIndent(int indent)
-        {
-            for (int i = 0; i < indent; i++)
-                std::cout << "  ";
+            PrintASTTree(ast.get());
         }
 
-        void PrintAST(const ASTNode* node, int indent)
+    private:
+        void PrintASTTree(const ASTNode* root)
         {
-            if (!node)
-                return;
-        
-            if (auto program = dynamic_cast<const ProgramNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "ProgramNode\n";
-                for (const auto& decl : program->declarations)
-                    PrintAST(decl.get(), indent + 1);
-            }
-            else if (auto varDecl = dynamic_cast<const VarDeclNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "VarDeclNode: " << varDecl->name << "\n";
-                PrintIndent(indent + 1);
-                std::cout << "Type:\n";
-                PrintAST(varDecl->type.get(), indent + 2);
-                if (varDecl->initializer)
+            // Recursive lambda to print an AST node.
+            auto printNode = [&](auto&& self, const ASTNode* node, const std::string& prefix, bool isLast) -> void {
+                if (!node)
+                    return;
+
+                // Create the branch string for this node.
+                std::string branch = prefix;
+                branch += (isLast ? "└── " : "├── ");
+
+                // Determine a label for the node based on its concrete type.
+                std::string nodeLabel;
+                if (auto prog = dynamic_cast<const ProgramNode*>(node))
                 {
-                    PrintIndent(indent + 1);
-                    std::cout << "Initializer:\n";
-                    PrintAST(varDecl->initializer.get(), indent + 2);
+                    nodeLabel = "ProgramNode";
                 }
-            }
-            else if (auto funDecl = dynamic_cast<const FunDeclNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "FunDeclNode: " << funDecl->name << "\n";
-                if (!funDecl->parameters.empty())
+                else if (auto typeNode = dynamic_cast<const TypeNode*>(node))
                 {
-                    PrintIndent(indent + 1);
-                    std::cout << "Parameters:\n";
-                    for (const auto& param : funDecl->parameters)
+                    nodeLabel = "TypeNode (" + typeNode->name + (typeNode->isConst ? " const)" : " )");
+                }
+                else if (auto varDecl = dynamic_cast<const VarDeclNode*>(node))
+                {
+                    nodeLabel = "VarDeclNode (" + varDecl->name + ")";
+                }
+                else if (auto funDecl = dynamic_cast<const FunDeclNode*>(node))
+                {
+                    nodeLabel = "FunDeclNode (" + funDecl->name + ")";
+                }
+                else if (auto classDecl = dynamic_cast<const ClassDeclNode*>(node))
+                {
+                    nodeLabel = "ClassDeclNode (" + classDecl->name + ")";
+                }
+                else if (auto enumDecl = dynamic_cast<const EnumDeclNode*>(node))
+                {
+                    nodeLabel = "EnumDeclNode (" + enumDecl->name + ")";
+                }
+                else if (auto block = dynamic_cast<const BlockNode*>(node))
+                {
+                    nodeLabel = "BlockNode";
+                }
+                else if (auto exprStmt = dynamic_cast<const ExprStmtNode*>(node))
+                {
+                    nodeLabel = "ExprStmtNode";
+                }
+                else if (auto retStmt = dynamic_cast<const ReturnStmtNode*>(node))
+                {
+                    nodeLabel = "ReturnStmtNode";
+                }
+                else if (auto ifStmt = dynamic_cast<const IfStmtNode*>(node))
+                {
+                    nodeLabel = "IfStmtNode";
+                }
+                else if (auto forStmt = dynamic_cast<const ForStmtNode*>(node))
+                {
+                    nodeLabel = "ForStmtNode";
+                }
+                else if (auto whileStmt = dynamic_cast<const WhileStmtNode*>(node))
+                {
+                    nodeLabel = "WhileStmtNode";
+                }
+                else if (auto switchStmt = dynamic_cast<const SwitchStmtNode*>(node))
+                {
+                    nodeLabel = "SwitchStmtNode";
+                }
+                else if (auto memberAccess = dynamic_cast<const MemberAccessNode*>(node))
+                {
+                    nodeLabel = "MemberAccessNode (." + memberAccess->memberName + ")";
+                }
+                else if (auto binaryExpr = dynamic_cast<const BinaryExprNode*>(node))
+                {
+                    std::string opStr;
+                    switch (binaryExpr->op)
                     {
-                        PrintIndent(indent + 2);
-                        std::cout << param.first << ": ";
-                        PrintAST(param.second.get(), 0);
+                        case BinaryOperator::Assign:         opStr = "="; break;
+                        case BinaryOperator::LogicalOr:      opStr = "||"; break;
+                        case BinaryOperator::LogicalAnd:     opStr = "&&"; break;
+                        case BinaryOperator::Equal:          opStr = "=="; break;
+                        case BinaryOperator::NotEqual:       opStr = "!="; break;
+                        case BinaryOperator::Less:           opStr = "<"; break;
+                        case BinaryOperator::Greater:        opStr = ">"; break;
+                        case BinaryOperator::LessEqual:      opStr = "<="; break;
+                        case BinaryOperator::GreaterEqual:   opStr = ">="; break;
+                        case BinaryOperator::Add:            opStr = "+"; break;
+                        case BinaryOperator::Subtract:       opStr = "-"; break;
+                        case BinaryOperator::Multiply:       opStr = "*"; break;
+                        case BinaryOperator::Divide:         opStr = "/"; break;
+                        case BinaryOperator::Modulo:         opStr = "%"; break;
+                        default:                             opStr = "op"; break;
+                    }
+                    nodeLabel = "BinaryExprNode (" + opStr + ")";
+                }
+                else if (auto unaryExpr = dynamic_cast<const UnaryExprNode*>(node))
+                {
+                    nodeLabel = "UnaryExprNode (" + unaryExpr->op + ")";
+                }
+                else if (auto literal = dynamic_cast<const LiteralNode*>(node))
+                {
+                    nodeLabel = "LiteralNode (" + literal->value + ")";
+                }
+                else if (auto ident = dynamic_cast<const IdentifierNode*>(node))
+                {
+                    nodeLabel = "IdentifierNode (" + ident->name + ")";
+                }
+                else if (dynamic_cast<const BreakStmtNode*>(node))
+                {
+                    nodeLabel = "BreakStmtNode";
+                }
+                else if (dynamic_cast<const ContinueStmtNode*>(node))
+                {
+                    nodeLabel = "ContinueStmtNode";
+                }
+                else if (auto arrayLiteral = dynamic_cast<const ArrayLiteralNode*>(node))
+                {
+                    nodeLabel = "ArrayLiteralNode";
+                }
+                else if (auto funcCall = dynamic_cast<const FunctionCallNode*>(node))
+                {
+                    nodeLabel = "FunctionCallNode (" + funcCall->name + ")";
+                }
+                else if (auto objInst = dynamic_cast<const ObjectInstantiationNode*>(node))
+                {
+                    nodeLabel = "ObjectInstantiationNode (" + objInst->name + ")";
+                }
+                else
+                {
+                    nodeLabel = "Unknown ASTNode";
+                }
+                std::cout << branch << nodeLabel << std::endl;
+
+                // Container for children nodes (if they exist).
+                std::vector<const ASTNode*> children;
+
+                if (auto prog = dynamic_cast<const ProgramNode*>(node))
+                {
+                    for (const auto& decl : prog->declarations)
+                        children.push_back(decl.get());
+                }
+                else if (auto varDecl = dynamic_cast<const VarDeclNode*>(node))
+                {
+                    if (varDecl->type) children.push_back(varDecl->type.get());
+                    if (varDecl->initializer) children.push_back(varDecl->initializer.get());
+                }
+                else if (auto funDecl = dynamic_cast<const FunDeclNode*>(node))
+                {
+                    // The parameters are printed as pseudo-nodes.
+                    for (size_t i = 0; i < funDecl->parameters.size(); ++i)
+                    {
+                        bool lastParam = (i == funDecl->parameters.size() - 1);
+                        std::string paramLabel = "Param: " + funDecl->parameters[i].first;
+                        std::string paramBranch = prefix + (isLast ? "    " : "│   ");
+                        paramBranch += (lastParam ? "└── " : "├── ");
+                        std::cout << paramBranch << paramLabel << std::endl;
+                        // Print the type node with an extended prefix.
+                        if (funDecl->parameters[i].second)
+                        {
+                            std::string typePrefix = prefix + (isLast ? "    " : "│   ");
+                            typePrefix += (lastParam ? "    " : "│   ");
+                            self(self, funDecl->parameters[i].second.get(), typePrefix, true);
+                        }
+                    }
+                    if (funDecl->returnType)
+                        children.push_back(funDecl->returnType.get());
+                    if (funDecl->body)
+                        children.push_back(funDecl->body.get());
+                }
+                else if (auto classDecl = dynamic_cast<const ClassDeclNode*>(node))
+                {
+                    if (classDecl->body) children.push_back(classDecl->body.get());
+                }
+                else if (auto enumDecl = dynamic_cast<const EnumDeclNode*>(node))
+                {
+                    // Print each enum value as a pseudo-child.
+                    for (size_t i = 0; i < enumDecl->values.size(); i++)
+                    {
+                        // Treat each enumerator as a child.
+                        std::string valueLabel = "EnumValue: " + enumDecl->values[i];
+                        std::string valueBranch = prefix + (isLast ? "    " : "│   ") + "├── ";
+                        std::cout << valueBranch << valueLabel << std::endl;
                     }
                 }
-                if (funDecl->returnType)
+                else if (auto block = dynamic_cast<const BlockNode*>(node))
                 {
-                    PrintIndent(indent + 1);
-                    std::cout << "Return Type:\n";
-                    PrintAST(funDecl->returnType.get(), indent + 2);
+                    for (const auto& stmt : block->statements)
+                        children.push_back(stmt.get());
                 }
-                PrintIndent(indent + 1);
-                std::cout << "Body:\n";
-                PrintAST(funDecl->body.get(), indent + 2);
-            }
-            else if (auto classDecl = dynamic_cast<const ClassDeclNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "ClassDeclNode: " << classDecl->name << "\n";
-                PrintIndent(indent + 1);
-                std::cout << "Body:\n";
-                PrintAST(classDecl->body.get(), indent + 2);
-            }
-            else if (auto enumDecl = dynamic_cast<const EnumDeclNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "EnumDeclNode: " << enumDecl->name << "\n";
-                if (!enumDecl->values.empty())
+                else if (auto exprStmt = dynamic_cast<const ExprStmtNode*>(node))
                 {
-                    PrintIndent(indent + 1);
-                    std::cout << "Values:";
-                    for (const auto& val : enumDecl->values)
-                        std::cout << " " << val;
-                    std::cout << "\n";
+                    if (exprStmt->expression) children.push_back(exprStmt->expression.get());
                 }
-            }
-            else if (auto block = dynamic_cast<const BlockNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "BlockNode\n";
-                for (const auto& stmt : block->statements)
-                    PrintAST(stmt.get(), indent + 1);
-            }
-            else if (auto exprStmt = dynamic_cast<const ExprStmtNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "ExprStmtNode\n";
-                PrintAST(exprStmt->expression.get(), indent + 1);
-            }
-            else if (auto retStmt = dynamic_cast<const ReturnStmtNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "ReturnStmtNode\n";
-                if (retStmt->expression)
-                    PrintAST(retStmt->expression.get(), indent + 1);
-            }
-            else if (auto ifStmt = dynamic_cast<const IfStmtNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "IfStmtNode\n";
-                PrintIndent(indent + 1);
-                std::cout << "Condition:\n";
-                PrintAST(ifStmt->condition.get(), indent + 2);
-                PrintIndent(indent + 1);
-                std::cout << "Then Branch:\n";
-                PrintAST(ifStmt->thenBranch.get(), indent + 2);
-                if (ifStmt->elseBranch)
+                else if (auto retStmt = dynamic_cast<const ReturnStmtNode*>(node))
                 {
-                    PrintIndent(indent + 1);
-                    std::cout << "Else Branch:\n";
-                    PrintAST(ifStmt->elseBranch.get(), indent + 2);
+                    if (retStmt->expression) children.push_back(retStmt->expression.get());
                 }
-            }
-            else if (auto forStmt = dynamic_cast<const ForStmtNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "ForStmtNode\n";
-                PrintIndent(indent + 1);
-                std::cout << "Initialization:\n";
-                PrintAST(forStmt->init.get(), indent + 2);
-                PrintIndent(indent + 1);
-                std::cout << "Condition:\n";
-                PrintAST(forStmt->condition.get(), indent + 2);
-                PrintIndent(indent + 1);
-                std::cout << "Increment:\n";
-                PrintAST(forStmt->increment.get(), indent + 2);
-                PrintIndent(indent + 1);
-                std::cout << "Body:\n";
-                PrintAST(forStmt->body.get(), indent + 2);
-            }
-            else if (auto whileStmt = dynamic_cast<const WhileStmtNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "WhileStmtNode\n";
-                PrintIndent(indent + 1);
-                std::cout << "Condition:\n";
-                PrintAST(whileStmt->condition.get(), indent + 2);
-                PrintIndent(indent + 1);
-                std::cout << "Body:\n";
-                PrintAST(whileStmt->body.get(), indent + 2);
-            }
-            else if (auto binaryExpr = dynamic_cast<const BinaryExprNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "BinaryExprNode: ";
-                switch (binaryExpr->op)
+                else if (auto ifStmt = dynamic_cast<const IfStmtNode*>(node))
                 {
-                    case BinaryOperator::Assign:       std::cout << "="; break;
-                    case BinaryOperator::LogicalOr:    std::cout << "||"; break;
-                    case BinaryOperator::LogicalAnd:   std::cout << "&&"; break;
-                    case BinaryOperator::Equal:        std::cout << "=="; break;
-                    case BinaryOperator::NotEqual:     std::cout << "!="; break;
-                    case BinaryOperator::Less:         std::cout << "<"; break;
-                    case BinaryOperator::Greater:      std::cout << ">"; break;
-                    case BinaryOperator::LessEqual:    std::cout << "<="; break;
-                    case BinaryOperator::GreaterEqual: std::cout << ">="; break;
-                    case BinaryOperator::Add:          std::cout << "+"; break;
-                    case BinaryOperator::Subtract:     std::cout << "-"; break;
-                    case BinaryOperator::Multiply:     std::cout << "*"; break;
-                    case BinaryOperator::Divide:       std::cout << "/"; break;
-                    case BinaryOperator::Modulo:       std::cout << "%"; break;
-                    default:                           std::cout << "unknown"; break;
+                    if (ifStmt->condition) children.push_back(ifStmt->condition.get());
+                    if (ifStmt->thenBranch) children.push_back(ifStmt->thenBranch.get());
+                    if (ifStmt->elseBranch) children.push_back(ifStmt->elseBranch.get());
                 }
-                std::cout << "\n";
-                PrintIndent(indent + 1);
-                std::cout << "Left:\n";
-                PrintAST(binaryExpr->left.get(), indent + 2);
-                PrintIndent(indent + 1);
-                std::cout << "Right:\n";
-                PrintAST(binaryExpr->right.get(), indent + 2);
-            }
-            else if (auto unaryExpr = dynamic_cast<const UnaryExprNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "UnaryExprNode: " << unaryExpr->op << "\n";
-                PrintAST(unaryExpr->operand.get(), indent + 1);
-            }
-            // Added branch for TypeNode to correctly print type information.
-            else if (auto typeNode = dynamic_cast<const TypeNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "TypeNode: " << typeNode->name;
-                if (typeNode->isConst)
-                    std::cout << " (const)";
-                std::cout << "\n";
-            }
-            else if (auto literal = dynamic_cast<const LiteralNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "LiteralNode: " << literal->value << "\n";
-            }
-            else if (auto identifier = dynamic_cast<const IdentifierNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "IdentifierNode: " << identifier->name << "\n";
-            }
-            else if (dynamic_cast<const BreakStmtNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "BreakStmtNode\n";
-            }
-            else if (dynamic_cast<const ContinueStmtNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "ContinueStmtNode\n";
-            }
-            else if (auto arrayLiteral = dynamic_cast<const ArrayLiteralNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "ArrayLiteralNode\n";
-                for (const auto& element : arrayLiteral->elements)
-                    PrintAST(element.get(), indent + 1);
-            }
-            else if (auto funcCall = dynamic_cast<const FunctionCallNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "FunctionCallNode: " << funcCall->name << "\n";
-                if (!funcCall->arguments.empty())
+                else if (auto forStmt = dynamic_cast<const ForStmtNode*>(node))
                 {
-                    PrintIndent(indent + 1);
-                    std::cout << "Arguments:\n";
+                    if (forStmt->init) children.push_back(forStmt->init.get());
+                    if (forStmt->condition) children.push_back(forStmt->condition.get());
+                    if (forStmt->increment) children.push_back(forStmt->increment.get());
+                    if (forStmt->body) children.push_back(forStmt->body.get());
+                }
+                else if (auto whileStmt = dynamic_cast<const WhileStmtNode*>(node))
+                {
+                    if (whileStmt->condition) children.push_back(whileStmt->condition.get());
+                    if (whileStmt->body) children.push_back(whileStmt->body.get());
+                }
+                else if (auto switchStmt = dynamic_cast<const SwitchStmtNode*>(node))
+                {
+                    if (switchStmt->expression)
+                        children.push_back(switchStmt->expression.get());
+                    // Process each switch case as a pseudo-node.
+                    for (size_t i = 0; i < switchStmt->cases.size(); i++)
+                    {
+                        // If there's a default later, no case is the absolute last.
+                        bool isLastCase = (i == switchStmt->cases.size() - 1 && switchStmt->defaultCase == nullptr);
+                        std::string caseBranch = prefix + (isLast ? "    " : "│   ");
+                        caseBranch += (isLastCase ? "└── " : "├── ");
+                        std::cout << caseBranch << "Case:" << std::endl;
+                        // Build a new prefix with the extra virtual branch for the case children.
+                        std::string casePrefix = prefix + (isLast ? "    " : "│   ");
+                        casePrefix += (isLastCase ? "    " : "│   ");
+                        // First child of case: the case expression.
+                        self(self, switchStmt->cases[i].first.get(), casePrefix, false);
+                        // Second child: the block.
+                        self(self, switchStmt->cases[i].second.get(), casePrefix, true);
+                    }
+                    if (switchStmt->defaultCase)
+                    {
+                        std::string defaultBranch = prefix + (isLast ? "    " : "│   ") + "└── ";
+                        std::cout << defaultBranch << "Default:" << std::endl;
+                        std::string defPrefix = prefix + (isLast ? "    " : "│   ") + "    ";
+                        self(self, switchStmt->defaultCase.get(), defPrefix, true);
+                    }
+                }
+                else if (auto memberAccess = dynamic_cast<const MemberAccessNode*>(node))
+                {
+                    if (memberAccess->object) children.push_back(memberAccess->object.get());
+                }
+                else if (auto binaryExpr = dynamic_cast<const BinaryExprNode*>(node))
+                {
+                    if (binaryExpr->left) children.push_back(binaryExpr->left.get());
+                    if (binaryExpr->right) children.push_back(binaryExpr->right.get());
+                }
+                else if (auto unaryExpr = dynamic_cast<const UnaryExprNode*>(node))
+                {
+                    if (unaryExpr->operand) children.push_back(unaryExpr->operand.get());
+                }
+                else if (auto arrayLiteral = dynamic_cast<const ArrayLiteralNode*>(node))
+                {
+                    for (const auto& elem : arrayLiteral->elements)
+                        children.push_back(elem.get());
+                }
+                else if (auto funcCall = dynamic_cast<const FunctionCallNode*>(node))
+                {
+                    if (funcCall->callTarget) children.push_back(funcCall->callTarget.get());
                     for (const auto& arg : funcCall->arguments)
-                        PrintAST(arg.get(), indent + 2);
+                        children.push_back(arg.get());
                 }
-            }
-            else if (auto objInst = dynamic_cast<const ObjectInstantiationNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "ObjectInstantiationNode: " << objInst->name << "\n";
-                if (!objInst->arguments.empty())
+                else if (auto objInst = dynamic_cast<const ObjectInstantiationNode*>(node))
                 {
-                    PrintIndent(indent + 1);
-                    std::cout << "Arguments:\n";
                     for (const auto& arg : objInst->arguments)
-                        PrintAST(arg.get(), indent + 2);
+                        children.push_back(arg.get());
                 }
-            }
-            else if (auto switchStmt = dynamic_cast<const SwitchStmtNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "SwitchStmtNode\n";
-                PrintIndent(indent + 1);
-                std::cout << "Expression:\n";
-                PrintAST(switchStmt->expression.get(), indent + 2);
-                if (!switchStmt->cases.empty())
+
+                // Recurse over the gathered children.
+                for (size_t i = 0; i < children.size(); i++)
                 {
-                    PrintIndent(indent + 1);
-                    std::cout << "Cases:\n";
-                    for (const auto& casePair : switchStmt->cases)
-                    {
-                        PrintIndent(indent + 2);
-                        std::cout << "Case:\n";
-                        PrintIndent(indent + 3);
-                        std::cout << "Expression:\n";
-                        PrintAST(casePair.first.get(), indent + 4);
-                        PrintIndent(indent + 3);
-                        std::cout << "Body:\n";
-                        PrintAST(casePair.second.get(), indent + 4);
-                    }
+                    bool lastChild = (i == children.size() - 1);
+                    std::string newPrefix = prefix + (isLast ? "    " : "│   ");
+                    self(self, children[i], newPrefix, lastChild);
                 }
-                if (switchStmt->defaultCase)
-                {
-                    PrintIndent(indent + 1);
-                    std::cout << "Default Case:\n";
-                    PrintAST(switchStmt->defaultCase.get(), indent + 2);
-                }
-            }
-            else if (auto member = dynamic_cast<const MemberAccessNode*>(node))
-            {
-                PrintIndent(indent);
-                std::cout << "MemberAccessNode: ." << member->memberName << "\n";
-                PrintIndent(indent + 1);
-                std::cout << "Object:\n";
-                PrintAST(member->object.get(), indent + 2);
-            }
-            else
-            {
-                PrintIndent(indent);
-                std::cout << "Unknown AST Node\n";
-            }
+                };
+
+            printNode(printNode, root, "", true);
         }
     };
 } // namespace Arcanelab::Mano
