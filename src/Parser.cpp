@@ -326,7 +326,7 @@ namespace Arcanelab::Mano
         ConsumePunctuation(")", "Expected ')' after if condition.");
         auto thenBranch = ParseBlock();
         ASTNodePtr elseBranch = nullptr;
-        if (Match({ TokenType::Keyword }) && std::string(Previous().lexeme) == "else")
+        if (MatchKeyword("else"))
         {
             elseBranch = ParseBlock();
         }
