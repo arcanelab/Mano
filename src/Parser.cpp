@@ -569,8 +569,6 @@ namespace Arcanelab::Mano
             {
                 Advance(); // consume the "("
                 auto args = ParseArgumentList(); //Parse arguments.
-                ConsumePunctuation(")", "Expected ')' after arguments.");
-
                 // TODO: Distinguish between FunctionCall and ObjectInstantiation
                 // during semantic analysis.  For now, we'll create a
                 // FunctionCallNode.  Later, we'll add a lookup in the
