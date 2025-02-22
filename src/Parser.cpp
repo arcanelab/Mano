@@ -56,7 +56,7 @@ namespace Arcanelab::Mano
     // Only consumes the token if it is a Keyword and its lexeme equals expected.
     bool Parser::MatchKeyword(const std::string& expected)
     {
-        if (CheckType(TokenType::Keyword) && std::string(Peek().lexeme) == expected)
+        if (CheckType(TokenType::Keyword) && Peek().lexeme == expected)
         {
             Advance();
             return true;
@@ -74,7 +74,7 @@ namespace Arcanelab::Mano
 
     bool Parser::MatchPunctuation(const std::string& expected)
     {
-        if (CheckType(TokenType::Punctuation) && std::string(Peek().lexeme) == expected)
+        if (CheckType(TokenType::Punctuation) && Peek().lexeme == expected)
         {
             Advance();
             return true;
@@ -85,7 +85,7 @@ namespace Arcanelab::Mano
     // NEW helper: consumes a punctuation token with an expected lexeme.
     const Token& Parser::ConsumePunctuation(const std::string& expected, const std::string& message)
     {
-        if (!IsAtEnd() && Peek().type == TokenType::Punctuation && std::string(Peek().lexeme) == expected)
+        if (!IsAtEnd() && Peek().type == TokenType::Punctuation && Peek().lexeme == expected)
             return Advance();
         ErrorAtCurrent(message);
         return Peek(); // Unreachable.
@@ -195,7 +195,7 @@ namespace Arcanelab::Mano
         }
         ConsumePunctuation(")", "Expected ')' after parameters.");
         // Check for an optional return type.
-        if (CheckType(TokenType::Punctuation) && std::string(Peek().lexeme) == ":")
+        if (CheckType(TokenType::Punctuation) && Peek().lexeme == ":")
         {
             Advance(); // Consume the colon.
             auto returnType = ParseType(false); // Return types are not const by default
@@ -216,7 +216,7 @@ namespace Arcanelab::Mano
             parameters.push_back({ paramName, std::move(paramType) });
         }
 
-        while (CheckType(TokenType::Punctuation) && std::string(Peek().lexeme) == ",")
+        while (CheckType(TokenType::Punctuation) && Peek().lexeme == ",")
         {
             Advance(); // Consume the comma.
             std::string paramName = std::string(Consume(TokenType::Identifier, "Expected parameter name after comma.").lexeme);
@@ -248,7 +248,7 @@ namespace Arcanelab::Mano
         ConsumePunctuation("{", "Expected '{' to start enum body.");
 
         // Empty enum.
-        if (CheckType(TokenType::Punctuation) && std::string(Peek().lexeme) == "}")
+        if (CheckType(TokenType::Punctuation) && Peek().lexeme == "}")
         {
             Advance(); // consume "}"
             return values;
@@ -261,7 +261,7 @@ namespace Arcanelab::Mano
             values.push_back(enumName);
 
             // If there's a comma, consume it and continue.
-            if (CheckType(TokenType::Punctuation) && std::string(Peek().lexeme) == ",")
+            if (CheckType(TokenType::Punctuation) && Peek().lexeme == ",")
             {
                 Advance(); // consume comma
             }
@@ -280,15 +280,15 @@ namespace Arcanelab::Mano
     {
         ConsumePunctuation("{", "Expected '{' to start a block.");
         auto block = std::make_unique<BlockNode>();
-        while (!CheckType(TokenType::Punctuation) || std::string(Peek().lexeme) != "}")
+        while (!CheckType(TokenType::Punctuation) || Peek().lexeme != "}")
         {
             //Check for declaration keywords first.
             if (CheckType(TokenType::Keyword) &&
-                (std::string(Peek().lexeme) == "let" ||
-                    std::string(Peek().lexeme) == "var" ||
-                    std::string(Peek().lexeme) == "fun" ||
-                    std::string(Peek().lexeme) == "class" ||
-                    std::string(Peek().lexeme) == "enum"))
+                (Peek().lexeme == "let" ||
+                    Peek().lexeme == "var" ||
+                    Peek().lexeme == "fun" ||
+                    Peek().lexeme == "class" ||
+                    Peek().lexeme == "enum"))
             {
                 block->statements.push_back(ParseDeclaration());
             }
@@ -386,7 +386,7 @@ namespace Arcanelab::Mano
     ASTNodePtr Parser::ParseReturnStatement()
     {
         auto retStmt = std::make_unique<ReturnStmtNode>();
-        if (!CheckType(TokenType::Punctuation) || std::string(Peek().lexeme) != ";")
+        if (!CheckType(TokenType::Punctuation) || Peek().lexeme != ";")
         {
             retStmt->expression = ParseExpression();
         }
@@ -403,7 +403,7 @@ namespace Arcanelab::Mano
     {
         auto left = ParseLogicalOrExpression();
         // Use lookahead instead of Match to check for the assignment operator.
-        if (CheckType(TokenType::Operator) && std::string(Peek().lexeme) == "=")
+        if (CheckType(TokenType::Operator) && Peek().lexeme == "=")
         {
             Advance(); // consume the "=" operator.
             auto binary = std::make_unique<BinaryExprNode>();
@@ -419,7 +419,7 @@ namespace Arcanelab::Mano
     {
         auto expr = ParseLogicalAndExpression();
         // Only consume "||" operators.
-        while (CheckType(TokenType::Operator) && std::string(Peek().lexeme) == "||")
+        while (CheckType(TokenType::Operator) && Peek().lexeme == "||")
         {
             Advance(); // consume the "||" token
             auto binary = std::make_unique<BinaryExprNode>();
@@ -435,7 +435,7 @@ namespace Arcanelab::Mano
     {
         auto expr = ParseEqualityExpression();
         // Only consume "&&" operators.
-        while (CheckType(TokenType::Operator) && std::string(Peek().lexeme) == "&&")
+        while (CheckType(TokenType::Operator) && Peek().lexeme == "&&")
         {
             Advance(); // consume the "&&" token
             auto binary = std::make_unique<BinaryExprNode>();
@@ -451,7 +451,7 @@ namespace Arcanelab::Mano
     {
         auto expr = ParseRelationalExpression();
         while (CheckType(TokenType::Operator) &&
-            (std::string(Peek().lexeme) == "==" || std::string(Peek().lexeme) == "!="))
+            (Peek().lexeme == "==" || Peek().lexeme == "!="))
         {
             // Now that we know the operator is one we want, consume it.
             std::string op = std::string(Advance().lexeme);
@@ -495,7 +495,7 @@ namespace Arcanelab::Mano
     {
         auto expr = ParseMultiplicativeExpression();
         while (CheckType(TokenType::Operator) &&
-            (std::string(Peek().lexeme) == "+" || std::string(Peek().lexeme) == "-"))
+            (Peek().lexeme == "+" || Peek().lexeme == "-"))
         {
             // Only then consume the operator.
             std::string op = std::string(Advance().lexeme);
@@ -512,9 +512,9 @@ namespace Arcanelab::Mano
     {
         auto expr = ParseUnaryExpression();
         while (CheckType(TokenType::Operator) &&
-            (std::string(Peek().lexeme) == "*" ||
-                std::string(Peek().lexeme) == "/" ||
-                std::string(Peek().lexeme) == "%"))
+            (Peek().lexeme == "*" ||
+                Peek().lexeme == "/" ||
+                Peek().lexeme == "%"))
         {
             // Now that we know the operator is one we want, consume it.
             std::string op = std::string(Advance().lexeme);
@@ -548,7 +548,7 @@ namespace Arcanelab::Mano
     std::vector<ASTNodePtr> Parser::ParseArgumentList()
     {
         std::vector<ASTNodePtr> arguments;
-        if (!CheckType(TokenType::Punctuation) || std::string(Peek().lexeme) != ")") //check it's not an empty list.
+        if (!CheckType(TokenType::Punctuation) || Peek().lexeme != ")") //check it's not an empty list.
         {
             do
             {
@@ -565,7 +565,7 @@ namespace Arcanelab::Mano
             std::string name = std::string(Previous().lexeme);
             // Look ahead to see if the identifier is followed by an opening parenthesis,
             // indicating a function call or object instantiation.
-            if (CheckType(TokenType::Punctuation) && std::string(Peek().lexeme) == "(")
+            if (CheckType(TokenType::Punctuation) && Peek().lexeme == "(")
             {
                 Advance(); // consume the "("
                 auto args = ParseArgumentList(); //Parse arguments.
@@ -591,18 +591,18 @@ namespace Arcanelab::Mano
             lit->value = std::string(Previous().lexeme);
             return lit;
         }
-        
+
         if (MatchPunctuation("("))
         {
             auto expr = ParseExpression();
             ConsumePunctuation(")", "Expected ')' after expression.");
             return expr;
         }
-        
+
         if (MatchPunctuation("["))
         {
             auto arrayLiteral = std::make_unique<ArrayLiteralNode>();
-            if (CheckType(TokenType::Punctuation) && std::string(Peek().lexeme) == "]")
+            if (CheckType(TokenType::Punctuation) && Peek().lexeme == "]")
             {
                 Advance(); // Consume the ']' of an empty array.
                 return arrayLiteral; // Return empty array literal.
