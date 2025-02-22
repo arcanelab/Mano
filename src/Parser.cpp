@@ -1,4 +1,5 @@
 #include "Parser.h"
+#include "Lexer.h"
 #include <cassert>
 #include <iostream>
 #include <cstdlib>
@@ -69,6 +70,16 @@ namespace Arcanelab::Mano
             return Advance();
         ErrorAtCurrent(message);
         return Peek(); // Unreachable, but required for compilation.
+    }
+
+    bool Parser::MatchPunctuation(const std::string& expected)
+    {
+        if (CheckType(TokenType::Punctuation) && std::string(Peek().lexeme) == expected)
+        {
+            Advance();
+            return true;
+        }
+        return false;
     }
 
     // NEW helper: consumes a punctuation token with an expected lexeme.
@@ -573,19 +584,22 @@ namespace Arcanelab::Mano
             idNode->name = name;
             return idNode;
         }
+
         if (Match({ TokenType::Number, TokenType::String, TokenType::Keyword }))
         {
             auto lit = std::make_unique<LiteralNode>();
             lit->value = std::string(Previous().lexeme);
             return lit;
         }
-        if (Match({ TokenType::Punctuation }) && std::string(Previous().lexeme) == "(")
+        
+        if (MatchPunctuation("("))
         {
             auto expr = ParseExpression();
             ConsumePunctuation(")", "Expected ')' after expression.");
             return expr;
         }
-        if (Match({ TokenType::Punctuation }) && std::string(Previous().lexeme) == "[") //array literal
+        
+        if (MatchPunctuation("["))
         {
             auto arrayLiteral = std::make_unique<ArrayLiteralNode>();
             if (CheckType(TokenType::Punctuation) && std::string(Peek().lexeme) == "]")
@@ -606,8 +620,9 @@ namespace Arcanelab::Mano
     {
         std::vector<ASTNodePtr> expressions;
         expressions.push_back(ParseExpression()); // Parse the first expression
-        while (Match({ TokenType::Punctuation }) && std::string(Previous().lexeme) == ",") //consume ","
+        while (CheckType(TokenType::Punctuation) && Peek().lexeme == ",")
         {
+            Advance();
             expressions.push_back(ParseExpression()); //Parse subsequent expressions.
         }
         return expressions;

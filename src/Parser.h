@@ -176,6 +176,7 @@ namespace Arcanelab::Mano
         bool CheckType(TokenType type) const;
         bool Match(const std::initializer_list<TokenType>& types);
         bool MatchKeyword(const std::string& expected);
+        bool MatchPunctuation(const std::string& expected);
         const Token& Consume(TokenType type, const std::string& message);
         const Token& ConsumePunctuation(const std::string& expected, const std::string& message);
         void ErrorAtCurrent(const std::string& message);
