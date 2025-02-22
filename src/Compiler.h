@@ -67,7 +67,7 @@ namespace Arcanelab::Mano
                 std::cout << "  ";
         }
 
-        void PrintAST(const ASTNode* node, int indent = 0)
+        void PrintAST(const ASTNode* node, int indent)
         {
             if (!node)
                 return;
@@ -240,6 +240,15 @@ namespace Arcanelab::Mano
                 std::cout << "UnaryExprNode: " << unaryExpr->op << "\n";
                 PrintAST(unaryExpr->operand.get(), indent + 1);
             }
+            // Added branch for TypeNode to correctly print type information.
+            else if (auto typeNode = dynamic_cast<const TypeNode*>(node))
+            {
+                PrintIndent(indent);
+                std::cout << "TypeNode: " << typeNode->name;
+                if (typeNode->isConst)
+                    std::cout << " (const)";
+                std::cout << "\n";
+            }
             else if (auto literal = dynamic_cast<const LiteralNode*>(node))
             {
                 PrintIndent(indent);
@@ -297,5 +306,6 @@ namespace Arcanelab::Mano
                 std::cout << "Unknown AST Node\n";
             }
         }
+        
     };
 } // namespace Arcanelab::Mano
