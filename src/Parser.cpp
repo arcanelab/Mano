@@ -598,7 +598,7 @@ namespace Arcanelab::Mano
                     Advance(); // consume "("
                     auto args = ParseArgumentList();
                     ConsumePunctuation(")", "Expected ')' after arguments");
-    
+
                     auto methodCall = std::make_unique<FunctionCallNode>();
                     methodCall->callTarget = std::move(expr); // Store member access
                     methodCall->arguments = std::move(args);
@@ -662,10 +662,10 @@ namespace Arcanelab::Mano
         auto expr = ParseExpression();
         ConsumePunctuation(")", "Expected ')' after switch expression.");
         ConsumePunctuation("{", "Expected '{' to start switch body.");
-    
+
         auto switchNode = std::make_unique<SwitchStmtNode>();
         switchNode->expression = std::move(expr);
-    
+
         while (!CheckType(TokenType::Punctuation) || Peek().lexeme != "}")
         {
             if (MatchKeyword("case"))
@@ -684,12 +684,13 @@ namespace Arcanelab::Mano
                     ErrorAtCurrent("Multiple default clauses in switch statement.");
                 }
                 switchNode->defaultCase = std::move(defaultBlock);
-            } else
+            }
+            else
             {
                 ErrorAtCurrent("Expected 'case' or 'default' in switch statement.");
             }
         }
-    
+
         ConsumePunctuation("}", "Expected '}' to close switch body.");
         return switchNode;
     }
