@@ -1,120 +1,120 @@
 └── ProgramNode
-    ├── VarDeclNode (pi)
+    ├── VariableDeclarationNode (pi)
     │   ├── TypeNode (float const)
     │   └── LiteralNode (3.14159)
-    ├── VarDeclNode (score)
+    ├── VariableDeclarationNode (score)
     │   ├── TypeNode (uint )
     │   └── LiteralNode (100)
-    ├── VarDeclNode (negative)
+    ├── VariableDeclarationNode (negative)
     │   ├── TypeNode (int )
-    │   └── UnaryExprNode (-)
+    │   └── UnaryExpressionNode (-)
     │       └── LiteralNode (42)
-    ├── FunDeclNode (Add)
+    ├── FunctionDeclarationNode (Add)
     │   ├── Param: a
     │   │   └── TypeNode (int )
     │   └── Param: b
     │       └── TypeNode (int )
     │   ├── TypeNode (int )
     │   └── BlockNode
-    │       ├── VarDeclNode (sum)
+    │       ├── VariableDeclarationNode (sum)
     │       │   ├── TypeNode (int )
-    │       │   └── BinaryExprNode (+)
+    │       │   └── BinaryExpressionNode (+)
     │       │       ├── IdentifierNode (a)
     │       │       └── IdentifierNode (b)
-    │       └── ReturnStmtNode
+    │       └── ReturnStatementNode
     │           └── IdentifierNode (sum)
-    ├── FunDeclNode (Greet)
+    ├── FunctionDeclarationNode (Greet)
     │   └── Param: name
     │       └── TypeNode (string )
     │   ├── TypeNode (string )
     │   └── BlockNode
-    │       ├── VarDeclNode (message)
+    │       ├── VariableDeclarationNode (message)
     │       │   ├── TypeNode (string )
-    │       │   └── BinaryExprNode (+)
-    │       │       ├── BinaryExprNode (+)
+    │       │   └── BinaryExpressionNode (+)
+    │       │       ├── BinaryExpressionNode (+)
     │       │       │   ├── LiteralNode (Hello, )
     │       │       │   └── IdentifierNode (name)
     │       │       └── LiteralNode (!)
-    │       └── ReturnStmtNode
+    │       └── ReturnStatementNode
     │           └── IdentifierNode (message)
-    ├── ClassDeclNode (Person)
+    ├── ClassDeclarationNode (Person)
     │   └── BlockNode
-    │       ├── VarDeclNode (name)
+    │       ├── VariableDeclarationNode (name)
     │       │   └── TypeNode (string )
-    │       ├── VarDeclNode (age)
+    │       ├── VariableDeclarationNode (age)
     │       │   └── TypeNode (int )
-    │       ├── FunDeclNode (Person)
+    │       ├── FunctionDeclarationNode (Person)
     │       │   ├── Param: newName
     │       │   │   └── TypeNode (string )
     │       │   └── Param: newAge
     │       │       └── TypeNode (int )
     │       │   └── BlockNode
-    │       │       ├── ExprStmtNode
-    │       │       │   └── BinaryExprNode (=)
+    │       │       ├── ExpressionStatementNode
+    │       │       │   └── BinaryExpressionNode (=)
     │       │       │       ├── IdentifierNode (name)
     │       │       │       └── IdentifierNode (newName)
-    │       │       └── ExprStmtNode
-    │       │           └── BinaryExprNode (=)
+    │       │       └── ExpressionStatementNode
+    │       │           └── BinaryExpressionNode (=)
     │       │               ├── IdentifierNode (age)
     │       │               └── IdentifierNode (newAge)
-    │       └── FunDeclNode (Describe)
+    │       └── FunctionDeclarationNode (Describe)
     │           ├── TypeNode (string )
     │           └── BlockNode
-    │               └── ReturnStmtNode
-    │                   └── BinaryExprNode (+)
-    │                       ├── BinaryExprNode (+)
-    │                       │   ├── BinaryExprNode (+)
+    │               └── ReturnStatementNode
+    │                   └── BinaryExpressionNode (+)
+    │                       ├── BinaryExpressionNode (+)
+    │                       │   ├── BinaryExpressionNode (+)
     │                       │   │   ├── IdentifierNode (name)
     │                       │   │   └── LiteralNode ( is )
     │                       │   └── IdentifierNode (age)
     │                       └── LiteralNode ( years old.)
-    ├── EnumDeclNode (Direction)
+    ├── EnumDeclarationNode (Direction)
     │   ├── EnumValue: North
     │   ├── EnumValue: East
     │   ├── EnumValue: South
     │   ├── EnumValue: West
-    ├── FunDeclNode (TestLoops)
+    ├── FunctionDeclarationNode (TestLoops)
     │   └── BlockNode
-    │       ├── ForStmtNode
-    │       │   ├── VarDeclNode (i)
+    │       ├── ForStatementNode
+    │       │   ├── VariableDeclarationNode (i)
     │       │   │   ├── TypeNode (uint )
     │       │   │   └── LiteralNode (0)
-    │       │   ├── BinaryExprNode (<)
+    │       │   ├── BinaryExpressionNode (<)
     │       │   │   ├── IdentifierNode (i)
     │       │   │   └── LiteralNode (10)
-    │       │   ├── BinaryExprNode (=)
+    │       │   ├── BinaryExpressionNode (=)
     │       │   │   ├── IdentifierNode (i)
-    │       │   │   └── BinaryExprNode (+)
+    │       │   │   └── BinaryExpressionNode (+)
     │       │   │       ├── IdentifierNode (i)
     │       │   │       └── LiteralNode (1)
     │       │   └── BlockNode
-    │       │       ├── IfStmtNode
-    │       │       │   ├── BinaryExprNode (==)
+    │       │       ├── IfStatementNode
+    │       │       │   ├── BinaryExpressionNode (==)
     │       │       │   │   ├── IdentifierNode (i)
     │       │       │   │   └── LiteralNode (3)
     │       │       │   └── BlockNode
-    │       │       │       └── ContinueStmtNode
-    │       │       └── IfStmtNode
-    │       │           ├── BinaryExprNode (==)
+    │       │       │       └── ContinueStatementNode
+    │       │       └── IfStatementNode
+    │       │           ├── BinaryExpressionNode (==)
     │       │           │   ├── IdentifierNode (i)
     │       │           │   └── LiteralNode (7)
     │       │           └── BlockNode
-    │       │               └── BreakStmtNode
-    │       ├── VarDeclNode (count)
+    │       │               └── BreakStatementNode
+    │       ├── VariableDeclarationNode (count)
     │       │   ├── TypeNode (uint )
     │       │   └── LiteralNode (5)
-    │       └── WhileStmtNode
-    │           ├── BinaryExprNode (>)
+    │       └── WhileStatementNode
+    │           ├── BinaryExpressionNode (>)
     │           │   ├── IdentifierNode (count)
     │           │   └── LiteralNode (0)
     │           └── BlockNode
-    │               └── ExprStmtNode
-    │                   └── BinaryExprNode (=)
+    │               └── ExpressionStatementNode
+    │                   └── BinaryExpressionNode (=)
     │                       ├── IdentifierNode (count)
-    │                       └── BinaryExprNode (-)
+    │                       └── BinaryExpressionNode (-)
     │                           ├── IdentifierNode (count)
     │                           └── LiteralNode (1)
-    ├── VarDeclNode (numbers)
+    ├── VariableDeclarationNode (numbers)
     │   ├── TypeNode ([int] )
     │   └── ArrayLiteralNode
     │       ├── LiteralNode (1)
@@ -122,88 +122,88 @@
     │       ├── LiteralNode (3)
     │       ├── LiteralNode (4)
     │       └── LiteralNode (5)
-    ├── VarDeclNode (emptyArr)
+    ├── VariableDeclarationNode (emptyArr)
     │   ├── TypeNode ([float] )
     │   └── ArrayLiteralNode
-    ├── FunDeclNode (TestExpressions)
+    ├── FunctionDeclarationNode (TestExpressions)
     │   └── BlockNode
-    │       ├── VarDeclNode (a)
+    │       ├── VariableDeclarationNode (a)
     │       │   ├── TypeNode (int )
     │       │   └── LiteralNode (10)
-    │       ├── VarDeclNode (b)
+    │       ├── VariableDeclarationNode (b)
     │       │   ├── TypeNode (int )
     │       │   └── LiteralNode (20)
-    │       ├── VarDeclNode (result)
+    │       ├── VariableDeclarationNode (result)
     │       │   ├── TypeNode (bool )
-    │       │   └── BinaryExprNode (||)
-    │       │       ├── BinaryExprNode (==)
+    │       │   └── BinaryExpressionNode (||)
+    │       │       ├── BinaryExpressionNode (==)
     │       │       │   ├── IdentifierNode (a)
     │       │       │   └── IdentifierNode (b)
-    │       │       └── BinaryExprNode (&&)
-    │       │           ├── BinaryExprNode (!=)
+    │       │       └── BinaryExpressionNode (&&)
+    │       │           ├── BinaryExpressionNode (!=)
     │       │           │   ├── IdentifierNode (a)
     │       │           │   └── IdentifierNode (b)
-    │       │           └── BinaryExprNode (<)
+    │       │           └── BinaryExpressionNode (<)
     │       │               ├── IdentifierNode (a)
     │       │               └── IdentifierNode (b)
-    │       └── VarDeclNode (calc)
+    │       └── VariableDeclarationNode (calc)
     │           ├── TypeNode (float )
-    │           └── BinaryExprNode (-)
-    │               ├── BinaryExprNode (+)
-    │               │   ├── BinaryExprNode (*)
-    │               │   │   ├── UnaryExprNode (-)
+    │           └── BinaryExpressionNode (-)
+    │               ├── BinaryExpressionNode (+)
+    │               │   ├── BinaryExpressionNode (*)
+    │               │   │   ├── UnaryExpressionNode (-)
     │               │   │   │   └── IdentifierNode (a)
     │               │   │   └── LiteralNode (2.5)
-    │               │   └── BinaryExprNode (/)
+    │               │   └── BinaryExpressionNode (/)
     │               │       ├── IdentifierNode (b)
     │               │       └── LiteralNode (5)
     │               └── LiteralNode (3.0)
-    ├── FunDeclNode (TestSwitch)
+    ├── FunctionDeclarationNode (TestSwitch)
     │   └── Param: dir
     │       └── TypeNode (Direction )
     │   └── BlockNode
-    │       └── SwitchStmtNode
+    │       └── SwitchStatementNode
     │           ├── Case:
     │           │   ├── MemberAccessNode (.North)
     │           │   │   └── IdentifierNode (Direction)
     │           │   └── BlockNode
-    │           │       └── ExprStmtNode
+    │           │       └── ExpressionStatementNode
     │           │           └── FunctionCallNode (TestExpressions)
     │           ├── Case:
     │           │   ├── MemberAccessNode (.East)
     │           │   │   └── IdentifierNode (Direction)
     │           │   └── BlockNode
-    │           │       └── BreakStmtNode
+    │           │       └── BreakStatementNode
     │           ├── Case:
     │           │   ├── MemberAccessNode (.South)
     │           │   │   └── IdentifierNode (Direction)
     │           │   └── BlockNode
-    │           │       └── BreakStmtNode
+    │           │       └── BreakStatementNode
     │           ├── Case:
     │           │   ├── MemberAccessNode (.West)
     │           │   │   └── IdentifierNode (Direction)
     │           │   └── BlockNode
-    │           │       └── ExprStmtNode
+    │           │       └── ExpressionStatementNode
     │           │           └── FunctionCallNode (TestExpressions)
     │           └── Default:
     │           │   └── BlockNode
-    │           │       └── BreakStmtNode
+    │           │       └── BreakStatementNode
     │           └── IdentifierNode (dir)
-    └── FunDeclNode (Main)
+    └── FunctionDeclarationNode (Main)
         └── BlockNode
-            ├── VarDeclNode (p)
+            ├── VariableDeclarationNode (p)
             │   ├── TypeNode (Person )
             │   └── FunctionCallNode (Person)
             │       ├── LiteralNode (Alice)
             │       └── LiteralNode (30)
-            ├── VarDeclNode (greeting)
+            ├── VariableDeclarationNode (greeting)
             │   ├── TypeNode (string )
             │   └── FunctionCallNode (Greet)
             │       └── LiteralNode (Bob)
-            ├── ExprStmtNode
+            ├── ExpressionStatementNode
             │   └── FunctionCallNode (Print)
             │       └── IdentifierNode (greeting)
-            └── ExprStmtNode
+            └── ExpressionStatementNode
                 └── FunctionCallNode (Print)
                     └── FunctionCallNode ()
                         └── MemberAccessNode (.Describe)

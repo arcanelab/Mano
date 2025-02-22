@@ -165,7 +165,7 @@ namespace Arcanelab::Mano
 
     ASTNodePtr Parser::ParseVariableDeclaration(const bool isConst)
     {
-        auto varDecl = std::make_unique<VarDeclNode>();
+        auto varDecl = std::make_unique<VariableDeclarationNode>();
         varDecl->name = std::string(Consume(TokenType::Identifier, "Expected variable name.").lexeme);
         ConsumePunctuation(":", "Expected ':' after variable name.");
         auto typeNode = ParseType(isConst);
@@ -185,7 +185,7 @@ namespace Arcanelab::Mano
 
     ASTNodePtr Parser::ParseFunctionDeclaration()
     {
-        auto funDecl = std::make_unique<FunDeclNode>();
+        auto funDecl = std::make_unique<FunctionDeclarationNode>();
         funDecl->name = std::string(Consume(TokenType::Identifier, "Expected function name.").lexeme);
         ConsumePunctuation("(", "Expected '(' after function name.");
         // Only parse parameters if the next token is not a closing parenthesis.
@@ -228,7 +228,7 @@ namespace Arcanelab::Mano
 
     ASTNodePtr Parser::ParseClassDeclaration()
     {
-        auto classDecl = std::make_unique<ClassDeclNode>();
+        auto classDecl = std::make_unique<ClassDeclarationNode>();
         classDecl->name = std::string(Consume(TokenType::Identifier, "Expected class name.").lexeme);
         classDecl->body = ParseBlock();
         return classDecl;
@@ -236,7 +236,7 @@ namespace Arcanelab::Mano
 
     ASTNodePtr Parser::ParseEnumDeclaration()
     {
-        auto enumDecl = std::make_unique<EnumDeclNode>();
+        auto enumDecl = std::make_unique<EnumDeclarationNode>();
         enumDecl->name = std::string(Consume(TokenType::Identifier, "Expected enum name.").lexeme);
         enumDecl->values = ParseEnumBody();
         return enumDecl;
@@ -314,7 +314,7 @@ namespace Arcanelab::Mano
         // If none of the above, it must be an expression statement.
         auto expr = ParseExpression();
         ConsumePunctuation(";", "Expected ';' after expression statement.");
-        auto expressionNode = std::make_unique<ExprStmtNode>(); // CREATE THE NODE
+        auto expressionNode = std::make_unique<ExpressionStatementNode>(); // CREATE THE NODE
         expressionNode->expression = std::move(expr);           // STORE THE EXPRESSION
         return expressionNode;                                  // RETURN THE NODE
     }
@@ -322,13 +322,13 @@ namespace Arcanelab::Mano
     ASTNodePtr Parser::ParseBreakStatement()
     {
         ConsumePunctuation(";", "Expected ';' after 'break'.");
-        return std::make_unique<BreakStmtNode>();
+        return std::make_unique<BreakStatementNode>();
     }
 
     ASTNodePtr Parser::ParseContinueStatement()
     {
         ConsumePunctuation(";", "Expected ';' after 'break'.");
-        return std::make_unique<ContinueStmtNode>();
+        return std::make_unique<ContinueStatementNode>();
     }
 
     ASTNodePtr Parser::ParseIfStatement()
@@ -342,7 +342,7 @@ namespace Arcanelab::Mano
         {
             elseBranch = ParseBlock();
         }
-        auto ifStmt = std::make_unique<IfStmtNode>();
+        auto ifStmt = std::make_unique<IfStatementNode>();
         ifStmt->condition = std::move(condition);
         ifStmt->thenBranch = std::move(thenBranch);
         ifStmt->elseBranch = std::move(elseBranch);
@@ -364,7 +364,7 @@ namespace Arcanelab::Mano
         ConsumePunctuation(")", "Expected ')' after for clauses.");
         auto body = ParseBlock();
 
-        auto forStmt = std::make_unique<ForStmtNode>();
+        auto forStmt = std::make_unique<ForStatementNode>();
         forStmt->init = std::move(init);
         forStmt->condition = std::move(condition);
         forStmt->increment = std::move(increment);
@@ -378,7 +378,7 @@ namespace Arcanelab::Mano
         auto condition = ParseExpression();
         ConsumePunctuation(")", "Expected ')' after while condition.");
         auto body = ParseBlock();
-        auto whileStmt = std::make_unique<WhileStmtNode>();
+        auto whileStmt = std::make_unique<WhileStatementNode>();
         whileStmt->condition = std::move(condition);
         whileStmt->body = std::move(body);
         return whileStmt;
@@ -386,7 +386,7 @@ namespace Arcanelab::Mano
 
     ASTNodePtr Parser::ParseReturnStatement()
     {
-        auto retStmt = std::make_unique<ReturnStmtNode>();
+        auto retStmt = std::make_unique<ReturnStatementNode>();
         if (!CheckType(TokenType::Punctuation) || Peek().lexeme != ";")
         {
             retStmt->expression = ParseExpression();
@@ -407,7 +407,7 @@ namespace Arcanelab::Mano
         if (CheckType(TokenType::Operator) && Peek().lexeme == "=")
         {
             Advance(); // consume the "=" operator.
-            auto binary = std::make_unique<BinaryExprNode>();
+            auto binary = std::make_unique<BinaryExpressionNode>();
             binary->left = std::move(left);
             binary->op = BinaryOperator::Assign;
             binary->right = ParseAssignmentExpression();
@@ -423,7 +423,7 @@ namespace Arcanelab::Mano
         while (CheckType(TokenType::Operator) && Peek().lexeme == "||")
         {
             Advance(); // consume the "||" token
-            auto binary = std::make_unique<BinaryExprNode>();
+            auto binary = std::make_unique<BinaryExpressionNode>();
             binary->left = std::move(expr);
             binary->op = BinaryOperator::LogicalOr;
             binary->right = ParseLogicalAndExpression();
@@ -439,7 +439,7 @@ namespace Arcanelab::Mano
         while (CheckType(TokenType::Operator) && Peek().lexeme == "&&")
         {
             Advance(); // consume the "&&" token
-            auto binary = std::make_unique<BinaryExprNode>();
+            auto binary = std::make_unique<BinaryExpressionNode>();
             binary->left = std::move(expr);
             binary->op = BinaryOperator::LogicalAnd;
             binary->right = ParseEqualityExpression();
@@ -456,7 +456,7 @@ namespace Arcanelab::Mano
         {
             // Now that we know the operator is one we want, consume it.
             std::string op = std::string(Advance().lexeme);
-            auto binary = std::make_unique<BinaryExprNode>();
+            auto binary = std::make_unique<BinaryExpressionNode>();
             binary->left = std::move(expr);
             binary->op = (op == "==") ? BinaryOperator::Equal : BinaryOperator::NotEqual;
             binary->right = ParseRelationalExpression();
@@ -475,7 +475,7 @@ namespace Arcanelab::Mano
             if (op == "<" || op == ">" || op == "<=" || op == ">=")
             {
                 Advance(); // consume the relational operator
-                auto binary = std::make_unique<BinaryExprNode>();
+                auto binary = std::make_unique<BinaryExpressionNode>();
                 binary->left = std::move(expr);
                 if (op == "<")
                     binary->op = BinaryOperator::Less;
@@ -500,7 +500,7 @@ namespace Arcanelab::Mano
         {
             // Only then consume the operator.
             std::string op = std::string(Advance().lexeme);
-            auto binary = std::make_unique<BinaryExprNode>();
+            auto binary = std::make_unique<BinaryExpressionNode>();
             binary->left = std::move(expr);
             binary->op = (op == "+") ? BinaryOperator::Add : BinaryOperator::Subtract;
             binary->right = ParseMultiplicativeExpression();
@@ -519,7 +519,7 @@ namespace Arcanelab::Mano
         {
             // Now that we know the operator is one we want, consume it.
             std::string op = std::string(Advance().lexeme);
-            auto binary = std::make_unique<BinaryExprNode>();
+            auto binary = std::make_unique<BinaryExpressionNode>();
             binary->left = std::move(expr);
             if (op == "*")
                 binary->op = BinaryOperator::Multiply;
@@ -538,7 +538,7 @@ namespace Arcanelab::Mano
         if (Match({ TokenType::Operator }) &&
             (std::string(Previous().lexeme) == "-" || std::string(Previous().lexeme) == "!"))
         {
-            auto unary = std::make_unique<UnaryExprNode>();
+            auto unary = std::make_unique<UnaryExpressionNode>();
             unary->op = std::string(Previous().lexeme);
             unary->operand = ParseUnaryExpression();
             return unary;
@@ -663,7 +663,7 @@ namespace Arcanelab::Mano
         ConsumePunctuation(")", "Expected ')' after switch expression.");
         ConsumePunctuation("{", "Expected '{' to start switch body.");
 
-        auto switchNode = std::make_unique<SwitchStmtNode>();
+        auto switchNode = std::make_unique<SwitchStatementNode>();
         switchNode->expression = std::move(expr);
 
         while (!CheckType(TokenType::Punctuation) || Peek().lexeme != "}")

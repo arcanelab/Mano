@@ -83,55 +83,55 @@ namespace Arcanelab::Mano
                 {
                     nodeLabel = "TypeNode (" + typeNode->name + (typeNode->isConst ? " const)" : " )");
                 }
-                else if (auto varDecl = dynamic_cast<const VarDeclNode*>(node))
+                else if (auto varDecl = dynamic_cast<const VariableDeclarationNode*>(node))
                 {
-                    nodeLabel = "VarDeclNode (" + varDecl->name + ")";
+                    nodeLabel = "VariableDeclarationNode (" + varDecl->name + ")";
                 }
-                else if (auto funDecl = dynamic_cast<const FunDeclNode*>(node))
+                else if (auto funDecl = dynamic_cast<const FunctionDeclarationNode*>(node))
                 {
-                    nodeLabel = "FunDeclNode (" + funDecl->name + ")";
+                    nodeLabel = "FunctionDeclarationNode (" + funDecl->name + ")";
                 }
-                else if (auto classDecl = dynamic_cast<const ClassDeclNode*>(node))
+                else if (auto classDecl = dynamic_cast<const ClassDeclarationNode*>(node))
                 {
-                    nodeLabel = "ClassDeclNode (" + classDecl->name + ")";
+                    nodeLabel = "ClassDeclarationNode (" + classDecl->name + ")";
                 }
-                else if (auto enumDecl = dynamic_cast<const EnumDeclNode*>(node))
+                else if (auto enumDecl = dynamic_cast<const EnumDeclarationNode*>(node))
                 {
-                    nodeLabel = "EnumDeclNode (" + enumDecl->name + ")";
+                    nodeLabel = "EnumDeclarationNode (" + enumDecl->name + ")";
                 }
                 else if (auto block = dynamic_cast<const BlockNode*>(node))
                 {
                     nodeLabel = "BlockNode";
                 }
-                else if (auto exprStmt = dynamic_cast<const ExprStmtNode*>(node))
+                else if (auto exprStmt = dynamic_cast<const ExpressionStatementNode*>(node))
                 {
-                    nodeLabel = "ExprStmtNode";
+                    nodeLabel = "ExpressionStatementNode";
                 }
-                else if (auto retStmt = dynamic_cast<const ReturnStmtNode*>(node))
+                else if (auto retStmt = dynamic_cast<const ReturnStatementNode*>(node))
                 {
-                    nodeLabel = "ReturnStmtNode";
+                    nodeLabel = "ReturnStatementNode";
                 }
-                else if (auto ifStmt = dynamic_cast<const IfStmtNode*>(node))
+                else if (auto ifStmt = dynamic_cast<const IfStatementNode*>(node))
                 {
-                    nodeLabel = "IfStmtNode";
+                    nodeLabel = "IfStatementNode";
                 }
-                else if (auto forStmt = dynamic_cast<const ForStmtNode*>(node))
+                else if (auto forStmt = dynamic_cast<const ForStatementNode*>(node))
                 {
-                    nodeLabel = "ForStmtNode";
+                    nodeLabel = "ForStatementNode";
                 }
-                else if (auto whileStmt = dynamic_cast<const WhileStmtNode*>(node))
+                else if (auto whileStmt = dynamic_cast<const WhileStatementNode*>(node))
                 {
-                    nodeLabel = "WhileStmtNode";
+                    nodeLabel = "WhileStatementNode";
                 }
-                else if (auto switchStmt = dynamic_cast<const SwitchStmtNode*>(node))
+                else if (auto switchStmt = dynamic_cast<const SwitchStatementNode*>(node))
                 {
-                    nodeLabel = "SwitchStmtNode";
+                    nodeLabel = "SwitchStatementNode";
                 }
                 else if (auto memberAccess = dynamic_cast<const MemberAccessNode*>(node))
                 {
                     nodeLabel = "MemberAccessNode (." + memberAccess->memberName + ")";
                 }
-                else if (auto binaryExpr = dynamic_cast<const BinaryExprNode*>(node))
+                else if (auto binaryExpr = dynamic_cast<const BinaryExpressionNode*>(node))
                 {
                     std::string opStr;
                     switch (binaryExpr->op)
@@ -152,11 +152,11 @@ namespace Arcanelab::Mano
                         case BinaryOperator::Modulo:         opStr = "%"; break;
                         default:                             opStr = "op"; break;
                     }
-                    nodeLabel = "BinaryExprNode (" + opStr + ")";
+                    nodeLabel = "BinaryExpressionNode (" + opStr + ")";
                 }
-                else if (auto unaryExpr = dynamic_cast<const UnaryExprNode*>(node))
+                else if (auto unaryExpr = dynamic_cast<const UnaryExpressionNode*>(node))
                 {
-                    nodeLabel = "UnaryExprNode (" + unaryExpr->op + ")";
+                    nodeLabel = "UnaryExpressionNode (" + unaryExpr->op + ")";
                 }
                 else if (auto literal = dynamic_cast<const LiteralNode*>(node))
                 {
@@ -166,13 +166,13 @@ namespace Arcanelab::Mano
                 {
                     nodeLabel = "IdentifierNode (" + ident->name + ")";
                 }
-                else if (dynamic_cast<const BreakStmtNode*>(node))
+                else if (dynamic_cast<const BreakStatementNode*>(node))
                 {
-                    nodeLabel = "BreakStmtNode";
+                    nodeLabel = "BreakStatementNode";
                 }
-                else if (dynamic_cast<const ContinueStmtNode*>(node))
+                else if (dynamic_cast<const ContinueStatementNode*>(node))
                 {
-                    nodeLabel = "ContinueStmtNode";
+                    nodeLabel = "ContinueStatementNode";
                 }
                 else if (auto arrayLiteral = dynamic_cast<const ArrayLiteralNode*>(node))
                 {
@@ -200,12 +200,12 @@ namespace Arcanelab::Mano
                     for (const auto& decl : prog->declarations)
                         children.push_back(decl.get());
                 }
-                else if (auto varDecl = dynamic_cast<const VarDeclNode*>(node))
+                else if (auto varDecl = dynamic_cast<const VariableDeclarationNode*>(node))
                 {
                     if (varDecl->type) children.push_back(varDecl->type.get());
                     if (varDecl->initializer) children.push_back(varDecl->initializer.get());
                 }
-                else if (auto funDecl = dynamic_cast<const FunDeclNode*>(node))
+                else if (auto funDecl = dynamic_cast<const FunctionDeclarationNode*>(node))
                 {
                     // Print parameters as pseudo‐nodes.
                     for (size_t i = 0; i < funDecl->parameters.size(); ++i)
@@ -228,11 +228,11 @@ namespace Arcanelab::Mano
                     if (funDecl->body)
                         children.push_back(funDecl->body.get());
                 }
-                else if (auto classDecl = dynamic_cast<const ClassDeclNode*>(node))
+                else if (auto classDecl = dynamic_cast<const ClassDeclarationNode*>(node))
                 {
                     if (classDecl->body) children.push_back(classDecl->body.get());
                 }
-                else if (auto enumDecl = dynamic_cast<const EnumDeclNode*>(node))
+                else if (auto enumDecl = dynamic_cast<const EnumDeclarationNode*>(node))
                 {
                     // Print each enum value as a pseudo‐child.
                     for (size_t i = 0; i < enumDecl->values.size(); i++)
@@ -247,33 +247,33 @@ namespace Arcanelab::Mano
                     for (const auto& stmt : block->statements)
                         children.push_back(stmt.get());
                 }
-                else if (auto exprStmt = dynamic_cast<const ExprStmtNode*>(node))
+                else if (auto exprStmt = dynamic_cast<const ExpressionStatementNode*>(node))
                 {
                     if (exprStmt->expression) children.push_back(exprStmt->expression.get());
                 }
-                else if (auto retStmt = dynamic_cast<const ReturnStmtNode*>(node))
+                else if (auto retStmt = dynamic_cast<const ReturnStatementNode*>(node))
                 {
                     if (retStmt->expression) children.push_back(retStmt->expression.get());
                 }
-                else if (auto ifStmt = dynamic_cast<const IfStmtNode*>(node))
+                else if (auto ifStmt = dynamic_cast<const IfStatementNode*>(node))
                 {
                     if (ifStmt->condition) children.push_back(ifStmt->condition.get());
                     if (ifStmt->thenBranch) children.push_back(ifStmt->thenBranch.get());
                     if (ifStmt->elseBranch) children.push_back(ifStmt->elseBranch.get());
                 }
-                else if (auto forStmt = dynamic_cast<const ForStmtNode*>(node))
+                else if (auto forStmt = dynamic_cast<const ForStatementNode*>(node))
                 {
                     if (forStmt->init) children.push_back(forStmt->init.get());
                     if (forStmt->condition) children.push_back(forStmt->condition.get());
                     if (forStmt->increment) children.push_back(forStmt->increment.get());
                     if (forStmt->body) children.push_back(forStmt->body.get());
                 }
-                else if (auto whileStmt = dynamic_cast<const WhileStmtNode*>(node))
+                else if (auto whileStmt = dynamic_cast<const WhileStatementNode*>(node))
                 {
                     if (whileStmt->condition) children.push_back(whileStmt->condition.get());
                     if (whileStmt->body) children.push_back(whileStmt->body.get());
                 }
-                else if (auto switchStmt = dynamic_cast<const SwitchStmtNode*>(node))
+                else if (auto switchStmt = dynamic_cast<const SwitchStatementNode*>(node))
                 {
                     if (switchStmt->expression)
                         children.push_back(switchStmt->expression.get());
@@ -303,12 +303,12 @@ namespace Arcanelab::Mano
                 {
                     if (memberAccess->object) children.push_back(memberAccess->object.get());
                 }
-                else if (auto binaryExpr = dynamic_cast<const BinaryExprNode*>(node))
+                else if (auto binaryExpr = dynamic_cast<const BinaryExpressionNode*>(node))
                 {
                     if (binaryExpr->left) children.push_back(binaryExpr->left.get());
                     if (binaryExpr->right) children.push_back(binaryExpr->right.get());
                 }
-                else if (auto unaryExpr = dynamic_cast<const UnaryExprNode*>(node))
+                else if (auto unaryExpr = dynamic_cast<const UnaryExpressionNode*>(node))
                 {
                     if (unaryExpr->operand) children.push_back(unaryExpr->operand.get());
                 }

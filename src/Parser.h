@@ -29,7 +29,7 @@ namespace Arcanelab::Mano
 
     using TypeNodePtr = std::unique_ptr<TypeNode>;
 
-    struct VarDeclNode : public ASTNode
+    struct VariableDeclarationNode : public ASTNode
     {
         std::string name;
         TypeNodePtr type;
@@ -37,7 +37,7 @@ namespace Arcanelab::Mano
         // This node is used for both constants (let) and variables (var).
     };
 
-    struct FunDeclNode : public ASTNode
+    struct FunctionDeclarationNode : public ASTNode
     {
         std::string name;
         std::vector<std::pair<std::string, TypeNodePtr>> parameters;
@@ -45,13 +45,13 @@ namespace Arcanelab::Mano
         ASTNodePtr body;
     };
 
-    struct ClassDeclNode : public ASTNode
+    struct ClassDeclarationNode : public ASTNode
     {
         std::string name;
         ASTNodePtr body;
     };
 
-    struct EnumDeclNode : public ASTNode
+    struct EnumDeclarationNode : public ASTNode
     {
         std::string name;
         std::vector<std::string> values;
@@ -62,24 +62,24 @@ namespace Arcanelab::Mano
         std::vector<ASTNodePtr> statements;
     };
 
-    struct ExprStmtNode : public ASTNode
+    struct ExpressionStatementNode : public ASTNode
     {
         ASTNodePtr expression;
     };
 
-    struct ReturnStmtNode : public ASTNode
+    struct ReturnStatementNode : public ASTNode
     {
         ASTNodePtr expression;
     };
 
-    struct IfStmtNode : public ASTNode
+    struct IfStatementNode : public ASTNode
     {
         ASTNodePtr condition;
         ASTNodePtr thenBranch;
         ASTNodePtr elseBranch;
     };
 
-    struct ForStmtNode : public ASTNode
+    struct ForStatementNode : public ASTNode
     {
         ASTNodePtr init;
         ASTNodePtr condition;
@@ -87,13 +87,13 @@ namespace Arcanelab::Mano
         ASTNodePtr body;
     };
 
-    struct WhileStmtNode : public ASTNode
+    struct WhileStatementNode : public ASTNode
     {
         ASTNodePtr condition;
         ASTNodePtr body;
     };
 
-    struct SwitchStmtNode : public ASTNode
+    struct SwitchStatementNode : public ASTNode
     {
         ASTNodePtr expression;
         std::vector<std::pair<ASTNodePtr, ASTNodePtr>> cases; // (case_expr, block)
@@ -124,14 +124,14 @@ namespace Arcanelab::Mano
         Modulo
     };
 
-    struct BinaryExprNode : public ASTNode
+    struct BinaryExpressionNode : public ASTNode
     {
         ASTNodePtr left;
         BinaryOperator op;
         ASTNodePtr right;
     };
 
-    struct UnaryExprNode : public ASTNode
+    struct UnaryExpressionNode : public ASTNode
     {
         std::string op;
         ASTNodePtr operand;
@@ -147,11 +147,11 @@ namespace Arcanelab::Mano
         std::string name;
     };
 
-    struct BreakStmtNode : public ASTNode
+    struct BreakStatementNode : public ASTNode
     {
     };
 
-    struct ContinueStmtNode : public ASTNode
+    struct ContinueStatementNode : public ASTNode
     {
     };
 
