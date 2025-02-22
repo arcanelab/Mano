@@ -566,35 +566,53 @@ namespace Arcanelab::Mano
         if (Match({ TokenType::Identifier }))
         {
             std::string name = std::string(Previous().lexeme);
-            // Look ahead to see if the identifier is followed by an opening parenthesis,
-            // indicating a function call or object instantiation.
             if (CheckType(TokenType::Punctuation) && Peek().lexeme == "(")
             {
-                Advance(); // consume the "("
-                auto args = ParseArgumentList(); //Parse arguments.
+                Advance(); // consume "("
+                auto args = ParseArgumentList();
                 ConsumePunctuation(")", "Expected ')' after arguments");
-                // TODO: Distinguish between FunctionCall and ObjectInstantiation
-                // during semantic analysis.  For now, we'll create a
-                // FunctionCallNode.  Later, we'll add a lookup in the
-                // symbol table.
                 auto functionCallNode = std::make_unique<FunctionCallNode>();
                 functionCallNode->name = name;
                 functionCallNode->arguments = std::move(args);
                 return functionCallNode;
             }
+
             ASTNodePtr expr = std::make_unique<IdentifierNode>();
             static_cast<IdentifierNode*>(expr.get())->name = name;
 
-            while (MatchPunctuation("."))
+            while (true)
             {
-                auto memberAccess = std::make_unique<MemberAccessNode>();
-                memberAccess->object = std::move(expr);
-                memberAccess->memberName = std::string(Consume(TokenType::Identifier, "Expected member name after '.'").lexeme);
-                expr = std::move(memberAccess);
+                // Handle member accesses (x.y)
+                if (MatchPunctuation("."))
+                {
+                    auto memberAccess = std::make_unique<MemberAccessNode>();
+                    memberAccess->object = std::move(expr);
+                    memberAccess->memberName = std::string(
+                        Consume(TokenType::Identifier, "Expected member name after '.'").lexeme
+                    );
+                    expr = std::move(memberAccess);
+                }
+                // Handle method calls (x.y())
+                else if (CheckType(TokenType::Punctuation) && Peek().lexeme == "(")
+                {
+                    Advance(); // consume "("
+                    auto args = ParseArgumentList();
+                    ConsumePunctuation(")", "Expected ')' after arguments");
+    
+                    auto methodCall = std::make_unique<FunctionCallNode>();
+                    methodCall->callTarget = std::move(expr); // Store member access
+                    methodCall->arguments = std::move(args);
+                    expr = std::move(methodCall);
+                }
+                else
+                {
+                    break; // No more member accesses/method calls
+                }
             }
             return expr;
         }
 
+        // Rest of the method remains unchanged below this line
         if (Match({ TokenType::Number, TokenType::String, TokenType::Keyword }))
         {
             auto lit = std::make_unique<LiteralNode>();
@@ -614,14 +632,14 @@ namespace Arcanelab::Mano
             auto arrayLiteral = std::make_unique<ArrayLiteralNode>();
             if (CheckType(TokenType::Punctuation) && Peek().lexeme == "]")
             {
-                Advance(); // Consume the ']' of an empty array.
-                return arrayLiteral; // Return empty array literal.
+                Advance();
+                return arrayLiteral;
             }
             arrayLiteral->elements = ParseExpressionList();
             ConsumePunctuation("]", "Expected ']' after array elements.");
-
             return arrayLiteral;
         }
+
         ErrorAtCurrent("Expected expression");
         return nullptr;
     }

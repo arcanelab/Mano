@@ -164,6 +164,7 @@ namespace Arcanelab::Mano
     {
         std::string name;
         std::vector<ASTNodePtr> arguments;
+        ASTNodePtr callTarget;
     };
 
     struct ObjectInstantiationNode : public ASTNode

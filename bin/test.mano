@@ -83,10 +83,39 @@ fun TestExpressions()
     var calc: float = -a * 2.5 + (b / 5) - 3.0;
 }
 
+ // No fallthrough in Mano. There must a statement after the case, ie.: a case cannot be empty.
+fun TestSwitch(dir: Direction)
+{
+    switch(dir)
+    {
+        case Direction.North:
+        {
+            TestExpressions();
+        }
+        case Direction.East:
+        {
+            break;
+        }
+        case Direction.South:
+        {
+            break;
+        }
+        case Direction.West:
+        {
+            TestExpressions();           
+        }
+        default:
+        {
+            break;
+        }
+    }
+}
+
 // Main function: object instantiation, function calls, and printing result
 fun Main()
 {
     var p: Person = Person("Alice", 30);
     var greeting: string = Greet("Bob");
     Print(greeting);
+    Print(p.Describe());
 }
