@@ -64,16 +64,16 @@ namespace Arcanelab::Mano
     private:
         void PrintASTTree(const ASTNode* root)
         {
-            // Recursive lambda to print an AST node.
+            // Recursive lambda function to print an AST node.
             auto printNode = [&](auto&& self, const ASTNode* node, const std::string& prefix, bool isLast) -> void {
                 if (!node)
                     return;
 
-                // Create the branch string for this node.
+                // Prepare the branch string for the current node.
                 std::string branch = prefix;
                 branch += (isLast ? "└── " : "├── ");
 
-                // Determine a label for the node based on its concrete type.
+                // Determine a label based on the concrete node type.
                 std::string nodeLabel;
                 if (auto prog = dynamic_cast<const ProgramNode*>(node))
                 {
@@ -192,7 +192,7 @@ namespace Arcanelab::Mano
                 }
                 std::cout << branch << nodeLabel << std::endl;
 
-                // Container for children nodes (if they exist).
+                // Container for child nodes.
                 std::vector<const ASTNode*> children;
 
                 if (auto prog = dynamic_cast<const ProgramNode*>(node))
@@ -207,7 +207,7 @@ namespace Arcanelab::Mano
                 }
                 else if (auto funDecl = dynamic_cast<const FunDeclNode*>(node))
                 {
-                    // The parameters are printed as pseudo-nodes.
+                    // Print parameters as pseudo‐nodes.
                     for (size_t i = 0; i < funDecl->parameters.size(); ++i)
                     {
                         bool lastParam = (i == funDecl->parameters.size() - 1);
@@ -215,7 +215,7 @@ namespace Arcanelab::Mano
                         std::string paramBranch = prefix + (isLast ? "    " : "│   ");
                         paramBranch += (lastParam ? "└── " : "├── ");
                         std::cout << paramBranch << paramLabel << std::endl;
-                        // Print the type node with an extended prefix.
+                        // Print the parameter’s type node with an extended prefix.
                         if (funDecl->parameters[i].second)
                         {
                             std::string typePrefix = prefix + (isLast ? "    " : "│   ");
@@ -234,10 +234,9 @@ namespace Arcanelab::Mano
                 }
                 else if (auto enumDecl = dynamic_cast<const EnumDeclNode*>(node))
                 {
-                    // Print each enum value as a pseudo-child.
+                    // Print each enum value as a pseudo‐child.
                     for (size_t i = 0; i < enumDecl->values.size(); i++)
                     {
-                        // Treat each enumerator as a child.
                         std::string valueLabel = "EnumValue: " + enumDecl->values[i];
                         std::string valueBranch = prefix + (isLast ? "    " : "│   ") + "├── ";
                         std::cout << valueBranch << valueLabel << std::endl;
@@ -278,27 +277,25 @@ namespace Arcanelab::Mano
                 {
                     if (switchStmt->expression)
                         children.push_back(switchStmt->expression.get());
-                    // Process each switch case as a pseudo-node.
+                    // Process each switch case as a pseudo‐node.
                     for (size_t i = 0; i < switchStmt->cases.size(); i++)
                     {
-                        // If there's a default later, no case is the absolute last.
                         bool isLastCase = (i == switchStmt->cases.size() - 1 && switchStmt->defaultCase == nullptr);
                         std::string caseBranch = prefix + (isLast ? "    " : "│   ");
                         caseBranch += (isLastCase ? "└── " : "├── ");
                         std::cout << caseBranch << "Case:" << std::endl;
-                        // Build a new prefix with the extra virtual branch for the case children.
                         std::string casePrefix = prefix + (isLast ? "    " : "│   ");
                         casePrefix += (isLastCase ? "    " : "│   ");
-                        // First child of case: the case expression.
+                        // Print the case expression and block.
                         self(self, switchStmt->cases[i].first.get(), casePrefix, false);
-                        // Second child: the block.
                         self(self, switchStmt->cases[i].second.get(), casePrefix, true);
                     }
                     if (switchStmt->defaultCase)
                     {
+                        // Print Default: as a pseudo‐node.
                         std::string defaultBranch = prefix + (isLast ? "    " : "│   ") + "└── ";
                         std::cout << defaultBranch << "Default:" << std::endl;
-                        std::string defPrefix = prefix + (isLast ? "    " : "│   ") + "    ";
+                        std::string defPrefix = prefix + (isLast ? "    " : "│   ") + "│   ";
                         self(self, switchStmt->defaultCase.get(), defPrefix, true);
                     }
                 }
@@ -332,7 +329,7 @@ namespace Arcanelab::Mano
                         children.push_back(arg.get());
                 }
 
-                // Recurse over the gathered children.
+                // Recursively print any gathered children.
                 for (size_t i = 0; i < children.size(); i++)
                 {
                     bool lastChild = (i == children.size() - 1);
