@@ -1,0 +1,210 @@
+└── ProgramNode
+    ├── VarDeclNode (pi)
+    │   ├── TypeNode (float const)
+    │   └── LiteralNode (3.14159)
+    ├── VarDeclNode (score)
+    │   ├── TypeNode (uint )
+    │   └── LiteralNode (100)
+    ├── VarDeclNode (negative)
+    │   ├── TypeNode (int )
+    │   └── UnaryExprNode (-)
+    │       └── LiteralNode (42)
+    ├── FunDeclNode (Add)
+    │   ├── Param: a
+    │   │   └── TypeNode (int )
+    │   └── Param: b
+    │       └── TypeNode (int )
+    │   ├── TypeNode (int )
+    │   └── BlockNode
+    │       ├── VarDeclNode (sum)
+    │       │   ├── TypeNode (int )
+    │       │   └── BinaryExprNode (+)
+    │       │       ├── IdentifierNode (a)
+    │       │       └── IdentifierNode (b)
+    │       └── ReturnStmtNode
+    │           └── IdentifierNode (sum)
+    ├── FunDeclNode (Greet)
+    │   └── Param: name
+    │       └── TypeNode (string )
+    │   ├── TypeNode (string )
+    │   └── BlockNode
+    │       ├── VarDeclNode (message)
+    │       │   ├── TypeNode (string )
+    │       │   └── BinaryExprNode (+)
+    │       │       ├── BinaryExprNode (+)
+    │       │       │   ├── LiteralNode (Hello, )
+    │       │       │   └── IdentifierNode (name)
+    │       │       └── LiteralNode (!)
+    │       └── ReturnStmtNode
+    │           └── IdentifierNode (message)
+    ├── ClassDeclNode (Person)
+    │   └── BlockNode
+    │       ├── VarDeclNode (name)
+    │       │   └── TypeNode (string )
+    │       ├── VarDeclNode (age)
+    │       │   └── TypeNode (int )
+    │       ├── FunDeclNode (Person)
+    │       │   ├── Param: newName
+    │       │   │   └── TypeNode (string )
+    │       │   └── Param: newAge
+    │       │       └── TypeNode (int )
+    │       │   └── BlockNode
+    │       │       ├── ExprStmtNode
+    │       │       │   └── BinaryExprNode (=)
+    │       │       │       ├── IdentifierNode (name)
+    │       │       │       └── IdentifierNode (newName)
+    │       │       └── ExprStmtNode
+    │       │           └── BinaryExprNode (=)
+    │       │               ├── IdentifierNode (age)
+    │       │               └── IdentifierNode (newAge)
+    │       └── FunDeclNode (Describe)
+    │           ├── TypeNode (string )
+    │           └── BlockNode
+    │               └── ReturnStmtNode
+    │                   └── BinaryExprNode (+)
+    │                       ├── BinaryExprNode (+)
+    │                       │   ├── BinaryExprNode (+)
+    │                       │   │   ├── IdentifierNode (name)
+    │                       │   │   └── LiteralNode ( is )
+    │                       │   └── IdentifierNode (age)
+    │                       └── LiteralNode ( years old.)
+    ├── EnumDeclNode (Direction)
+    │   ├── EnumValue: North
+    │   ├── EnumValue: East
+    │   ├── EnumValue: South
+    │   ├── EnumValue: West
+    ├── FunDeclNode (TestLoops)
+    │   └── BlockNode
+    │       ├── ForStmtNode
+    │       │   ├── VarDeclNode (i)
+    │       │   │   ├── TypeNode (uint )
+    │       │   │   └── LiteralNode (0)
+    │       │   ├── BinaryExprNode (<)
+    │       │   │   ├── IdentifierNode (i)
+    │       │   │   └── LiteralNode (10)
+    │       │   ├── BinaryExprNode (=)
+    │       │   │   ├── IdentifierNode (i)
+    │       │   │   └── BinaryExprNode (+)
+    │       │   │       ├── IdentifierNode (i)
+    │       │   │       └── LiteralNode (1)
+    │       │   └── BlockNode
+    │       │       ├── IfStmtNode
+    │       │       │   ├── BinaryExprNode (==)
+    │       │       │   │   ├── IdentifierNode (i)
+    │       │       │   │   └── LiteralNode (3)
+    │       │       │   └── BlockNode
+    │       │       │       └── ContinueStmtNode
+    │       │       └── IfStmtNode
+    │       │           ├── BinaryExprNode (==)
+    │       │           │   ├── IdentifierNode (i)
+    │       │           │   └── LiteralNode (7)
+    │       │           └── BlockNode
+    │       │               └── BreakStmtNode
+    │       ├── VarDeclNode (count)
+    │       │   ├── TypeNode (uint )
+    │       │   └── LiteralNode (5)
+    │       └── WhileStmtNode
+    │           ├── BinaryExprNode (>)
+    │           │   ├── IdentifierNode (count)
+    │           │   └── LiteralNode (0)
+    │           └── BlockNode
+    │               └── ExprStmtNode
+    │                   └── BinaryExprNode (=)
+    │                       ├── IdentifierNode (count)
+    │                       └── BinaryExprNode (-)
+    │                           ├── IdentifierNode (count)
+    │                           └── LiteralNode (1)
+    ├── VarDeclNode (numbers)
+    │   ├── TypeNode ([int] )
+    │   └── ArrayLiteralNode
+    │       ├── LiteralNode (1)
+    │       ├── LiteralNode (2)
+    │       ├── LiteralNode (3)
+    │       ├── LiteralNode (4)
+    │       └── LiteralNode (5)
+    ├── VarDeclNode (emptyArr)
+    │   ├── TypeNode ([float] )
+    │   └── ArrayLiteralNode
+    ├── FunDeclNode (TestExpressions)
+    │   └── BlockNode
+    │       ├── VarDeclNode (a)
+    │       │   ├── TypeNode (int )
+    │       │   └── LiteralNode (10)
+    │       ├── VarDeclNode (b)
+    │       │   ├── TypeNode (int )
+    │       │   └── LiteralNode (20)
+    │       ├── VarDeclNode (result)
+    │       │   ├── TypeNode (bool )
+    │       │   └── BinaryExprNode (||)
+    │       │       ├── BinaryExprNode (==)
+    │       │       │   ├── IdentifierNode (a)
+    │       │       │   └── IdentifierNode (b)
+    │       │       └── BinaryExprNode (&&)
+    │       │           ├── BinaryExprNode (!=)
+    │       │           │   ├── IdentifierNode (a)
+    │       │           │   └── IdentifierNode (b)
+    │       │           └── BinaryExprNode (<)
+    │       │               ├── IdentifierNode (a)
+    │       │               └── IdentifierNode (b)
+    │       └── VarDeclNode (calc)
+    │           ├── TypeNode (float )
+    │           └── BinaryExprNode (-)
+    │               ├── BinaryExprNode (+)
+    │               │   ├── BinaryExprNode (*)
+    │               │   │   ├── UnaryExprNode (-)
+    │               │   │   │   └── IdentifierNode (a)
+    │               │   │   └── LiteralNode (2.5)
+    │               │   └── BinaryExprNode (/)
+    │               │       ├── IdentifierNode (b)
+    │               │       └── LiteralNode (5)
+    │               └── LiteralNode (3.0)
+    ├── FunDeclNode (TestSwitch)
+    │   └── Param: dir
+    │       └── TypeNode (Direction )
+    │   └── BlockNode
+    │       └── SwitchStmtNode
+    │           ├── Case:
+    │           │   ├── MemberAccessNode (.North)
+    │           │   │   └── IdentifierNode (Direction)
+    │           │   └── BlockNode
+    │           │       └── ExprStmtNode
+    │           │           └── FunctionCallNode (TestExpressions)
+    │           ├── Case:
+    │           │   ├── MemberAccessNode (.East)
+    │           │   │   └── IdentifierNode (Direction)
+    │           │   └── BlockNode
+    │           │       └── BreakStmtNode
+    │           ├── Case:
+    │           │   ├── MemberAccessNode (.South)
+    │           │   │   └── IdentifierNode (Direction)
+    │           │   └── BlockNode
+    │           │       └── BreakStmtNode
+    │           ├── Case:
+    │           │   ├── MemberAccessNode (.West)
+    │           │   │   └── IdentifierNode (Direction)
+    │           │   └── BlockNode
+    │           │       └── ExprStmtNode
+    │           │           └── FunctionCallNode (TestExpressions)
+    │           └── Default:
+    │           │   └── BlockNode
+    │           │       └── BreakStmtNode
+    │           └── IdentifierNode (dir)
+    └── FunDeclNode (Main)
+        └── BlockNode
+            ├── VarDeclNode (p)
+            │   ├── TypeNode (Person )
+            │   └── FunctionCallNode (Person)
+            │       ├── LiteralNode (Alice)
+            │       └── LiteralNode (30)
+            ├── VarDeclNode (greeting)
+            │   ├── TypeNode (string )
+            │   └── FunctionCallNode (Greet)
+            │       └── LiteralNode (Bob)
+            ├── ExprStmtNode
+            │   └── FunctionCallNode (Print)
+            │       └── IdentifierNode (greeting)
+            └── ExprStmtNode
+                └── FunctionCallNode (Print)
+                    └── FunctionCallNode ()
+                        └── MemberAccessNode (.Describe)
+                            └── IdentifierNode (p)
