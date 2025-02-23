@@ -117,6 +117,10 @@ namespace Arcanelab::Mano
                 {
                     nodeLabel = "BlockNode";
                 }
+                else if (auto block = dynamic_cast<const ClassBlockNode*>(node))
+                {
+                    nodeLabel = "ClassBlockNode";
+                }
                 else if (auto exprStmt = dynamic_cast<const ExpressionStatementNode*>(node))
                 {
                     nodeLabel = "ExpressionStatementNode";
@@ -259,6 +263,11 @@ namespace Arcanelab::Mano
                 else if (auto block = dynamic_cast<const BlockNode*>(node))
                 {
                     for (const auto& stmt : block->statements)
+                        children.push_back(stmt.get());
+                }
+                else if (auto block = dynamic_cast<const ClassBlockNode*>(node))
+                {
+                    for (const auto& stmt : block->declarations)
                         children.push_back(stmt.get());
                 }
                 else if (auto exprStmt = dynamic_cast<const ExpressionStatementNode*>(node))

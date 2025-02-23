@@ -16,7 +16,7 @@ FunctionDeclaration  = "fun" Identifier "(" [ ParameterList ] ")" [ ":" Type ] B
 ParameterList        = Parameter { "," Parameter } ;
 Parameter            = Identifier ":" [ "const" ] Type ;
 
-ClassDeclaration     = "class" Identifier Block ;
+ClassDeclaration     = "class" Identifier ClassBlock ;
 
 EnumDeclaration      = "enum" Identifier Block ;
 
@@ -30,6 +30,8 @@ ArrayType            = "[" PrimitiveType | Identifier "]" ;
 
 Block                = "{" { Declaration | Statement } "}" ;
 
+ClassBlock           = "{" { Declaration } "}" ;
+
 Statement            = Block
                      | ExpressionStatement ";"
                      | IfStatement
@@ -40,7 +42,8 @@ Statement            = Block
                      | ReturnStatement ";"
                      | SwitchStatement ;
 
-ExpressionStatement  = Expression ;
+ExpressionStatement  = AssignmentExpression
+                     | FunctionCall ;
 
 IfStatement          = "if" "(" Expression ")" Block [ "else" Block ] ;
 

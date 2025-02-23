@@ -232,7 +232,7 @@ namespace Arcanelab::Mano
     {
         auto classDecl = std::make_unique<ClassDeclarationNode>();
         classDecl->name = std::string(Consume(TokenType::Identifier, "Expected class name.").lexeme);
-        classDecl->body = ParseBlock();
+        classDecl->body = ParseClassBlock();
         return classDecl;
     }
 
@@ -300,6 +300,31 @@ namespace Arcanelab::Mano
             }
         }
         ConsumePunctuation("}", "Expected '}' to close block.");
+        return block;
+    }
+
+    ASTNodePtr Parser::ParseClassBlock()
+    {
+        ConsumePunctuation("{", "Expected '{' to start a class block.");
+        auto block = std::make_unique<ClassBlockNode>();
+        while (!CheckType(TokenType::Punctuation) || Peek().lexeme != "}")
+        {
+            if (CheckType(TokenType::Keyword) &&
+                (Peek().lexeme == "let" ||
+                    Peek().lexeme == "var" ||
+                    Peek().lexeme == "fun" ||
+                    Peek().lexeme == "class" ||
+                    Peek().lexeme == "enum"))
+            {
+                block->declarations.push_back(ParseDeclaration());
+            }
+            else
+            {
+                ErrorAtCurrent("Expected declaration.");
+                break;
+            }
+        }
+        ConsumePunctuation("}", "Expected '}' to close class block.");
         return block;
     }
 

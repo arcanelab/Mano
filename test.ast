@@ -38,7 +38,7 @@
     │       └── ReturnStatementNode
     │           └── IdentifierNode (message)
     ├── ClassDeclarationNode (Person)
-    │   └── BlockNode
+    │   └── ClassBlockNode
     │       ├── VariableDeclarationNode (name)
     │       │   ├── TypeNode (string)
     │       │   └── LiteralNode ()

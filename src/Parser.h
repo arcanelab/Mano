@@ -62,6 +62,11 @@ namespace Arcanelab::Mano
         std::vector<ASTNodePtr> statements;
     };
 
+    struct ClassBlockNode : public ASTNode
+    {
+        std::vector<ASTNodePtr> declarations;
+    };
+
     struct ExpressionStatementNode : public ASTNode
     {
         ASTNodePtr expression;
@@ -204,6 +209,7 @@ namespace Arcanelab::Mano
         std::vector<std::string> ParseEnumBody();
         ASTNodePtr ParseEnumDeclaration();
         ASTNodePtr ParseBlock();
+        ASTNodePtr ParseClassBlock();
         ASTNodePtr ParseStatement();
         ASTNodePtr ParseBreakStatement();
         ASTNodePtr ParseContinueStatement();
