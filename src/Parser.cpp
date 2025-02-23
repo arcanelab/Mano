@@ -211,7 +211,7 @@ namespace Arcanelab::Mano
             std::string paramName = std::string(Consume(TokenType::Identifier, "Expected parameter name.").lexeme);
             ConsumePunctuation(":", "Expected ':' after parameter name.");
             bool isConst = CheckType(TokenType::Keyword) && Peek().lexeme == "const";
-            if(isConst) Advance();
+            if (isConst) Advance();
             TypeNodePtr paramType = ParseType(isConst);
             parameters.push_back({ paramName, std::move(paramType) });
         }
@@ -222,7 +222,7 @@ namespace Arcanelab::Mano
             std::string paramName = std::string(Consume(TokenType::Identifier, "Expected parameter name after comma.").lexeme);
             ConsumePunctuation(":", "Expected ':' after parameter name.");
             bool isConst = CheckType(TokenType::Keyword) && Peek().lexeme == "const";
-            if(isConst) Advance();
+            if (isConst) Advance();
             TypeNodePtr paramType = ParseType(isConst);
             parameters.push_back({ paramName, std::move(paramType) });
         }
@@ -339,11 +339,26 @@ namespace Arcanelab::Mano
         if (MatchKeyword("switch")) return ParseSwitchStatement();
 
         // If none of the above, it must be an expression statement.
-        auto expr = ParseExpression();
-        ConsumePunctuation(";", "Expected ';' after expression statement.");
-        auto expressionNode = std::make_unique<ExpressionStatementNode>();
-        expressionNode->expression = std::move(expr);
-        return expressionNode;
+        auto expression = ParseExpression();
+
+        bool isAssignmentNode = false;
+        if (BinaryExpressionNode* binaryExpressionNode = dynamic_cast<BinaryExpressionNode*>(expression.get()))
+        {
+            isAssignmentNode = (binaryExpressionNode->op == BinaryOperator::Assign);
+        }
+
+        if (isAssignmentNode || dynamic_cast<FunctionCallNode*>(expression.get())) // assignment or function call
+        {
+            ConsumePunctuation(";", "Expected ';' after expression statement.");
+            auto expressionNode = std::make_unique<ExpressionStatementNode>();
+            expressionNode->expression = std::move(expression);
+            return expressionNode;
+        }
+        else
+        {
+            ErrorAtCurrent("Expected statement.");
+        }
+        return nullptr;
     }
 
     ASTNodePtr Parser::ParseBreakStatement()
