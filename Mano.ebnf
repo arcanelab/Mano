@@ -9,7 +9,7 @@ Declaration          = ConstantDeclaration
 
 ConstantDeclaration  = "let" Identifier ":" PrimitiveType "=" Expression ";" ;
 
-VariableDeclaration  = "var" Identifier ":" Type [ "=" Expression ] ";" ;
+VariableDeclaration  = "var" Identifier ":" Type "=" Expression ";" ;
 
 FunctionDeclaration  = "fun" Identifier "(" [ ParameterList ] ")" [ ":" Type ] Block ;
 
