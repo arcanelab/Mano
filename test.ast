@@ -1,23 +1,23 @@
 └── ProgramNode
     ├── VariableDeclarationNode (pi)
-    │   ├── TypeNode (float const)
+    │   ├── TypeNode (const float)
     │   └── LiteralNode (3.14159)
     ├── VariableDeclarationNode (score)
-    │   ├── TypeNode (uint )
+    │   ├── TypeNode (uint)
     │   └── LiteralNode (100)
     ├── VariableDeclarationNode (negative)
-    │   ├── TypeNode (int )
+    │   ├── TypeNode (int)
     │   └── UnaryExpressionNode (-)
     │       └── LiteralNode (42)
     ├── FunctionDeclarationNode (Add)
     │   ├── Param: a
-    │   │   └── TypeNode (int )
+    │   │   └── TypeNode (int)
     │   └── Param: b
-    │       └── TypeNode (int )
-    │   ├── TypeNode (int )
+    │       └── TypeNode (int)
+    │   ├── TypeNode (int)
     │   └── BlockNode
     │       ├── VariableDeclarationNode (sum)
-    │       │   ├── TypeNode (int )
+    │       │   ├── TypeNode (int)
     │       │   └── BinaryExpressionNode (+)
     │       │       ├── IdentifierNode (a)
     │       │       └── IdentifierNode (b)
@@ -25,11 +25,11 @@
     │           └── IdentifierNode (sum)
     ├── FunctionDeclarationNode (Greet)
     │   └── Param: name
-    │       └── TypeNode (string )
-    │   ├── TypeNode (string )
+    │       └── TypeNode (string)
+    │   ├── TypeNode (string)
     │   └── BlockNode
     │       ├── VariableDeclarationNode (message)
-    │       │   ├── TypeNode (string )
+    │       │   ├── TypeNode (string)
     │       │   └── BinaryExpressionNode (+)
     │       │       ├── BinaryExpressionNode (+)
     │       │       │   ├── LiteralNode (Hello, )
@@ -40,14 +40,16 @@
     ├── ClassDeclarationNode (Person)
     │   └── BlockNode
     │       ├── VariableDeclarationNode (name)
-    │       │   └── TypeNode (string )
+    │       │   ├── TypeNode (string)
+    │       │   └── LiteralNode ()
     │       ├── VariableDeclarationNode (age)
-    │       │   └── TypeNode (int )
+    │       │   ├── TypeNode (int)
+    │       │   └── LiteralNode (0)
     │       ├── FunctionDeclarationNode (Person)
     │       │   ├── Param: newName
-    │       │   │   └── TypeNode (string )
+    │       │   │   └── TypeNode (string)
     │       │   └── Param: newAge
-    │       │       └── TypeNode (int )
+    │       │       └── TypeNode (int)
     │       │   └── BlockNode
     │       │       ├── ExpressionStatementNode
     │       │       │   └── BinaryExpressionNode (=)
@@ -58,7 +60,7 @@
     │       │               ├── IdentifierNode (age)
     │       │               └── IdentifierNode (newAge)
     │       └── FunctionDeclarationNode (Describe)
-    │           ├── TypeNode (string )
+    │           ├── TypeNode (string)
     │           └── BlockNode
     │               └── ReturnStatementNode
     │                   └── BinaryExpressionNode (+)
@@ -77,7 +79,7 @@
     │   └── BlockNode
     │       ├── ForStatementNode
     │       │   ├── VariableDeclarationNode (i)
-    │       │   │   ├── TypeNode (uint )
+    │       │   │   ├── TypeNode (uint)
     │       │   │   └── LiteralNode (0)
     │       │   ├── BinaryExpressionNode (<)
     │       │   │   ├── IdentifierNode (i)
@@ -101,7 +103,7 @@
     │       │           └── BlockNode
     │       │               └── BreakStatementNode
     │       ├── VariableDeclarationNode (count)
-    │       │   ├── TypeNode (uint )
+    │       │   ├── TypeNode (uint)
     │       │   └── LiteralNode (5)
     │       └── WhileStatementNode
     │           ├── BinaryExpressionNode (>)
@@ -115,7 +117,7 @@
     │                           ├── IdentifierNode (count)
     │                           └── LiteralNode (1)
     ├── VariableDeclarationNode (numbers)
-    │   ├── TypeNode ([int] )
+    │   ├── TypeNode ([int])
     │   └── ArrayLiteralNode
     │       ├── LiteralNode (1)
     │       ├── LiteralNode (2)
@@ -123,18 +125,18 @@
     │       ├── LiteralNode (4)
     │       └── LiteralNode (5)
     ├── VariableDeclarationNode (emptyArr)
-    │   ├── TypeNode ([float] )
+    │   ├── TypeNode ([float])
     │   └── ArrayLiteralNode
     ├── FunctionDeclarationNode (TestExpressions)
     │   └── BlockNode
     │       ├── VariableDeclarationNode (a)
-    │       │   ├── TypeNode (int )
+    │       │   ├── TypeNode (int)
     │       │   └── LiteralNode (10)
     │       ├── VariableDeclarationNode (b)
-    │       │   ├── TypeNode (int )
+    │       │   ├── TypeNode (int)
     │       │   └── LiteralNode (20)
     │       ├── VariableDeclarationNode (result)
-    │       │   ├── TypeNode (bool )
+    │       │   ├── TypeNode (bool)
     │       │   └── BinaryExpressionNode (||)
     │       │       ├── BinaryExpressionNode (==)
     │       │       │   ├── IdentifierNode (a)
@@ -147,7 +149,7 @@
     │       │               ├── IdentifierNode (a)
     │       │               └── IdentifierNode (b)
     │       └── VariableDeclarationNode (calc)
-    │           ├── TypeNode (float )
+    │           ├── TypeNode (float)
     │           └── BinaryExpressionNode (-)
     │               ├── BinaryExpressionNode (+)
     │               │   ├── BinaryExpressionNode (*)
@@ -160,7 +162,7 @@
     │               └── LiteralNode (3.0)
     ├── FunctionDeclarationNode (TestSwitch)
     │   └── Param: dir
-    │       └── TypeNode (Direction )
+    │       └── TypeNode (Direction)
     │   └── BlockNode
     │       └── SwitchStatementNode
     │           ├── Case:
@@ -173,7 +175,6 @@
     │           │   ├── MemberAccessNode (.East)
     │           │   │   └── IdentifierNode (Direction)
     │           │   └── BlockNode
-    │           │       └── BreakStatementNode
     │           ├── Case:
     │           │   ├── MemberAccessNode (.South)
     │           │   │   └── IdentifierNode (Direction)
@@ -187,17 +188,22 @@
     │           │           └── FunctionCallNode (TestExpressions)
     │           └── Default:
     │           │   └── BlockNode
-    │           │       └── BreakStatementNode
     │           └── IdentifierNode (dir)
+    ├── FunctionDeclarationNode (TestConstParameters)
+    │   ├── Param: name
+    │   │   └── TypeNode (const string)
+    │   └── Param: age
+    │       └── TypeNode (const uint)
+    │   └── BlockNode
     └── FunctionDeclarationNode (Main)
         └── BlockNode
             ├── VariableDeclarationNode (p)
-            │   ├── TypeNode (Person )
+            │   ├── TypeNode (Person)
             │   └── FunctionCallNode (Person)
             │       ├── LiteralNode (Alice)
             │       └── LiteralNode (30)
             ├── VariableDeclarationNode (greeting)
-            │   ├── TypeNode (string )
+            │   ├── TypeNode (string)
             │   └── FunctionCallNode (Greet)
             │       └── LiteralNode (Bob)
             ├── ExpressionStatementNode
