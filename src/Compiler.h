@@ -350,7 +350,7 @@ namespace Arcanelab::Mano
                     std::string newPrefix = prefix + (isLast ? "    " : "│   ");
                     self(self, children[i], newPrefix, lastChild);
                 }
-                };
+                }; // lambda
 
             printNode(printNode, root, "", true);
 
