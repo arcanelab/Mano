@@ -1,3 +1,4 @@
+#include <fstream> // Include for file stream
 #include <Lexer.h>
 #include <Parser.h>
 #include <string>
@@ -69,6 +70,14 @@ namespace Arcanelab::Mano
 
         void PrintASTTree(const ASTNode* root)
         {
+            // Open the file for writing.
+            std::ofstream outFile("../test.ast");
+            if (!outFile.is_open())
+            {
+                std::cerr << "Failed to open file: ../test.ast" << std::endl;
+                return;
+            }
+
             // Recursive lambda function to print an AST node.
             auto printNode = [&](auto&& self, const ASTNode* node, const std::string& prefix, bool isLast) -> void {
                 if (!node)
@@ -86,7 +95,7 @@ namespace Arcanelab::Mano
                 }
                 else if (auto typeNode = dynamic_cast<const TypeNode*>(node))
                 {
-                    nodeLabel = "TypeNode (" + typeNode->name + (typeNode->isConst ? " const)" : " )");
+                    nodeLabel = "TypeNode (" + std::string(typeNode->isConst ? "const " : "") + typeNode->name + ")";
                 }
                 else if (auto varDecl = dynamic_cast<const VariableDeclarationNode*>(node))
                 {
@@ -195,7 +204,7 @@ namespace Arcanelab::Mano
                 {
                     nodeLabel = "Unknown ASTNode";
                 }
-                std::cout << branch << nodeLabel << std::endl;
+                outFile << branch << nodeLabel << std::endl;
 
                 // Container for child nodes.
                 std::vector<const ASTNode*> children;
@@ -219,7 +228,7 @@ namespace Arcanelab::Mano
                         std::string paramLabel = "Param: " + funDecl->parameters[i].first;
                         std::string paramBranch = prefix + (isLast ? "    " : "│   ");
                         paramBranch += (lastParam ? "└── " : "├── ");
-                        std::cout << paramBranch << paramLabel << std::endl;
+                        outFile << paramBranch << paramLabel << std::endl;
                         // Print the parameter’s type node with an extended prefix.
                         if (funDecl->parameters[i].second)
                         {
@@ -244,7 +253,7 @@ namespace Arcanelab::Mano
                     {
                         std::string valueLabel = "EnumValue: " + enumDecl->values[i];
                         std::string valueBranch = prefix + (isLast ? "    " : "│   ") + "├── ";
-                        std::cout << valueBranch << valueLabel << std::endl;
+                        outFile << valueBranch << valueLabel << std::endl;
                     }
                 }
                 else if (auto block = dynamic_cast<const BlockNode*>(node))
@@ -288,7 +297,7 @@ namespace Arcanelab::Mano
                         bool isLastCase = (i == switchStmt->cases.size() - 1 && switchStmt->defaultCase == nullptr);
                         std::string caseBranch = prefix + (isLast ? "    " : "│   ");
                         caseBranch += (isLastCase ? "└── " : "├── ");
-                        std::cout << caseBranch << "Case:" << std::endl;
+                        outFile << caseBranch << "Case:" << std::endl;
                         std::string casePrefix = prefix + (isLast ? "    " : "│   ");
                         casePrefix += (isLastCase ? "    " : "│   ");
                         // Print the case expression and block.
@@ -299,7 +308,7 @@ namespace Arcanelab::Mano
                     {
                         // Print Default: as a pseudo‐node.
                         std::string defaultBranch = prefix + (isLast ? "    " : "│   ") + "└── ";
-                        std::cout << defaultBranch << "Default:" << std::endl;
+                        outFile << defaultBranch << "Default:" << std::endl;
                         std::string defPrefix = prefix + (isLast ? "    " : "│   ") + "│   ";
                         self(self, switchStmt->defaultCase.get(), defPrefix, true);
                     }
@@ -344,6 +353,9 @@ namespace Arcanelab::Mano
                 };
 
             printNode(printNode, root, "", true);
+
+            // Close the file after writing.
+            outFile.close();
         }
     };
 } // namespace Arcanelab::Mano
