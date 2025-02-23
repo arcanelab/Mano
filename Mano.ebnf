@@ -1,139 +1,122 @@
 (* A complete program is a sequence of declarations *)
-Program         = { Declaration } ;
+Program              = { Declaration } ;
 
-Declaration     = ConstantDeclaration
-                | VariableDeclaration
-                | FunctionDeclaration
-                | ClassDeclaration
-                | EnumDeclaration ;
+Declaration          = ConstantDeclaration
+                     | VariableDeclaration
+                     | FunctionDeclaration
+                     | ClassDeclaration
+                     | EnumDeclaration ;
 
-ConstantDeclaration
-                = "let" Identifier ":" PrimitiveType "=" Expression ";" ;
+ConstantDeclaration  = "let" Identifier ":" PrimitiveType "=" Expression ";" ;
 
-VariableDeclaration
-                = "var" Identifier ":" Type [ "=" Expression ] ";" ;
+VariableDeclaration  = "var" Identifier ":" Type [ "=" Expression ] ";" ;
 
-FunctionDeclaration
-                = "fun" Identifier "(" [ ParameterList ] ")" [ ":" Type ] Block ;
+FunctionDeclaration  = "fun" Identifier "(" [ ParameterList ] ")" [ ":" Type ] Block ;
 
-ParameterList   = Parameter { "," Parameter } ;
-Parameter       = Identifier ":" [ "const" ] Type ;
+ParameterList        = Parameter { "," Parameter } ;
+Parameter            = Identifier ":" [ "const" ] Type ;
 
-ClassDeclaration
-                = "class" Identifier Block ;
+ClassDeclaration     = "class" Identifier Block ;
 
-EnumDeclaration = "enum" Identifier Block ;
+EnumDeclaration      = "enum" Identifier Block ;
 
-Type            = PrimitiveType
-                | Identifier
-                | ArrayType ;
+Type                 = PrimitiveType
+                     | Identifier
+                     | ArrayType ;
 
-PrimitiveType   = "int" | "uint" | "float" | "bool" | "string" ;
+PrimitiveType        = "int" | "uint" | "float" | "bool" | "string" ;
 
-ArrayType       = "[" PrimitiveType | Identifier "]" ;
+ArrayType            = "[" PrimitiveType | Identifier "]" ;
 
-Block           = "{" { Declaration | Statement } "}" ;
+Block                = "{" { Declaration | Statement } "}" ;
 
-Statement       = Block
-                | ExpressionStatement ";"
-                | IfStatement
-                | ForStatement
-                | WhileStatement
-                | BreakStatement ";"
-                | ContinueStatement ";"
-                | ReturnStatement ";"
-                | SwitchStatement ;
+Statement            = Block
+                     | ExpressionStatement ";"
+                     | IfStatement
+                     | ForStatement
+                     | WhileStatement
+                     | BreakStatement ";"
+                     | ContinueStatement ";"
+                     | ReturnStatement ";"
+                     | SwitchStatement ;
 
-ExpressionStatement
-                = Expression ;
+ExpressionStatement  = Expression ;
 
-IfStatement     = "if" "(" Expression ")" Block [ "else" Block ] ;
+IfStatement          = "if" "(" Expression ")" Block [ "else" Block ] ;
 
-ForStatement    = "for" "(" VariableDeclaration ";" Expression ";" Expression ")" Block ;
+ForStatement         = "for" "(" VariableDeclaration ";" Expression ";" Expression ")" Block ;
 
-WhileStatement  = "while" "(" Expression ")" Block ;
+WhileStatement       = "while" "(" Expression ")" Block ;
 
-SwitchStatement = "switch" "(" Expression ")" SwitchBlock ;
-SwitchBlock     = "{" { CaseClause } "}" ;
-CaseClause      = Case | Default ;
-Case            = "case" Expression ":" Block ;
-Default         = "default" ":" Block ;
+SwitchStatement      = "switch" "(" Expression ")" SwitchBlock ;
+SwitchBlock          = "{" { CaseClause } "}" ;
+CaseClause           = Case | Default ;
+Case                 = "case" Expression ":" Block ;
+Default              = "default" ":" Block ;
 
-BreakStatement  = "break" ;
-ContinueStatement
-                = "continue" ;
-ReturnStatement = "return" [ Expression ] ;
+BreakStatement       = "break" ;
+ContinueStatement    = "continue" ;
+ReturnStatement      = "return" [ Expression ] ;
 
-(*   For now, bitwise and ternary operators are left out but may be added later. *)
-Expression      = AssignmentExpression ;
+(* For now, bitwise and ternary operators are left out but may be added later. *)
+Expression           = AssignmentExpression ;
 
-AssignmentExpression
-                = LeftHandSideExpression "=" AssignmentExpression
-                | LogicalOrExpression;
+AssignmentExpression = LeftHandSideExpression "=" AssignmentExpression
+                     | LogicalOrExpression ;
 
-LeftHandSideExpression
-                = PrimaryExpression;
+LeftHandSideExpression = PrimaryExpression ;
 
-LogicalOrExpression
-                = LogicalAndExpression { "||" LogicalAndExpression } ;
+LogicalOrExpression  = LogicalAndExpression { "||" LogicalAndExpression } ;
 
-LogicalAndExpression
-                = EqualityExpression { "&&" EqualityExpression } ;
+LogicalAndExpression = EqualityExpression { "&&" EqualityExpression } ;
 
-EqualityExpression
-                = RelationalExpression { ( "==" | "!=" ) RelationalExpression } ;
+EqualityExpression   = RelationalExpression { ( "==" | "!=" ) RelationalExpression } ;
 
-RelationalExpression
-                = AdditiveExpression [ ( "<" | ">" | "<=" | ">=" ) AdditiveExpression ] ;
+RelationalExpression = AdditiveExpression [ ( "<" | ">" | "<=" | ">=" ) AdditiveExpression ] ;
 
-AdditiveExpression
-                = MultiplicativeExpression { ( "+" | "-" ) MultiplicativeExpression } ;
+AdditiveExpression   = MultiplicativeExpression { ( "+" | "-" ) MultiplicativeExpression } ;
 
-MultiplicativeExpression
-                = UnaryExpression { ( "*" | "/" | "%" ) UnaryExpression } ;
+MultiplicativeExpression = UnaryExpression { ( "*" | "/" | "%" ) UnaryExpression } ;
 
-UnaryExpression = [ ( "-" | "!" ) ] PrimaryExpression ;
+UnaryExpression      = [ ( "-" | "!" ) ] PrimaryExpression ;
 
-PrimaryExpression
-                = Identifier
-                | Literal
-                | ArrayLiteral
-                | "(" Expression ")"
-                | FunctionCall
-                | ObjectInstantiation
-                | MemberAccess ;
+PrimaryExpression    = Identifier
+                     | Literal
+                     | ArrayLiteral
+                     | "(" Expression ")"
+                     | FunctionCall
+                     | ObjectInstantiation
+                     | MemberAccess ;
 
-MemberAccess
-                = PrimaryExpression "." Identifier ;
+MemberAccess         = PrimaryExpression "." Identifier ;
 
 (* A function call uses the same syntax as object instantiation.
    Semantic analysis will distinguish them by looking up Identifier in the symbol table. *)
-FunctionCall    = Identifier "(" [ ArgumentList ] ")" ;
-ArgumentList    = Expression { "," Expression } ;
+FunctionCall         = Identifier "(" [ ArgumentList ] ")" ;
+ArgumentList         = Expression { "," Expression } ;
 
 (* In our design, object instantiation follows a function-call-like syntax *)
-ObjectInstantiation
-                = Identifier "(" [ ArgumentList ] ")" ;
+ObjectInstantiation  = Identifier "(" [ ArgumentList ] ")" ;
 
-Literal         = IntegerLiteral | FloatLiteral | BoolLiteral | StringLiteral ;
+Literal              = IntegerLiteral | FloatLiteral | BoolLiteral | StringLiteral ;
 
-IntegerLiteral  = Digit { Digit } ;
-FloatLiteral    = Digit { Digit } "." Digit { Digit } ;
-BoolLiteral     = "true" | "false" ;
+IntegerLiteral       = Digit { Digit } ;
+FloatLiteral         = Digit { Digit } "." Digit { Digit } ;
+BoolLiteral          = "true" | "false" ;
 
-ArrayLiteral    = "[" [ ExpressionList ] "]" ;
-ExpressionList  = Expression { "," Expression } ;
+ArrayLiteral         = "[" [ ExpressionList ] "]" ;
+ExpressionList       = Expression { "," Expression } ;
 
 (* Simple string literal enclosed in double quotes.
    Note: Escape sequences for special characters, if desired, will be handled in the lexer. *)
-StringLiteral   = "\"" { AnyCharExceptQuoteOrNewline } "\"" ;
+StringLiteral        = "\"" { AnyCharExceptQuoteOrNewline } "\"" ;
 
 (* Identifier: a letter followed by letters, digits, or underscores *)
-Identifier      = Letter { Letter | Digit | "_" } ;
+Identifier           = Letter { Letter | Digit | "_" } ;
 
 (* Lexical terminals *)
-Digit           = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
-Letter          = "A" … "Z" | "a" … "z" ;
+Digit                = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+Letter               = "A" … "Z" | "a" … "z" ;
 
 (* The terminal AnyCharExceptQuoteOrNewline
    represents any character except a double quote or a newline.
