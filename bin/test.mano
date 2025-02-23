@@ -22,8 +22,8 @@ fun Greet(name: string): string
 // Class Declaration: properties, constructor, and a method
 class Person
 {
-    var name: string;
-    var age: int;
+    var name: string = "";
+    var age: int = 0;
 
     fun Person(newName: string, newAge: int)
     {

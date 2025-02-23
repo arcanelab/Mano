@@ -173,9 +173,9 @@ namespace Arcanelab::Mano
         {
             varDecl->initializer = ParseExpression();
         }
-        else if (isConst)
+        else
         {
-            ErrorAtCurrent("Expected '=' after type for constant declaration.");
+            ErrorAtCurrent("Expected '=' after type for " + std::string(isConst ? "constant" : "variable") + " declaration.");
         }
         ConsumePunctuation(";", "Expected ';' after variable declaration.");
         return varDecl;
