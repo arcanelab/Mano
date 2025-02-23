@@ -104,7 +104,8 @@ namespace Arcanelab::Mano
             text == "if" || text == "else" || text == "for" || text == "while" ||
             text == "break" || text == "continue" || text == "return" || text == "let" ||
             text == "int" || text == "uint" || text == "float" || text == "bool" ||
-            text == "string" || text == "switch" || text == "case" || text == "default");
+            text == "string" || text == "switch" || text == "case" || text == "default" ||
+            text == "const");
     }
 
     Token Lexer::ScanNumber()

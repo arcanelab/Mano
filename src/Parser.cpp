@@ -210,7 +210,9 @@ namespace Arcanelab::Mano
         {
             std::string paramName = std::string(Consume(TokenType::Identifier, "Expected parameter name.").lexeme);
             ConsumePunctuation(":", "Expected ':' after parameter name.");
-            TypeNodePtr paramType = ParseType(false); // Parameters are not const by default
+            bool isConst = CheckType(TokenType::Keyword) && Peek().lexeme == "const";
+            if(isConst) Advance();
+            TypeNodePtr paramType = ParseType(isConst);
             parameters.push_back({ paramName, std::move(paramType) });
         }
 
@@ -219,7 +221,9 @@ namespace Arcanelab::Mano
             Advance(); // Consume the comma.
             std::string paramName = std::string(Consume(TokenType::Identifier, "Expected parameter name after comma.").lexeme);
             ConsumePunctuation(":", "Expected ':' after parameter name.");
-            TypeNodePtr paramType = ParseType(false); // Parameters are not const by default
+            bool isConst = CheckType(TokenType::Keyword) && Peek().lexeme == "const";
+            if(isConst) Advance();
+            TypeNodePtr paramType = ParseType(isConst);
             parameters.push_back({ paramName, std::move(paramType) });
         }
     }
