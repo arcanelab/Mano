@@ -95,7 +95,6 @@ fun TestSwitch(dir: Direction)
         }
         case Direction.East:
         {
-            break;
         }
         case Direction.South:
         {
@@ -107,9 +106,13 @@ fun TestSwitch(dir: Direction)
         }
         default:
         {
-            break;
         }
     }
+}
+
+fun TestConstParameters(name: const string, age: const uint)
+{
+
 }
 
 // Main function: object instantiation, function calls, and printing result
