@@ -111,6 +111,12 @@ namespace Arcanelab::Mano
         std::string memberName;
     };
 
+    struct IndexAccessNode : public ASTNode
+    {
+        ASTNodePtr object;
+        ASTNodePtr index;
+    };    
+
     enum class BinaryOperator
     {
         Assign,

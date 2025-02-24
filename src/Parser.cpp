@@ -368,7 +368,7 @@ namespace Arcanelab::Mano
         return nullptr;
     }
 
-     ASTNodePtr Parser::ParseBreakStatement()
+    ASTNodePtr Parser::ParseBreakStatement()
     {
         ConsumePunctuation(";", "Expected ';' after 'break'.");
         return std::make_unique<BreakStatementNode>();
@@ -612,6 +612,7 @@ namespace Arcanelab::Mano
         if (Match({ TokenType::Identifier }))
         {
             std::string name = std::string(Previous().lexeme);
+            // Handle direct function calls like foo()
             if (CheckType(TokenType::Punctuation) && Peek().lexeme == "(")
             {
                 Advance(); // consume "("
@@ -626,11 +627,14 @@ namespace Arcanelab::Mano
             ASTNodePtr expr = std::make_unique<IdentifierNode>();
             static_cast<IdentifierNode*>(expr.get())->name = name;
 
+            bool allowMethodCall = true; // Controls whether () is allowed
+
             while (true)
             {
-                // Handle member accesses (x.y)
+                // Member access (x.y)
                 if (MatchPunctuation("."))
                 {
+                    allowMethodCall = true; // Reset flag for new member access
                     auto memberAccess = std::make_unique<MemberAccessNode>();
                     memberAccess->object = std::move(expr);
                     memberAccess->memberName = std::string(
@@ -638,40 +642,56 @@ namespace Arcanelab::Mano
                     );
                     expr = std::move(memberAccess);
                 }
-                // Handle method calls (x.y())
-                else if (CheckType(TokenType::Punctuation) && Peek().lexeme == "(")
+                // Array index access (x[y])
+                else if (MatchPunctuation("["))
+                {
+                    allowMethodCall = false; // Disable method calls after []
+                    auto index = ParseExpression();
+                    ConsumePunctuation("]", "Expected ']' after index expression.");
+                    auto indexAccess = std::make_unique<IndexAccessNode>();
+                    indexAccess->object = std::move(expr);
+                    indexAccess->index = std::move(index);
+                    expr = std::move(indexAccess);
+                }
+                // Method call (x.y() - allowed, x[0]() - blocked)
+                else if (allowMethodCall && CheckType(TokenType::Punctuation) && Peek().lexeme == "(")
                 {
                     Advance(); // consume "("
                     auto args = ParseArgumentList();
                     ConsumePunctuation(")", "Expected ')' after arguments");
 
                     auto methodCall = std::make_unique<FunctionCallNode>();
-                    methodCall->callTarget = std::move(expr); // Store member access
+                    methodCall->callTarget = std::move(expr);
                     methodCall->arguments = std::move(args);
                     expr = std::move(methodCall);
+
+                    allowMethodCall = true; // Allow chained calls like foo()()
                 }
                 else
                 {
-                    break; // No more member accesses/method calls
+                    break; // No more postfix operators
                 }
             }
             return expr;
         }
-
+    
+        // Handle literals (numbers, strings, bools)
         if (Match({ TokenType::Number, TokenType::String, TokenType::Keyword }))
         {
             auto lit = std::make_unique<LiteralNode>();
             lit->value = std::string(Previous().lexeme);
             return lit;
         }
-
+    
+        // Handle parenthesized expressions
         if (MatchPunctuation("("))
         {
             auto expr = ParseExpression();
             ConsumePunctuation(")", "Expected ')' after expression.");
             return expr;
         }
-
+    
+        // Handle array literals
         if (MatchPunctuation("["))
         {
             auto arrayLiteral = std::make_unique<ArrayLiteralNode>();
@@ -684,10 +704,10 @@ namespace Arcanelab::Mano
             ConsumePunctuation("]", "Expected ']' after array elements.");
             return arrayLiteral;
         }
-
+    
         ErrorAtCurrent("Expected expression");
         return nullptr;
-    }
+    }    
 
     std::vector<ASTNodePtr> Parser::ParseExpressionList()
     {

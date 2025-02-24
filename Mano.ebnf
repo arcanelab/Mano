@@ -86,19 +86,27 @@ MultiplicativeExpression = UnaryExpression { ( "*" | "/" | "%" ) UnaryExpression
 
 UnaryExpression      = [ ( "-" | "!" ) ] PrimaryExpression ;
 
-PrimaryExpression    = Identifier
+PrimaryExpression    = PrimaryPrefix { PostfixOperator } ;
+
+PrimaryPrefix        = Identifier
                      | Literal
                      | ArrayLiteral
                      | "(" Expression ")"
                      | FunctionCall
-                     | ObjectInstantiation
-                     | MemberAccess ;
+                     | ObjectInstantiation ;
 
-MemberAccess         = Identifier "." Identifier ;
+(* Function calls can only follow member accesses, not array accesses *)
+PostfixOperator      = MemberAccess
+                     | ArrayAccess
+                     | ( MemberAccess | FunctionCall ) FunctionCall ;
+
+MemberAccess         = "." Identifier ;
+ArrayAccess          = "[" Expression "]" ;
+
+FunctionCall         = "(" [ ArgumentList ] ")" ;
 
 (* A function call uses the same syntax as object instantiation.
    Semantic analysis will distinguish them by looking up Identifier in the symbol table. *)
-FunctionCall         = Identifier "(" [ ArgumentList ] ")" ;
 ArgumentList         = Expression { "," Expression } ;
 
 (* In our design, object instantiation follows a function-call-like syntax *)
