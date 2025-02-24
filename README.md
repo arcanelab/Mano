@@ -1,333 +1,296 @@
-# Mano Language Specification
+# Mano - Simple Embeddable Scripting Language
 
-Mano is a simple, statically typed, embeddable scripting language designed with ease of use in mind. With a syntax similar to Swift, it is both familiar and accessible for new users. Mano aims to be a compelling alternative to Lua. Developers can extend the language with custom classes, functions, and constants. Mano supports bidirectional integration: you can invoke Nano functions from your host application, and Nano functions can also call any registered host functions.
+**Mano** is a statically typed scripting language designed for simplicity and embeddability. It combines modern syntax inspired by Swift with deterministic memory management, making it suitable for performance-sensitive environments.  
 
-(See [test.mano](bin/test.mano) for a sneak-peak of the syntax.)
-
----
-
-## 1. Primitive Types
-
-The core primitive types are:
-
-- **int**  
-- **uint**  
-- **float**  
-- **bool**
-
-### Variable Declaration
-
-Variables are declared with the `var` keyword and a type annotation. Literal values are assigned using the `=` operator. Note that numeric literals are non-negative by default; to represent a negative number, apply the unary minus operator.
-
-**Examples:**
-
-```
-// Declaration without initialization
-var score: uint;
-
-// Declaration with initialization
-var score: uint = 100;
-var temperature: float = 36.6;
-var balance: int = -42;
-var isActive: bool = true;
-```
-
-**Type Conversion:**  
-Automatic conversion between types (e.g., from int to float) is not supported. If explicit transformation is needed, support must be implemented via library functions or explicit casting (if added later).
-
-### Constants
-
-Constants are declared with the `let` keyword and require an initializer. Once a constant is defined, its value cannot be changed.
-
-**Example:**
-
-```
-let pi: float = 3.14159;
-```
+### Key Features  
+- **Statically Typed**: Compile-time type checks ensure safety without sacrificing expressiveness.  
+- **Automatic Memory Management**: Uses reference counting (no garbage collector) with zero runtime overhead.  
+- **Embedded Focus**: Designed as a lightweight alternative to Lua for integration into C/C++ hosts.  
+- **Minimal Syntax**: Familiar constructs with minimal boilerplate.  
 
 ---
 
-## 2. Arrays
+## Language Elements  
 
-Arrays allow you to store multiple values of the same type. They have the following characteristics:
-
-- **Homogeneity:** All elements in an array must be of the same type.  
-- **Declaration and Initialization:** Arrays are declared with a square-bracket type annotation. For example, 
-```
-var numbers: [int] = [1, 3, 5, 7, 9];
-```
-- **Dynamic Sizing:** When declared with `var`, arrays are dynamic in size.  
-- **Immutability with Constants:** When declared with `let`, arrays are fixed in size and cannot be modified after initialization.  
-- **Indexing:** Elements are accessed using square brackets with 0-based indexing. For example:  
-```
-var third: int = numbers[2];
+### 1. Primitive Types  
+```swift  
+let pi: float = 3.14159;  
+var score: uint = 100;  
+var isActive: bool = true;  
+var name: string = "Mano";  
 ```  
-- **Mutability:** Arrays declared with `var` are mutable; their elements can be updated. Arrays declared with `let` are immutable.
+Supported types: **```int```**, **```uint```**, **```float```**, **```bool```**, **```string```**.  
+- **Passed by Copy**: Primitives are copied when assigned or passed to functions.  
+- **No Automatic Conversion**: Explicit casting or library functions required for type conversions.  
 
 ---
 
-## 3. Operators
+### 2. Variables and Constants  
+- **Variables**: Mutable, explicitly typed.  
+  ```swift  
+  var counter: int = 0;  
+  counter = 10;  
+  ```  
 
-The following operators are supported:
-
-### Arithmetic Operators
-
-- **Addition:** `+`
-- **Subtraction:** `-`
-- **Multiplication:** `*`
-- **Division:** `/`
-- **Modulo:** `%` (applicable only to integer types)
-
-**Precedence and Associativity:**
-
-- Multiplication, division, and modulo have higher precedence than addition and subtraction.
-- All arithmetic operators are left-associative.
-
-**Example:**
-
-```
-var a: int = 10;
-var b: int = 3;
-var result: int = a - b - 2;  // Interpreted as ((10 - 3) - 2)
-```
-
-### Unary Operators
-
-- **Unary Negative (`-`):** Negates its operand.  
-- **Logical Not (`!`):** Applies Boolean negation.
-
-The unary `-` has a higher precedence than multiplication. For instance:
-
-```
-var value: int = 5;
-var negated: int = -value * 2;  // Evaluates as (-value) * 2, not -(value * 2)
-```
-
-### Boolean Operators
-
-- **Logical AND:** `&&`
-- **Logical OR:** `||`
-
-For `&&` and `||`, evaluation is short-circuited; the right-hand side is only evaluated if required by the left-hand operand. They are left-associative.
-
-### Assignment and Comparison
-
-- **Assignment:** `=` (right-associative; e.g., `a = b = c` means `a = (b = c)`)
-- **Equality Comparison:** `==`
-- **Inequality Comparison:** `!=`
-
-Chained comparisons like `a == b == c` are not supported; use explicit grouping with parentheses if needed.
+- **Constants**: Immutable after initialization.  
+  ```swift  
+  let maxItems: int = 100;  
+  maxItems = 64; // maxItems is immutable, yields a compilation error
+  ```  
 
 ---
 
-## 4. Functions
+### 3. Functions  
+```swift  
+fun Add(a: int, b: int): int  
+{  
+    return a + b;  
+}  
 
-Functions in Mano have a C-like syntax with named parameters and an optional return type. Parameters for primitive types are passed by value, while class objects (instances) are passed by reference.
-
-### Function Declaration Example
-
-```
-fun GetGreeting(name: string, count: int) : string
-{
-    // Constructs a greeting message using the provided name and count.
-    var message: string = "Hello, " + name + "! You are visitor number " + count + ".";
-    return message;
-}
-```
-
-Returning a value is optional. If there's no return value, the return type can be omitted.
-
-```
-fun SimpleFunction()
-{
-    // No value returned
-}
-```
-
-**Parameter Passing Semantics:**
-
-- **Primitives:** Copied when passed.
-- **Objects:** Passed as references. Their lifetimes are managed via reference counting. When passing an object to a function, the reference count is increased and later decreased when the function’s execution concludes.
+fun Greet(name: const string): string  
+{  
+    return "Hello, " + name + "!";  
+}  
+```  
+- **Parameters**: Marked as **```const```** to prevent modification.  
+- **Return Types**: Optional if omitted (void).  
 
 ---
 
-## 5. Classes
+### 4. Classes  
+```swift  
+class Person  
+{  
+    var name: string = "";  
+    var age: int = 0;  
 
-Classes encapsulate properties (state) and methods (behavior). Objects are always instantiated on the heap and handled as reference types.
+    // Constructor: method matching class name  
+    fun Person(newName: string, newAge: int)  
+    {  
+        name = newName;  
+        age = newAge;  
+    }  
 
-### Class Declaration Example
-
-```
-class Person
-{
-    var name: string;
-    var age: int;
-
-    // Constructor: Initializes a new Person instance.
-    fun Person(newName: string, newAge: int)
-    {
-        name = newName;
-        age = newAge;
-    }
-
-    // Method: Returns a short description of the person.
-    fun Describe() : string
-    {
-        return name + " is " + age + " years old.";
-    }
-}
-```
-
-### Object Instantiation
-
-Class instances are created using a constructor-like syntax. You can call the class name as if it were a function, with or without parameters, to create a new instance.
-
-**Examples:**
-
-```
-var p1: Person = Person("Alice", 30);  // With constructor parameters.
-var p2: Person = Person();             // Without parameters.
-```
-
-Since objects are passed by reference, when an instance is passed to a function or assigned to another variable, they refer to the same underlying object managed by reference counting.
+    fun Describe(): string  
+    {  
+        return name + " is " + age + " years old.";  
+    }  
+}  
+```  
+- **Constructors**: Defined as methods with the same name as the class.  
+- **No ```this``` Keyword**: Use distinct parameter names to avoid shadowing.  
+- **Passed by Reference**: Objects are reference types.  
 
 ---
 
-## 6. Control Flow
-
-### 6.1 Conditionals
-
-Conditional constructs utilize `if` and `else` blocks. In this example, we check voting and driving license eligibility while avoiding the use of "else if" syntax:
-
-```
-fun CheckEligibility(age: uint) : string
-{
-    if (age >= 18)
-    {
-        // A person aged 18 or older is eligible for both voting and driving licenses.
-        return "Eligible for both voting and driving licenses.";
-    }
-    else
-    {
-        // For ages below 18, nest another if statement to determine eligibility.
-        if (age >= 16)
-        {
-            return "Eligible for a driving license only.";
-        }
-        else
-        {
-            return "Not eligible for voting or driving licenses.";
-        }
-    }
-}
-```
-
-### 6.2 For Loop
-
-The `for` loop consists of three expressions (initialization, condition, and iteration) separated by semicolons within parentheses.
-
-**Example:**
-
-```
-for (var i: uint = 0; i < 10; i = i + 1)
-{
-    // Skip the iteration when i equals 3.
-    if (i == 3)
-    {
-        continue;
-    }
-    
-    // Exit the loop when i equals 7.
-    if (i == 7)
-    {
-        break;
-    }
-    
-    Print("Iteration number: " + i);
-}
-```
-
-### 6.3 While Loop
-
-The `while` loop repeatedly executes a block as long as its condition remains true.
-
-**Example:**
-
-```
-var count: uint = 5;
-while (count > 0)
-{
-    Print("Count: " + count);
-    count = count - 1;
-}
-```
+### 5. Enums  
+```swift  
+enum Direction  
+{  
+    North,  
+    East,  
+    South,  
+    West,  
+}  
+```  
+- **Members**: Fixed set of named constants.  
+- **Distinct Types**: Not convertible to integers.  
 
 ---
 
-## 7. Scoping
+### 6. Control Flow  
+#### If-Else  
+```swift  
+if (score > 50)  
+{  
+    Print("Pass");  
+}  
+else  
+{  
+    Print("Fail");  
+}  
+```  
 
-Variables are block-scoped. A variable declared within a block (delimited by `{ }`) is accessible only within that block and any nested blocks.
+#### Loops  
+```swift  
+for (var i: uint = 0; i < 10; i = i + 1)  
+{  
+    // Loop body  
+}  
 
-**Example:**
+var count: uint = 5;  
+while (count > 0)  
+{  
+    count = count - 1;  
+}  
+```  
 
-```
-fun DemoScope()
-{
-    var x: int = 10;
-    
-    {
-        var y: int = 20;
-        Print(x + y);  // Accessible: prints 30.
-    }
-    
-    // y is not accessible here.
-}
-```
-
----
-
-## 8. Comments
-
-Mano supports single-line comments. Everything following `//` on a given line is ignored by the compiler. Block comments (e.g., `/* ... */`) are not supported.
-
-**Example:**
-
-```
-// This is a single-line comment
-var example: int = 5;  // Inline comment after code
-```
-
----
-
-## 9. Enums
-
-Enums allow you to define a new type representing a fixed set of named values. These are distinct types not automatically convertible to integers.
-
-### Enum Declaration Example
-
-```
-enum Direction
-{
-    North,
-    East,
-    South,
-    West
-}
-```
-
-### Enum Usage Example
-
-```
-var currentDirection: Direction = Direction.North;
-
-if (currentDirection == Direction.North)
-{
-    Print("Heading North.");
-}
-```
+#### Switch  
+```swift  
+switch(dir)  
+{  
+    case Direction.North:  
+    {  
+        MoveNorth();  
+    }  
+    case Direction.East:  
+    {  
+        // Empty block allowed (no fallthrough)  
+    }  
+    default:  
+    {  
+        Stop();  
+    }  
+}  
+```  
 
 ---
 
-## Contributors
+### 7. Arrays  
+```swift  
+var numbers: [int] = [1, 2, 3];  
+var empty: [float] = [];  
+```  
+- **No Nested Arrays**: Only single-dimension arrays are supported.  
+- **Immutability**: Arrays declared with **```let```** are fixed in size and elements.  
 
-Designed and written by Zoltán Majoros ([github.com/arcanelab](https://github.com/arcanelab/)) in 2025.
+---
+
+### 8. Operators  
+```swift  
+var a: int = 10 * 2 + 5;  // Arithmetic  
+var b: bool = (a == 25) && (a < 30);  // Logical  
+```  
+Supported operators:  
+- Arithmetic: ```+```, ```-```, ```*```, ```/```, ```%```, unary ```-```  
+- Logical: ```&&```, ```||```, ```!```  
+- Relational: ```==```, ```!=```, ```<```, ```>```, ```<=```, ```>=```  
+
+---
+
+### 9. Memory Management  
+- **Automatic Reference Counting**: Objects are deallocated when references drop to zero.  
+- **Object References**: Class instances are passed by reference; primitives are copied.  
+
+---
+
+### 10. Scoping  
+Variables are block-scoped. A variable declared within **```{ }```** is accessible only within that block.  
+```swift  
+fun DemoScope()  
+{  
+    var x: int = 10;  
+    {  
+        var y: int = 20;  
+        Print(x + y);  // Valid  
+    }  
+    // y is not accessible here  
+}  
+```  
+
+---
+
+### 11. Integration with C/C++  
+Mano is designed for seamless embedding in C/C++ applications, supporting bidirectional function calls:  
+- Invoke Mano functions from host code.  
+- Mano functions can call registered host APIs.  
+
+---
+
+## Example Program  
+```swift  
+enum Status  
+{  
+    Active,  
+    Inactive,  
+    Suspended,  
+}  
+
+class User  
+{  
+    var id: uint = 0;  
+    var name: string = "";  
+    var status: Status = Status.Inactive;  
+
+    fun User(newId: uint, newName: string)  
+    {  
+        id = newId;  
+        name = newName;  
+        status = Status.Active;  
+    }  
+
+    fun UpdateStatus(newStatus: Status): bool  
+    {  
+        if (status == newStatus)  
+        {  
+            return false;  
+        }  
+        status = newStatus;  
+        return true;  
+    }  
+
+    fun GetInfo(): string  
+    {  
+        return "User #" + id + ": " + name + " (" + status + ")";  
+    }  
+}  
+
+fun ProcessUsers(users: [User])  
+{  
+    for (var i: uint = 0; i < users.size(); i = i + 1)  
+    {  
+        var user: User = users[i];  
+        if (user.status == Status.Active)  
+        {  
+            Print(user.GetInfo());  
+        }  
+        else  
+        {  
+            user.UpdateStatus(Status.Suspended);  
+        }  
+    }  
+}  
+
+fun Main()  
+{  
+    let users: [User] = [  
+        User(1, "Alice"),  
+        User(2, "Bob"),  
+        User(3, "Charlie")  
+    ];  
+
+    users[1].UpdateStatus(Status.Inactive);  
+    ProcessUsers(users);  
+
+    var counter: uint = 0;  
+    while (counter < 5)  
+    {  
+        switch(counter % 3)  
+        {  
+            case 0:  
+            {  
+                Print("Processing batch " + counter);  
+            }  
+            case 1:  
+            {  
+                // Placeholder for future logic  
+            }  
+            default:  
+            {  
+                Print("Default action");  
+            }  
+        }  
+        counter = counter + 1;  
+    }  
+
+    let colors: [string] = ["red", "green", "blue"];  
+    for (var color: string in colors)  
+    {  
+        Print("Color: " + color);  
+    }  
+}  
+```  
+
+--- 
+
+This manual reflects Mano’s core features as of February 2025. Syntax and semantics are subject to refinement.
