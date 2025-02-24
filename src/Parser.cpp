@@ -126,7 +126,7 @@ namespace Arcanelab::Mano
         return nullptr;
     }
 
-    TypeNodePtr Parser::ParseType(const bool isConst)
+    TypeNodePtr Parser::ParseType(const bool isConst, const bool allowArrayType = true)
     {
         if (Match({ TokenType::Keyword }))
         {
@@ -146,8 +146,12 @@ namespace Arcanelab::Mano
         }
         else if (Match({ TokenType::Punctuation }) && std::string(Previous().lexeme) == "[") //Check for '['
         {
+            if (!allowArrayType)
+            {
+                ErrorAtCurrent("Nested arrays not supported.");
+            }
             //Handle array type.
-            auto arrayType = ParseType(false); // Recursively parse element type.
+            auto arrayType = ParseType(false, false); // Recursively parse element type to the 1st order, disallow array types.
             ConsumePunctuation("]", "Expected ']' after array element type.");
             //Construct the type name to be, for instance, "[int]".
             auto typeNode = std::make_unique<TypeNode>();
@@ -155,7 +159,6 @@ namespace Arcanelab::Mano
             typeNode->isConst = isConst;
 
             return typeNode;
-
         }
         ErrorAtCurrent("Expected type name.");
         return nullptr;
