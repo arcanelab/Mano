@@ -206,7 +206,7 @@ namespace Arcanelab::Mano
         ASTNodePtr ParseFunctionDeclaration();
         void ParseParameterList(std::vector<std::pair<std::string, TypeNodePtr>>& parameters);
         ASTNodePtr ParseClassDeclaration();
-        std::vector<std::string> ParseEnumBody();
+        std::vector<std::string> ParseEnumBlock();
         ASTNodePtr ParseEnumDeclaration();
         ASTNodePtr ParseBlock();
         ASTNodePtr ParseClassBlock();

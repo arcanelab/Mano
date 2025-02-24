@@ -18,7 +18,7 @@ Parameter            = Identifier ":" [ "const" ] Type ;
 
 ClassDeclaration     = "class" Identifier ClassBlock ;
 
-EnumDeclaration      = "enum" Identifier Block ;
+EnumDeclaration      = "enum" Identifier EnumBlock ;
 
 Type                 = PrimitiveType
                      | Identifier
@@ -31,6 +31,9 @@ ArrayType            = "[" PrimitiveType | Identifier "]" ;
 Block                = "{" { Declaration | Statement } "}" ;
 
 ClassBlock           = "{" { Declaration } "}" ;
+
+EnumBlock            = "{" EnumMemberList "}" ;
+EnumMemberList       = Identifier { "," Identifier } [ "," ] ;
 
 Statement            = Block
                      | ExpressionStatement ";"

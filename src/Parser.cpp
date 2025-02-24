@@ -240,11 +240,11 @@ namespace Arcanelab::Mano
     {
         auto enumDecl = std::make_unique<EnumDeclarationNode>();
         enumDecl->name = std::string(Consume(TokenType::Identifier, "Expected enum name.").lexeme);
-        enumDecl->values = ParseEnumBody();
+        enumDecl->values = ParseEnumBlock();
         return enumDecl;
     }
 
-    std::vector<std::string> Parser::ParseEnumBody()
+    std::vector<std::string> Parser::ParseEnumBlock()
     {
         std::vector<std::string> values;
         ConsumePunctuation("{", "Expected '{' to start enum body.");
@@ -266,6 +266,10 @@ namespace Arcanelab::Mano
             if (CheckType(TokenType::Punctuation) && Peek().lexeme == ",")
             {
                 Advance(); // consume comma
+                if (CheckType(TokenType::Punctuation) && Peek().lexeme == "}") // optional last comma
+                {
+                    break;
+                }
             }
             else
             {
@@ -361,7 +365,7 @@ namespace Arcanelab::Mano
         return nullptr;
     }
 
-    ASTNodePtr Parser::ParseBreakStatement()
+     ASTNodePtr Parser::ParseBreakStatement()
     {
         ConsumePunctuation(";", "Expected ';' after 'break'.");
         return std::make_unique<BreakStatementNode>();

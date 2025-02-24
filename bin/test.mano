@@ -43,7 +43,7 @@ enum Direction
     North,
     East,
     South,
-    West
+    West,
 }
 
 // Function Declaration: testing loops and control flow
