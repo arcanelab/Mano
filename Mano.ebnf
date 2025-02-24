@@ -94,7 +94,7 @@ PrimaryExpression    = Identifier
                      | ObjectInstantiation
                      | MemberAccess ;
 
-MemberAccess         = PrimaryExpression "." Identifier ;
+MemberAccess         = Identifier "." Identifier ;
 
 (* A function call uses the same syntax as object instantiation.
    Semantic analysis will distinguish them by looking up Identifier in the symbol table. *)
