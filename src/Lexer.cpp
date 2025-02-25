@@ -158,7 +158,7 @@ namespace Arcanelab::Mano
     {
         return (c == '+' || c == '-' || c == '*' || c == '/' ||
             c == '=' || c == '!' || c == '<' || c == '>' ||
-            c == '&' || c == '|' || c == '%');
+            c == '&' || c == '|' || c == '^' || c == '%');
     }
 
     Token Lexer::ScanOperator()
@@ -173,11 +173,12 @@ namespace Arcanelab::Mano
             // Handle double-character operators.
             if ((first == '=' && next == '=') ||
                 (first == '!' && next == '=') ||
-                (first == '<' && next == '>') ||
                 (first == '<' && next == '=') ||
                 (first == '>' && next == '=') ||
                 (first == '&' && next == '&') ||
-                (first == '|' && next == '|'))
+                (first == '|' && next == '|') ||
+                (first == '<' && next == '<') ||
+                (first == '>' && next == '>'))
             {
                 Advance();
             }

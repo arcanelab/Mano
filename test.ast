@@ -200,13 +200,71 @@
     │       │       ├── Unknown ASTNode
     │       │       └── LiteralNode (10)
     │       ├── ExpressionStatementNode
+    │       │   └── BinaryExpressionNode (=)
+    │       │       ├── MemberAccessNode (.numbers)
+    │       │       │   └── IdentifierNode (test)
+    │       │       └── LiteralNode (10)
+    │       ├── ExpressionStatementNode
     │       │   └── FunctionCallNode ()
     │       │       └── MemberAccessNode (.call)
     │       │           └── IdentifierNode (test)
     │       └── ExpressionStatementNode
     │           └── FunctionCallNode ()
     │               └── MemberAccessNode (.a)
-    │                   └── Unknown ASTNode
+    │                   └── IdentifierNode (test)
+    ├── FunctionDeclarationNode (TestBitwiseAndShift)
+    │   └── BlockNode
+    │       ├── VariableDeclarationNode (a)
+    │       │   ├── TypeNode (int)
+    │       │   └── LiteralNode (5)
+    │       ├── VariableDeclarationNode (b)
+    │       │   ├── TypeNode (int)
+    │       │   └── LiteralNode (3)
+    │       ├── VariableDeclarationNode (c)
+    │       │   ├── TypeNode (int)
+    │       │   └── BinaryExpressionNode (<<)
+    │       │       ├── LiteralNode (1)
+    │       │       └── LiteralNode (4)
+    │       ├── VariableDeclarationNode (resultAnd)
+    │       │   ├── TypeNode (int)
+    │       │   └── BinaryExpressionNode (&)
+    │       │       ├── IdentifierNode (a)
+    │       │       └── IdentifierNode (b)
+    │       ├── ExpressionStatementNode
+    │       │   └── FunctionCallNode (Print)
+    │       │       └── IdentifierNode (resultAnd)
+    │       ├── VariableDeclarationNode (resultOr)
+    │       │   ├── TypeNode (int)
+    │       │   └── BinaryExpressionNode (|)
+    │       │       ├── IdentifierNode (a)
+    │       │       └── IdentifierNode (b)
+    │       ├── ExpressionStatementNode
+    │       │   └── FunctionCallNode (Print)
+    │       │       └── IdentifierNode (resultOr)
+    │       ├── VariableDeclarationNode (resultXor)
+    │       │   ├── TypeNode (int)
+    │       │   └── BinaryExpressionNode (^)
+    │       │       ├── IdentifierNode (a)
+    │       │       └── IdentifierNode (b)
+    │       ├── ExpressionStatementNode
+    │       │   └── FunctionCallNode (Print)
+    │       │       └── IdentifierNode (resultXor)
+    │       ├── VariableDeclarationNode (resultLeftShift)
+    │       │   ├── TypeNode (int)
+    │       │   └── BinaryExpressionNode (<<)
+    │       │       ├── IdentifierNode (a)
+    │       │       └── LiteralNode (2)
+    │       ├── ExpressionStatementNode
+    │       │   └── FunctionCallNode (Print)
+    │       │       └── IdentifierNode (resultLeftShift)
+    │       ├── VariableDeclarationNode (resultRightShift)
+    │       │   ├── TypeNode (int)
+    │       │   └── BinaryExpressionNode (>>)
+    │       │       ├── IdentifierNode (c)
+    │       │       └── LiteralNode (3)
+    │       └── ExpressionStatementNode
+    │           └── FunctionCallNode (Print)
+    │               └── IdentifierNode (resultRightShift)
     └── FunctionDeclarationNode (Main)
         └── BlockNode
             ├── VariableDeclarationNode (p)
@@ -221,8 +279,10 @@
             ├── ExpressionStatementNode
             │   └── FunctionCallNode (Print)
             │       └── IdentifierNode (greeting)
+            ├── ExpressionStatementNode
+            │   └── FunctionCallNode (Print)
+            │       └── FunctionCallNode ()
+            │           └── MemberAccessNode (.Describe)
+            │               └── IdentifierNode (p)
             └── ExpressionStatementNode
-                └── FunctionCallNode (Print)
-                    └── FunctionCallNode ()
-                        └── MemberAccessNode (.Describe)
-                            └── IdentifierNode (p)
+                └── FunctionCallNode (TestBitwiseAndShift)

@@ -481,7 +481,7 @@ namespace Arcanelab::Mano
 
     ASTNodePtr Parser::ParseLogicalAndExpression()
     {
-        auto expr = ParseEqualityExpression();
+        auto expr = ParseBitwiseOrExpression();
         // Only consume "&&" operators.
         while (CheckType(TokenType::Operator) && Peek().lexeme == "&&")
         {
@@ -493,6 +493,57 @@ namespace Arcanelab::Mano
             expr = std::move(binary);
         }
         return expr;
+    }
+
+    ASTNodePtr Parser::ParseBitwiseOrExpression()
+    {
+        auto left = ParseBitwiseXorExpression();
+        while (CheckType(TokenType::Operator) && Peek().lexeme == "|")
+        {
+            Advance();
+            auto op = BinaryOperator::BitwiseOr;
+            auto right = ParseBitwiseXorExpression();
+            auto binaryExpr = std::make_unique<BinaryExpressionNode>();
+            binaryExpr->left = std::move(left);
+            binaryExpr->op = op;
+            binaryExpr->right = std::move(right);
+            left = std::move(binaryExpr);
+        }
+        return left;
+    }
+
+    ASTNodePtr Parser::ParseBitwiseXorExpression()
+    {
+        auto left = ParseBitwiseAndExpression();
+        while (CheckType(TokenType::Operator) && Peek().lexeme == "^")
+        {
+            Advance();
+            auto op = BinaryOperator::BitwiseXor;
+            auto right = ParseBitwiseAndExpression();
+            auto binaryExpr = std::make_unique<BinaryExpressionNode>();
+            binaryExpr->left = std::move(left);
+            binaryExpr->op = op;
+            binaryExpr->right = std::move(right);
+            left = std::move(binaryExpr);
+        }
+        return left;
+    }
+
+    ASTNodePtr Parser::ParseBitwiseAndExpression()
+    {
+        auto left = ParseEqualityExpression();
+        while (CheckType(TokenType::Operator) && Peek().lexeme == "&")
+        {
+            Advance();
+            auto op = BinaryOperator::BitwiseAnd;
+            auto right = ParseEqualityExpression();
+            auto binaryExpr = std::make_unique<BinaryExpressionNode>();
+            binaryExpr->left = std::move(left);
+            binaryExpr->op = op;
+            binaryExpr->right = std::move(right);
+            left = std::move(binaryExpr);
+        }
+        return left;
     }
 
     ASTNodePtr Parser::ParseEqualityExpression()
@@ -514,7 +565,7 @@ namespace Arcanelab::Mano
 
     ASTNodePtr Parser::ParseRelationalExpression()
     {
-        auto expr = ParseAdditiveExpression();
+        auto expr = ParseShiftExpression();
         // Use lookahead to check if the next token is a relational operator.
         if (CheckType(TokenType::Operator))
         {
@@ -537,6 +588,23 @@ namespace Arcanelab::Mano
             }
         }
         return expr;
+    }
+
+    ASTNodePtr Parser::ParseShiftExpression()
+    {
+        auto left = ParseAdditiveExpression();
+        while (CheckType(TokenType::Operator) && Peek().lexeme == "<<" || Peek().lexeme == ">>")
+        {
+            Advance();
+            auto op = (std::string(Previous().lexeme) == "<<") ? BinaryOperator::LeftShift : BinaryOperator::RightShift;
+            auto right = ParseAdditiveExpression();
+            auto binaryExpr = std::make_unique<BinaryExpressionNode>();
+            binaryExpr->left = std::move(left);
+            binaryExpr->op = op;
+            binaryExpr->right = std::move(right);
+            left = std::move(binaryExpr);
+        }
+        return left;
     }
 
     ASTNodePtr Parser::ParseAdditiveExpression()

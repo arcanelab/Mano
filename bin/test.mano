@@ -113,8 +113,37 @@ fun TestSwitch(dir: Direction)
 fun TestConstParameters(name: const string, age: const uint)
 {
     test.numbers[3] = 10;
+    test.numbers = 10;
     test.call();
-    test[1].a();
+    test.a();
+}
+
+// Test cases for bitwise and shift operators
+fun TestBitwiseAndShift()
+{
+    var a: int = 5;      // 0101 in binary
+    var b: int = 3;      // 0011 in binary
+    var c: int = 1 << 4; // 10000 in binary
+
+    // Bitwise AND
+    var resultAnd: int = a & b;     // Expected: 1 (0001)
+    Print(resultAnd);
+
+    // Bitwise OR
+    var resultOr: int = a | b;      // Expected: 7 (0111)
+    Print(resultOr);
+
+    // Bitwise XOR
+    var resultXor: int = a ^ b;     // Expected: 6 (0110)
+    Print(resultXor);
+
+    // Left shift
+    var resultLeftShift: int = a << 2; // Expected: 20 (10100)
+    Print(resultLeftShift);
+
+    // Right shift
+    var resultRightShift: int = c >> 3; // Expected: 2 (0010)
+    Print(resultRightShift);
 }
 
 // Main function: object instantiation, function calls, and printing result
@@ -124,4 +153,5 @@ fun Main()
     var greeting: string = Greet("Bob");
     Print(greeting);
     Print(p.Describe());
+    TestBitwiseAndShift(); // Call the new test function
 }

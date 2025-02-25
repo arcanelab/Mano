@@ -16,7 +16,7 @@ namespace Arcanelab::Mano
         EndOfFile,     // end-of-input marker
         Unknown        // any token that does not match known types
     };
-    
+
     struct Token
     {
         TokenType type;
@@ -29,7 +29,7 @@ namespace Arcanelab::Mano
     {
     public:
         Lexer(std::string_view source)
-        : source(source), offset(0), line(1), column(1)
+            : source(source), offset(0), line(1), column(1)
         {
         }
 
@@ -46,13 +46,13 @@ namespace Arcanelab::Mano
 
             return tokens;
         }
-        
+
     private:
         std::string_view source;
         size_t offset;
         size_t line;
         size_t column;
-        
+
         bool IsAtEnd() const;
         bool IsKeyword(std::string_view text);
         bool IsOperator(char c);

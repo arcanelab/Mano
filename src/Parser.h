@@ -115,19 +115,24 @@ namespace Arcanelab::Mano
     {
         ASTNodePtr object;
         ASTNodePtr index;
-    };    
+    };
 
     enum class BinaryOperator
     {
         Assign,
         LogicalOr,
         LogicalAnd,
+        BitwiseOr,
+        BitwiseXor,
+        BitwiseAnd,
         Equal,
         NotEqual,
         Less,
         Greater,
         LessEqual,
         GreaterEqual,
+        LeftShift,
+        RightShift,
         Add,
         Subtract,
         Multiply,
@@ -227,6 +232,10 @@ namespace Arcanelab::Mano
         ASTNodePtr ParseAssignmentExpression();
         ASTNodePtr ParseLogicalOrExpression();
         ASTNodePtr ParseLogicalAndExpression();
+        ASTNodePtr ParseShiftExpression();
+        ASTNodePtr ParseBitwiseOrExpression();
+        ASTNodePtr ParseBitwiseXorExpression();
+        ASTNodePtr ParseBitwiseAndExpression();
         ASTNodePtr ParseEqualityExpression();
         ASTNodePtr ParseRelationalExpression();
         ASTNodePtr ParseAdditiveExpression();

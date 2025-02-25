@@ -74,11 +74,19 @@ LeftHandSideExpression = PrimaryExpression ;
 
 LogicalOrExpression  = LogicalAndExpression { "||" LogicalAndExpression } ;
 
-LogicalAndExpression = EqualityExpression { "&&" EqualityExpression } ;
+LogicalAndExpression = BitwiseOrExpression { "&&" BitwiseOrExpression } ;
+
+BitwiseOrExpression = BitwiseXorExpression { "|" BitwiseXorExpression };
+
+BitwiseXorExpression = BitwiseAndExpression { "^" BitwiseAndExpression };
+
+BitwiseAndExpression = EqualityExpression { "&" EqualityExpression };
 
 EqualityExpression   = RelationalExpression { ( "==" | "!=" ) RelationalExpression } ;
 
-RelationalExpression = AdditiveExpression [ ( "<" | ">" | "<=" | ">=" ) AdditiveExpression ] ;
+RelationalExpression = ShiftExpression { ( "<" | ">" | "<=" | ">=" ) ShiftExpression } ;
+
+ShiftExpression      = AdditiveExpression { ( "<<" | ">>" ) AdditiveExpression } ;
 
 AdditiveExpression   = MultiplicativeExpression { ( "+" | "-" ) MultiplicativeExpression } ;
 

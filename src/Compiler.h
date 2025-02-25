@@ -168,6 +168,11 @@ namespace Arcanelab::Mano
                         case BinaryOperator::Multiply:       opStr = "*"; break;
                         case BinaryOperator::Divide:         opStr = "/"; break;
                         case BinaryOperator::Modulo:         opStr = "%"; break;
+                        case BinaryOperator::BitwiseOr:      opStr = "|"; break;
+                        case BinaryOperator::BitwiseXor:     opStr = "^"; break;
+                        case BinaryOperator::BitwiseAnd:     opStr = "&"; break;
+                        case BinaryOperator::LeftShift:      opStr = "<<"; break;
+                        case BinaryOperator::RightShift:     opStr = ">>"; break;
                         default:                             opStr = "op"; break;
                     }
                     nodeLabel = "BinaryExpressionNode (" + opStr + ")";
