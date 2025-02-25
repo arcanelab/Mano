@@ -195,6 +195,18 @@
     │   └── Param: age
     │       └── TypeNode (const uint)
     │   └── BlockNode
+    │       ├── ExpressionStatementNode
+    │       │   └── BinaryExpressionNode (=)
+    │       │       ├── Unknown ASTNode
+    │       │       └── LiteralNode (10)
+    │       ├── ExpressionStatementNode
+    │       │   └── FunctionCallNode ()
+    │       │       └── MemberAccessNode (.call)
+    │       │           └── IdentifierNode (test)
+    │       └── ExpressionStatementNode
+    │           └── FunctionCallNode ()
+    │               └── MemberAccessNode (.a)
+    │                   └── Unknown ASTNode
     └── FunctionDeclarationNode (Main)
         └── BlockNode
             ├── VariableDeclarationNode (p)
