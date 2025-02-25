@@ -113,6 +113,8 @@ fun TestSwitch(dir: Direction)
 fun TestConstParameters(name: const string, age: const uint)
 {
     test.numbers[3] = 10;
+    test.call();
+    test[1].a();
 }
 
 // Main function: object instantiation, function calls, and printing result
