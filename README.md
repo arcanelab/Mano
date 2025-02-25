@@ -50,9 +50,14 @@ fun Add(a: int, b: int): int
 fun Greet(name: const string): string  
 {  
     return "Hello, " + name + "!";  
-}  
+}
+
+fun Log(message: string)  // no return value
+{
+    System.Log(message);
+}
 ```  
-- **Parameters**: Marked as **```const```** to prevent modification.  
+- **Parameters**: Can be marked as **```const```** to prevent modification.  
 - **Return Types**: Optional if omitted (void).  
 
 ---
