@@ -634,24 +634,24 @@ namespace Arcanelab::Mano
                 // Member access (x.y)
                 if (MatchPunctuation("."))
                 {
-                    allowMethodCall = true; // Reset flag for new member access
                     auto memberAccess = std::make_unique<MemberAccessNode>();
                     memberAccess->object = std::move(expr);
-                    memberAccess->memberName = std::string(
-                        Consume(TokenType::Identifier, "Expected member name after '.'").lexeme
-                    );
+                    memberAccess->memberName = std::string(Consume(TokenType::Identifier, "Expected member name after '.'").lexeme);
                     expr = std::move(memberAccess);
+
+                    allowMethodCall = true; // Reset flag for new member access
                 }
                 // Array index access (x[y])
                 else if (MatchPunctuation("["))
                 {
-                    allowMethodCall = false; // Disable method calls after []
                     auto index = ParseExpression();
                     ConsumePunctuation("]", "Expected ']' after index expression.");
                     auto indexAccess = std::make_unique<IndexAccessNode>();
                     indexAccess->object = std::move(expr);
                     indexAccess->index = std::move(index);
                     expr = std::move(indexAccess);
+
+                    allowMethodCall = false; // Disable method calls after []
                 }
                 // Method call (x.y() - allowed, x[0]() - blocked)
                 else if (allowMethodCall && CheckType(TokenType::Punctuation) && Peek().lexeme == "(")
@@ -665,7 +665,7 @@ namespace Arcanelab::Mano
                     methodCall->arguments = std::move(args);
                     expr = std::move(methodCall);
 
-                    allowMethodCall = true; // Allow chained calls like foo()()
+                    allowMethodCall = false; // Disallow chained calls like foo()()
                 }
                 else
                 {
@@ -674,7 +674,7 @@ namespace Arcanelab::Mano
             }
             return expr;
         }
-    
+
         // Handle literals (numbers, strings, bools)
         if (Match({ TokenType::Number, TokenType::String, TokenType::Keyword }))
         {
@@ -682,7 +682,7 @@ namespace Arcanelab::Mano
             lit->value = std::string(Previous().lexeme);
             return lit;
         }
-    
+
         // Handle parenthesized expressions
         if (MatchPunctuation("("))
         {
@@ -690,7 +690,7 @@ namespace Arcanelab::Mano
             ConsumePunctuation(")", "Expected ')' after expression.");
             return expr;
         }
-    
+
         // Handle array literals
         if (MatchPunctuation("["))
         {
@@ -704,10 +704,10 @@ namespace Arcanelab::Mano
             ConsumePunctuation("]", "Expected ']' after array elements.");
             return arrayLiteral;
         }
-    
+
         ErrorAtCurrent("Expected expression");
         return nullptr;
-    }    
+    }
 
     std::vector<ASTNodePtr> Parser::ParseExpressionList()
     {
