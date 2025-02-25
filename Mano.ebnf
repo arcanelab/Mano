@@ -76,7 +76,7 @@ LogicalOrExpression  = LogicalAndExpression { "||" LogicalAndExpression } ;
 
 LogicalAndExpression = BitwiseOrExpression { "&&" BitwiseOrExpression } ;
 
-BitwiseOrExpression = BitwiseXorExpression { "|" BitwiseXorExpression };
+BitwiseOrExpression  = BitwiseXorExpression { "|" BitwiseXorExpression };
 
 BitwiseXorExpression = BitwiseAndExpression { "^" BitwiseAndExpression };
 
