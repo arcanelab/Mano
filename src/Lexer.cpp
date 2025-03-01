@@ -1,4 +1,5 @@
 #include <Lexer.h>
+
 #include <cctype>
 #include <string>
 

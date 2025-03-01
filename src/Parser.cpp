@@ -1,8 +1,9 @@
-#include "Parser.h"
-#include "Lexer.h"
+#include <Parser.h>
+#include <Lexer.h>
+
 #include <cassert>
-#include <iostream>
 #include <cstdlib>
+#include <iostream>
 
 namespace Arcanelab::Mano
 {
@@ -144,16 +145,16 @@ namespace Arcanelab::Mano
             typeNode->isConst = isConst;
             return typeNode;
         }
-        else if (Match({ TokenType::Punctuation }) && std::string(Previous().lexeme) == "[") //Check for '['
+        else if (Match({ TokenType::Punctuation }) && std::string(Previous().lexeme) == "[") // Check for '['
         {
             if (!allowArrayType)
             {
                 ErrorAtCurrent("Nested arrays not supported.");
             }
-            //Handle array type.
+            // Handle array type.
             auto arrayType = ParseType(false, false); // Recursively parse element type to the 1st order, disallow array types.
             ConsumePunctuation("]", "Expected ']' after array element type.");
-            //Construct the type name to be, for instance, "[int]".
+            // Construct the type name to be, for instance, "[int]".
             auto typeNode = std::make_unique<TypeNode>();
             typeNode->name = "[" + arrayType->name + "]";
             typeNode->isConst = isConst;
@@ -190,7 +191,7 @@ namespace Arcanelab::Mano
         funDecl->name = std::string(Consume(TokenType::Identifier, "Expected function name.").lexeme);
         ConsumePunctuation("(", "Expected '(' after function name.");
         // Only parse parameters if the next token is not a closing parenthesis.
-        if (CheckType(TokenType::Identifier)) //we now check if it's an identifier
+        if (CheckType(TokenType::Identifier)) // we now check if it's an identifier
         {
             ParseParameterList(funDecl->parameters);
         }
@@ -214,7 +215,8 @@ namespace Arcanelab::Mano
             std::string paramName = std::string(Consume(TokenType::Identifier, "Expected parameter name.").lexeme);
             ConsumePunctuation(":", "Expected ':' after parameter name.");
             bool isConst = CheckType(TokenType::Keyword) && Peek().lexeme == "const";
-            if (isConst) Advance();
+            if (isConst)
+                Advance();
             TypeNodePtr paramType = ParseType(isConst);
             parameters.push_back({ paramName, std::move(paramType) });
         }
@@ -225,7 +227,8 @@ namespace Arcanelab::Mano
             std::string paramName = std::string(Consume(TokenType::Identifier, "Expected parameter name after comma.").lexeme);
             ConsumePunctuation(":", "Expected ':' after parameter name.");
             bool isConst = CheckType(TokenType::Keyword) && Peek().lexeme == "const";
-            if (isConst) Advance();
+            if (isConst)
+                Advance();
             TypeNodePtr paramType = ParseType(isConst);
             parameters.push_back({ paramName, std::move(paramType) });
         }
@@ -291,7 +294,7 @@ namespace Arcanelab::Mano
         auto block = std::make_unique<BlockNode>();
         while (!CheckType(TokenType::Punctuation) || Peek().lexeme != "}")
         {
-            //Check for declaration keywords first.
+            // Check for declaration keywords first.
             if (CheckType(TokenType::Keyword) &&
                 (Peek().lexeme == "let" ||
                     Peek().lexeme == "var" ||
@@ -301,7 +304,7 @@ namespace Arcanelab::Mano
             {
                 block->statements.push_back(ParseDeclaration());
             }
-            else //It must be a statement
+            else // It must be a statement
             {
                 block->statements.push_back(ParseStatement());
             }
@@ -337,13 +340,20 @@ namespace Arcanelab::Mano
 
     ASTNodePtr Parser::ParseStatement()
     {
-        if (MatchKeyword("if")) return ParseIfStatement();
-        if (MatchKeyword("for")) return ParseForStatement();
-        if (MatchKeyword("while")) return ParseWhileStatement();
-        if (MatchKeyword("return")) return ParseReturnStatement();
-        if (MatchKeyword("break")) return ParseBreakStatement();
-        if (MatchKeyword("continue")) return ParseContinueStatement();
-        if (MatchKeyword("switch")) return ParseSwitchStatement();
+        if (MatchKeyword("if"))
+            return ParseIfStatement();
+        if (MatchKeyword("for"))
+            return ParseForStatement();
+        if (MatchKeyword("while"))
+            return ParseWhileStatement();
+        if (MatchKeyword("return"))
+            return ParseReturnStatement();
+        if (MatchKeyword("break"))
+            return ParseBreakStatement();
+        if (MatchKeyword("continue"))
+            return ParseContinueStatement();
+        if (MatchKeyword("switch"))
+            return ParseSwitchStatement();
 
         // If none of the above, it must be an expression statement.
         auto expression = ParseExpression();
@@ -663,7 +673,7 @@ namespace Arcanelab::Mano
     std::vector<ASTNodePtr> Parser::ParseArgumentList()
     {
         std::vector<ASTNodePtr> arguments;
-        if (!CheckType(TokenType::Punctuation) || Peek().lexeme != ")") //check it's not an empty list.
+        if (!CheckType(TokenType::Punctuation) || Peek().lexeme != ")") // check it's not an empty list.
         {
             arguments.push_back(ParseExpression());
             while (CheckType(TokenType::Punctuation) && Peek().lexeme == ",")
@@ -784,7 +794,7 @@ namespace Arcanelab::Mano
         while (CheckType(TokenType::Punctuation) && Peek().lexeme == ",")
         {
             Advance();
-            expressions.push_back(ParseExpression()); //Parse subsequent expressions.
+            expressions.push_back(ParseExpression()); // Parse subsequent expressions.
         }
         return expressions;
     }

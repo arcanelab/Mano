@@ -1,9 +1,12 @@
-#include <fstream> // Include for file stream
+#pragma once
+
 #include <Lexer.h>
 #include <Parser.h>
-#include <string>
-#include <iostream>
+
+#include <fstream>
 #include <iomanip>
+#include <iostream>
+#include <string>
 
 // Helper function to convert TokenType to string.
 std::string tokenTypeToString(Arcanelab::Mano::TokenType type)
