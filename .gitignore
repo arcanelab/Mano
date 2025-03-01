@@ -3,4 +3,3 @@ build
 .xmake
 bin/Mano
 .DS_Store
-src/combined.txt
