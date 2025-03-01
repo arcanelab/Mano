@@ -1,30 +1,12 @@
 #pragma once
 
+#include <Token.h>
+
 #include <string_view>
 #include <vector>
 
 namespace Arcanelab::Mano
 {
-    enum class TokenType
-    {
-        Identifier,    // e.g., foo
-        Keyword,       // e.g., var, fun, class, enum, if, etc.
-        Number,        // integer and float literals
-        String,        // string literal
-        Operator,      // +, -, *, /, etc.
-        Punctuation,   // punctuation such as (, ), {, }, :, ;, etc.
-        EndOfFile,     // end-of-input marker
-        Unknown        // any token that does not match known types
-    };
-
-    struct Token
-    {
-        TokenType type;
-        std::string_view lexeme;
-        size_t line;
-        size_t column;
-    };
-
     class Lexer
     {
     public:
@@ -33,19 +15,7 @@ namespace Arcanelab::Mano
         {
         }
 
-        std::vector<Token> Tokenize()
-        {
-            Token token;
-            std::vector<Token> tokens;
-
-            do
-            {
-                token = NextToken();
-                tokens.push_back(token);
-            } while (token.type != TokenType::EndOfFile);
-
-            return tokens;
-        }
+        std::vector<Token> Tokenize();
 
     private:
         std::string_view source;
@@ -67,5 +37,5 @@ namespace Arcanelab::Mano
         Token ScanPunctuation();
         Token ScanString();
         void SkipWhitespace();
-    };
-}
+    }; // Lexer
+} // namespace

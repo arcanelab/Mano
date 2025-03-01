@@ -5,6 +5,20 @@
 
 namespace Arcanelab::Mano
 {
+    std::vector<Token> Lexer::Tokenize()
+    {
+        Token token;
+        std::vector<Token> tokens;
+
+        do
+        {
+            token = NextToken();
+            tokens.push_back(token);
+        } while (token.type != TokenType::EndOfFile);
+
+        return tokens;
+    }
+
     Token Lexer::NextToken()
     {
         SkipWhitespace();
