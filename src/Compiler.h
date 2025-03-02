@@ -48,13 +48,19 @@ namespace Arcanelab::Mano
     private:
         void PrintTokens(const std::vector<Token>& tokens)
         {
+            std::ofstream outFile("../test.tokens");
+            if (!outFile.is_open())
+            {
+                std::cerr << "Failed to open file: ../test.tokens" << std::endl;
+                return;
+            }
             // Print header for clarity.
-            std::cout << std::left
+            outFile << std::left
                 << std::setw(5) << "Index"      // Add column for index
                 << std::setw(10) << "Lexeme"
                 << std::setw(10) << "Coordinates"
                 << "Token Type" << "\n";
-            std::cout << std::string(8 + 20 + 16 + 12, '-') << "\n";
+                outFile << std::string(8 + 20 + 16 + 12, '-') << "\n";
 
             int index = 0; // Initialize index counter
             for (auto&& token : tokens)
@@ -63,12 +69,13 @@ namespace Arcanelab::Mano
                 std::string coord = "(" + std::to_string(token.line) + ", " + std::to_string(token.column) + ")";
 
                 // Print index, lexeme, coordinates, and token type with fixed-width formatting.
-                std::cout << std::left
+                outFile << std::left
                     << std::setw(5) << index++  // Print and increment index
                     << std::setw(10) << token.lexeme
                     << std::setw(10) << coord
                     << tokenTypeToString(token.type) << "\n";
             }
+            outFile.close();
         }
 
         void PrintASTTree(const ASTNode* root)
