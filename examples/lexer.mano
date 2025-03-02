@@ -1,0 +1,280 @@
+// vim: syntax=Swift
+enum TokenType
+{
+    EndOfFile,
+    Identifier,
+    Keyword,
+    Number,
+    String,
+    Operator,
+    Punctuation,
+    Unknown,
+}
+
+class Token
+{
+    var type: TokenType;
+    var text: string;
+    var line: uint;
+    var column: uint;
+
+    fun Token(newType: TokenType, newText: string, newLine: uint, newColumn: uint)
+    {
+        type = newType;
+        text = newText;
+        line = newLine;
+        column = newColumn;
+    }
+}
+
+class Lexer
+{
+    var source: string = "";
+    var offset: uint = 0;
+    var line: uint = 1;
+    var column: uint = 1;
+
+    fun Tokenize(): [Token]
+    {
+        var tokens: [Token] = [];
+        var token: Token = Token(TokenType.Unknown, "", 0, 0);
+        token = NextToken();
+        while (token.type != TokenType.EndOfFile)
+        {
+            tokens.append(token);
+            token = NextToken();
+        }
+        tokens.append(token);
+        return tokens;
+    }
+
+    fun NextToken(): Token
+    {
+        SkipWhitespace();
+        if (IsAtEnd())
+        {
+            return Token(TokenType.EndOfFile, "", line, column);
+        }
+        var tokenLine: uint = line;
+        var tokenColumn: uint = column;
+        var current: char = Peek();
+        if (isalpha(current) || current == "_")
+        {
+            return ScanIdentifier();
+        }
+        else
+        {
+            if (isdigit(current))
+            {
+                return ScanNumber();
+            }
+            else
+            {
+                if (current == "\"")
+                {
+                    return ScanString();
+                }
+                else
+                {
+                    if (IsOperator(current))
+                    {
+                        return ScanOperator();
+                    }
+                    else
+                    {
+                        if (IsPunctuation(current))
+                        {
+                            return ScanPunctuation();
+                        }
+                    }
+                }
+            }
+        }
+        tokenLine = line;
+        tokenColumn = column;
+        var unknown: char = Advance();
+        var lexeme: string = source.substr(offset - 1, 1);
+        return Token(TokenType.Unknown, lexeme, tokenLine, tokenColumn);
+    }
+
+    fun IsAtEnd(): bool
+    {
+        return offset >= source.size();
+    }
+
+    fun Peek(): char
+    {
+        return source[offset];
+    }
+
+    fun Advance(): char
+    {
+        var c: char = source[offset];
+        offset = offset + 1;
+        if (c == "\n")
+        {
+            line = line + 1;
+            column = 1;
+        }
+        else
+        {
+            column = column + 1;
+        }
+        return c;
+    }
+
+    fun SkipWhitespace()
+    {
+        while (!IsAtEnd())
+        {
+            var c: char = Peek();
+            if (isspace(c))
+            {
+                Advance();
+            }
+            else
+            {
+                if (c == "/" && (offset + 1) < source.size() && source[offset + 1] == "/")
+                {
+                    Advance();
+                    Advance();
+                    while (!IsAtEnd() && Peek() != "\n")
+                    {
+                        Advance();
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+    }
+
+    fun ScanIdentifier(): Token
+    {
+        var tokenLine: uint = line;
+        var tokenColumn: uint = column;
+        var start: uint = offset;
+        while (!IsAtEnd() && (isalnum(Peek()) || Peek() == "_"))
+        {
+            Advance();
+        }
+        var text: string = source.substr(start, offset - start);
+        var tokenType: TokenType = TokenType.Identifier;
+        if (IsKeyword(text))
+        {
+            tokenType = TokenType.Keyword;
+        }
+        return Token(tokenType, text, tokenLine, tokenColumn);
+    }
+
+    fun IsKeyword(text: string): bool
+    {
+        return text == "var" || text == "fun" || text == "class" || text == "enum" ||
+               text == "if" || text == "else" || text == "for" || text == "while" ||
+               text == "break" || text == "continue" || text == "return" || text == "let" ||
+               text == "int" || text == "uint" || text == "float" || text == "bool" ||
+               text == "string" || text == "switch" || text == "case" || text == "default" ||
+               text == "const";
+    }
+
+    fun ScanNumber(): Token
+    {
+        var tokenLine: uint = line;
+        var tokenColumn: uint = column;
+        var start: uint = offset;
+        while (!IsAtEnd() && isdigit(Peek()))
+        {
+            Advance();
+        }
+        if (!IsAtEnd() && Peek() == ".")
+        {
+            Advance();
+            while (!IsAtEnd() && isdigit(Peek()))
+            {
+                Advance();
+            }
+        }
+        var text: string = source.substr(start, offset - start);
+        return Token(TokenType.Number, text, tokenLine, tokenColumn);
+    }
+
+    fun ScanString(): Token
+    {
+        var tokenLine: uint = line;
+        var tokenColumn: uint = column;
+        var quote: char = Advance(); // Consume the opening "
+        var start: uint = offset;
+        while (!IsAtEnd() && Peek() != quote)
+        {
+            if (Peek() == "\\")
+            {
+                Advance();
+                if (!IsAtEnd())
+                {
+                    Advance();
+                }
+            }
+            else
+            {
+                Advance();
+            }
+        }
+        if (!IsAtEnd())
+        {
+            Advance(); // Consume the closing "
+        }
+        var text: string = source.substr(start, offset - start - 1);
+        return Token(TokenType.String, text, tokenLine, tokenColumn);
+    }
+
+    fun IsOperator(c: char): bool
+    {
+        return c == "+" || c == "-" || c == "*" || c == "/" ||
+               c == "=" || c == "!" || c == "<" || c == ">" ||
+               c == "&" || c == "|" || c == "^" || c == "%";
+    }
+
+    fun ScanOperator(): Token
+    {
+        var tokenLine: uint = line;
+        var tokenColumn: uint = column;
+        var start: uint = offset;
+        var first: char = Advance();
+        if (!IsAtEnd())
+        {
+            var next: char = Peek();
+            if ((first == "=" && next == "=") ||
+                (first == "!" && next == "=") ||
+                (first == "<" && next == "=") ||
+                (first == ">" && next == "=") ||
+                (first == "&" && next == "&") ||
+                (first == "|" && next == "|") ||
+                (first == "<" && next == "<") ||
+                (first == ">" && next == ">"))
+            {
+                Advance();
+            }
+        }
+        var text: string = source.substr(start, offset - start);
+        return Token(TokenType.Operator, text, tokenLine, tokenColumn);
+    }
+
+    fun IsPunctuation(c: char): bool
+    {
+        return c == "(" || c == ")" || c == "{" || c == "}" ||
+               c == "[" || c == "]" || c == "," || c == ":" ||
+               c == ";" || c == ".";
+    }
+
+    fun ScanPunctuation(): Token
+    {
+        var tokenLine: uint = line;
+        var tokenColumn: uint = column;
+        var start: uint = offset;
+        Advance();
+        var text: string = source.substr(start, offset - start);
+        return Token(TokenType.Punctuation, text, tokenLine, tokenColumn);
+    }
+}
