@@ -168,19 +168,20 @@ namespace Arcanelab::Mano
     ASTNodePtr Parser::ParseVariableDeclaration(const bool isConst)
     {
         auto varDecl = std::make_unique<VariableDeclarationNode>();
-        varDecl->name = std::string(Consume(TokenType::Identifier, "Expected variable name.").lexeme);
-        ConsumePunctuation(":", "Expected ':' after variable name.");
-        auto typeNode = ParseType(isConst);
-        varDecl->type = std::move(typeNode);
 
-        if (Match({ TokenType::Operator }) && std::string(Previous().lexeme) == "=")
+        // Capture variable name from token
+        const Token& nameToken = Consume(TokenType::Identifier,
+            "Expected variable name.");
+        varDecl->name = nameToken.lexeme;
+
+        ConsumePunctuation(":", "Expected ':' after variable name.");
+        varDecl->declaredType = ParseType(isConst);
+
+        if (Match({ TokenType::Operator }) && Previous().lexeme == "=")
         {
             varDecl->initializer = ParseExpression();
         }
-        else
-        {
-            ErrorAtCurrent("Expected '=' after type for " + std::string(isConst ? "constant" : "variable") + " declaration.");
-        }
+
         ConsumePunctuation(";", "Expected ';' after variable declaration.");
         return varDecl;
     }
@@ -199,10 +200,15 @@ namespace Arcanelab::Mano
         // Check for an optional return type.
         if (CheckType(TokenType::Punctuation) && Peek().lexeme == ":")
         {
-            Advance(); // Consume the colon.
-            auto returnType = ParseType(false); // Return types are not const by default
-            funDecl->returnType = std::move(returnType);
+            Advance();
+            funDecl->returnType = ParseType(false);
         }
+        else
+        {
+            // Add default void return type
+            funDecl->returnType = std::make_unique<TypeNode>("void", false);
+        }
+
         funDecl->body = ParseBlock();
         return funDecl;
     }
@@ -425,8 +431,9 @@ namespace Arcanelab::Mano
         auto forStmt = std::make_unique<ForStatementNode>();
         forStmt->init = std::move(init);
         forStmt->condition = std::move(condition);
-        forStmt->increment = std::move(increment);
+        forStmt->update = std::move(increment);
         forStmt->body = std::move(body);
+
         return forStmt;
     }
 

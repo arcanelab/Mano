@@ -2,6 +2,7 @@
 
 #include <Lexer.h>
 #include <Parser.h>
+#include <SemanticAnalyzer.h>
 
 #include <fstream>
 #include <iomanip>
@@ -43,6 +44,9 @@ namespace Arcanelab::Mano
             Parser parser(tokens);
             ASTNodePtr ast = parser.ParseProgram();
             PrintASTTree(ast.get());
+
+            SemanticAnalyzer semanticAnalyzer(ast);
+            semanticAnalyzer.Analyze();
         }
 
     private:
@@ -235,7 +239,7 @@ namespace Arcanelab::Mano
                 }
                 else if (auto varDecl = dynamic_cast<const VariableDeclarationNode*>(node))
                 {
-                    if (varDecl->type) children.push_back(varDecl->type.get());
+                    if (varDecl->declaredType) children.push_back(varDecl->declaredType.get());
                     if (varDecl->initializer) children.push_back(varDecl->initializer.get());
                 }
                 else if (auto funDecl = dynamic_cast<const FunctionDeclarationNode*>(node))
@@ -303,7 +307,7 @@ namespace Arcanelab::Mano
                 {
                     if (forStmt->init) children.push_back(forStmt->init.get());
                     if (forStmt->condition) children.push_back(forStmt->condition.get());
-                    if (forStmt->increment) children.push_back(forStmt->increment.get());
+                    if (forStmt->update) children.push_back(forStmt->update.get());
                     if (forStmt->body) children.push_back(forStmt->body.get());
                 }
                 else if (auto whileStmt = dynamic_cast<const WhileStatementNode*>(node))
