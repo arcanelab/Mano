@@ -176,11 +176,11 @@ namespace Arcanelab::Mano
 
     void SemanticAnalyzer::HandleClassDeclaration(ClassDeclarationNode* classDeclaration)
     {
-        auto sym = std::make_unique<Symbol>();
-        sym->kind = Symbol::Kind::Class;
-        sym->name = classDeclaration->name;
-        classDeclaration->symbol = sym.get();
-        currentScope()->symbols[classDeclaration->name] = std::move(sym);
+        auto symbol = std::make_unique<Symbol>();
+        symbol->kind = Symbol::Kind::Class;
+        symbol->name = classDeclaration->name;
+        classDeclaration->symbol = symbol.get();
+        currentScope()->symbols[classDeclaration->name] = std::move(symbol);
 
         PushScope();
         if (auto* classBlock = dynamic_cast<ClassBlockNode*>(classDeclaration->body.get()))
