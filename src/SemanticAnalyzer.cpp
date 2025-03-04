@@ -437,7 +437,8 @@ namespace Arcanelab::Mano
             case ASTType::ReturnStatement:
                 hasReturn = true;
                 break;
-            case ASTType::IfStatement: {
+            case ASTType::IfStatement:
+            {
                 auto* ifstatement = static_cast<IfStatementNode*>(node);
                 CheckForReturns(ifstatement->thenBranch.get(), hasReturn);
                 if (ifstatement->elseBranch)
