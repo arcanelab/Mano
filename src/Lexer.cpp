@@ -25,7 +25,6 @@ namespace Arcanelab::Mano
         if (IsAtEnd())
             return Token{ TokenType::EndOfFile, "", line, column };
 
-        // Record token start position.
         size_t tokenLine = line;
         size_t tokenColumn = column;
         char current = Peek();
@@ -41,12 +40,13 @@ namespace Arcanelab::Mano
         if (IsPunctuation(current))
             return ScanPunctuation();
 
-        // Unrecognized character: record its starting position before consuming.
+        // Report unrecognized character
         tokenLine = line;
         tokenColumn = column;
         char unknown = Advance();
-        std::string_view lexeme = source.substr(offset - 1, 1);
-        return Token{ TokenType::Unknown, lexeme, tokenLine, tokenColumn };
+        errorReporter.Report(tokenLine, tokenColumn,
+            "Unrecognized character: '" + std::string(1, unknown) + "'");
+        return Token{ TokenType::Unknown, "", tokenLine, tokenColumn };
     }
 
     bool Lexer::IsAtEnd() const
@@ -113,7 +113,7 @@ namespace Arcanelab::Mano
         return Token{ tokenType, text, tokenLine, tokenColumn };
     }
 
-    bool Lexer::IsKeyword(std::string_view text)
+    bool Lexer::IsKeyword(std::string_view text) const
     {
         return (text == "var" || text == "fun" || text == "class" || text == "enum" ||
             text == "if" || text == "else" || text == "for" || text == "while" ||
@@ -146,13 +146,14 @@ namespace Arcanelab::Mano
     {
         size_t tokenLine = line;
         size_t tokenColumn = column;
-        char quote = Advance(); // Consume the opening "
+        char quote = Advance();
         size_t start = offset;
+        bool valid = true;
+
         while (!IsAtEnd() && Peek() != quote)
         {
             if (Peek() == '\\')
             {
-                // Consume the escape character and the escaped character.
                 Advance();
                 if (!IsAtEnd())
                     Advance();
@@ -162,14 +163,20 @@ namespace Arcanelab::Mano
                 Advance();
             }
         }
+
         if (!IsAtEnd())
-            Advance(); // Consume the closing "
-        // Exclude the quotes from the lexeme.
-        std::string_view text = source.substr(start, offset - start - 1);
-        return Token{ TokenType::String, text, tokenLine, tokenColumn };
+            Advance();
+        else
+        {
+            valid = false;
+            errorReporter.Report(tokenLine, tokenColumn, "Unterminated string literal");
+        }
+
+        std::string_view text = source.substr(start, offset - start - (valid ? 1 : 0));
+        return Token{ valid ? TokenType::String : TokenType::Unknown, text, tokenLine, tokenColumn };
     }
 
-    bool Lexer::IsOperator(char c)
+    bool Lexer::IsOperator(char c) const
     {
         return (c == '+' || c == '-' || c == '*' || c == '/' ||
             c == '=' || c == '!' || c == '<' || c == '>' ||
@@ -202,7 +209,7 @@ namespace Arcanelab::Mano
         return Token{ TokenType::Operator, text, tokenLine, tokenColumn };
     }
 
-    bool Lexer::IsPunctuation(char c)
+    bool Lexer::IsPunctuation(char c) const
     {
         return (c == '(' || c == ')' || c == '{' || c == '}' ||
             c == '[' || c == ']' || c == ',' || c == ':' ||

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ErrorReporter.h>
 #include <Lexer.h>
 #include <Parser.h>
 #include <SemanticAnalyzer.h>
@@ -33,7 +34,8 @@ namespace Arcanelab::Mano
     public:
         void Run(const std::string& source)
         {
-            Lexer lexer(source);
+            ErrorReporter lexErrors(ErrorReporter::Phase::Lexer);
+            Lexer lexer(source, lexErrors);
             auto tokens = lexer.Tokenize();
 
             if (tokens.empty())

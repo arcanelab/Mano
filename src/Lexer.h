@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ErrorReporter.h>
 #include <Token.h>
 
 #include <string_view>
@@ -10,8 +11,9 @@ namespace Arcanelab::Mano
     class Lexer
     {
     public:
-        Lexer(std::string_view source)
-            : source(source), offset(0), line(1), column(1)
+        Lexer(std::string_view source, ErrorReporter& errorReporter)
+            : source(source), errorReporter(errorReporter),
+            offset(0), line(1), column(1)
         {
         }
 
@@ -19,17 +21,17 @@ namespace Arcanelab::Mano
 
     private:
         std::string_view source;
+        ErrorReporter& errorReporter;
         size_t offset;
         size_t line;
         size_t column;
 
         bool IsAtEnd() const;
-        bool IsKeyword(std::string_view text);
-        bool IsOperator(char c);
-        bool IsPunctuation(char c);
+        bool IsKeyword(std::string_view text) const;
+        bool IsOperator(char c) const;
+        bool IsPunctuation(char c) const;
         char Advance();
         char Peek() const;
-        Token CreateToken(TokenType tokenType, std::string_view lexeme);
         Token NextToken();
         Token ScanIdentifier();
         Token ScanNumber();
@@ -37,5 +39,5 @@ namespace Arcanelab::Mano
         Token ScanPunctuation();
         Token ScanString();
         void SkipWhitespace();
-    }; // Lexer
-} // namespace
+    };
+} // namespace Arcanelab::Mano
