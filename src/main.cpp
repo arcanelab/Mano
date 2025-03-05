@@ -7,10 +7,11 @@
 
 int main()
 {
-    std::ifstream file("test.mano");
+    const std::string fileName = "semantictest.mano";
+    std::ifstream file(fileName);
     if (!file)
     {
-        std::cerr << "Failed to open test.mano" << "\n";
+        std::cerr << "Failed to open " << fileName << "\n";
         return 1;
     }
     std::ostringstream buffer;

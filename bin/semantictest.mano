@@ -1,0 +1,147 @@
+// === Global Scope Tests ===
+var globalInt: int = 42;
+var globalArray: [int] = [1, 2, 3];
+let globalInt: int = 5;  // Error: Duplicate global declaration
+
+// === Function Declaration Tests ===
+fun add(a: int, b: int): int
+{
+    return a + b;
+}
+
+fun missingReturn(): string
+{
+    // Error: Function with return type 'string' lacks return statement
+}
+
+fun typeMismatchReturn(): int
+{
+    return "hello";  // Error: Return type mismatch (int vs string)
+}
+
+// === Variable Declarations ===
+fun variableTests()
+{
+    var valid: int = 42;
+    let invalidInit: string = 10;  // Error: Type mismatch (string vs int)
+    // let noTypeAnnotation = 5;      // Error: Missing type annotation
+
+    // Valid shadowing
+    let shadow: bool = true;
+    while(true)
+    {
+        let shadow: int = 5;  // Allowed in different scope
+    }
+}
+
+// === Class Tests ===
+class Person
+{
+    let name: string;
+    let name: int;  // Error: Duplicate member 'name'
+
+    fun getName(): string
+    {
+        return name;
+    }
+}
+
+// === Loop Tests ===
+fun loopTests()
+{
+    while (42)
+    {  // Error: Non-boolean condition
+        break;
+    }
+
+    for (var i: uint = 0; i < 10; i = i + 1)
+    {
+        continue;
+    }
+
+    break;  // Error: Break outside loop
+}
+
+// === Type Compatibility Tests ===
+fun typeChecks()
+{
+    let a: int = "text";  // Error: Type mismatch
+    let b: [int] = [1, "2", 3];  // Error: Array element type mismatch
+
+    // Valid array assignment
+    let c: [int] = [4, 5, 6];
+
+    // Invalid array assignment
+    let d: [string] = c;  // Error: Array type mismatch
+}
+
+// === Binary Expressions ===
+fun operations()
+{
+    let num: int = 5;
+    let str: string = "text";
+
+    let valid: int = num + 3;     // Valid
+    let invalid: int = num + str; // Error: Operand type mismatch
+
+    // Comparison with type mismatch
+    if (42 == "42")
+    {  // Error: Type mismatch in comparison
+    }
+}
+
+// === Control Flow ===
+fun controlFlow(x: int)
+{
+    if (x)
+    {  // Error: Non-boolean condition
+        return "string";
+    }
+
+    // Missing return in non-void function
+    fun noReturn(): int
+    {
+        // Error: Missing return statement
+    }
+}
+
+// === Undefined Variables ===
+fun undefinedTests()
+{
+    unknown = 42;  // Error: Undefined identifier
+}
+
+// === Function Call Checks ===
+fun callTests()
+{
+    add(1, "2");  // Error: Parameter type mismatch
+    unknownFunc(); // Error: Undefined function
+}
+
+// === Complex Scoping ===
+fun scopeTests()
+{
+    let outer: int = 5;
+    
+    while(true)
+    {
+        let inner: int = outer;  // Valid access
+        let outer: string = "shadow";  // Valid shadowing
+        inner = outer;  // Error: Type mismatch (int vs string)
+    }
+    inner = 10;  // Error: Undefined identifier
+}
+
+// === Entry Point ===
+fun main()
+{
+    // Exercise all test cases
+    variableTests();
+    loopTests();
+    typeChecks();
+    operations();
+    controlFlow(42);
+    undefinedTests();
+    callTests();
+    scopeTests();
+}
